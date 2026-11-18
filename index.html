@@ -3143,8 +3143,9 @@
       listenActiveUsers();
       if (currentChatNick) $("chatNickInput").value = currentChatNick;
 
-      auth.onAuthStateChanged(user => {
-        if (user) {
+      auth.onAuthStateChanged(async user => {
+        const ownerEmail = "br3yda@gmail.com";
+        if (user && (user.email || "").trim().toLowerCase() === ownerEmail) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
           $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
@@ -3158,6 +3159,7 @@
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
+          if (user) await auth.signOut();
         }
       });
 
