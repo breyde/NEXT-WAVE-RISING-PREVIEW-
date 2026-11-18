@@ -432,18 +432,6 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
-          <section class="glass rounded-2xl p-5 space-y-3 border border-amber-500/40">
-            <div>
-              <h3 class="font-bold text-amber-300 text-sm uppercase">🧰 Copia de seguridad de configuración</h3>
-              <p class="text-[11px] text-zinc-400 mt-1">Guarda o recupera los ajustes de aspecto, iconos, pestañas, reproductores, cabecera, botones y avisos. No incluye listas, usuarios ni credenciales.</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" onclick="exportSiteConfiguration()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs">⬇️ Exportar configuración</button>
-              <button type="button" onclick="document.getElementById('siteConfigImportInput').click()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar configuración</button>
-              <input id="siteConfigImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importSiteConfiguration(event)">
-            </div>
-            <p id="siteConfigBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Las copias se descargan en tu dispositivo como archivo JSON.</p>
-          </section>
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
@@ -771,12 +759,24 @@
 
         <!-- BACKUPS -->
         <div id="adminViewBackups" class="hidden space-y-4">
+          <section class="glass rounded-2xl p-5 space-y-3 border border-amber-500/40">
+            <div>
+              <h3 class="font-bold text-amber-300 text-sm uppercase">🧰 Copia de seguridad de configuración</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Guarda o recupera aspecto, iconos, pestañas, reproductores, cabecera, botones y avisos. No incluye listas, usuarios ni credenciales.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="exportSiteConfiguration()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs">⬇️ Exportar configuración</button>
+              <button type="button" onclick="document.getElementById('siteConfigImportInput').click()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar configuración</button>
+              <input id="siteConfigImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importSiteConfiguration(event)">
+            </div>
+            <p id="siteConfigBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Las copias se descargan en tu dispositivo como archivo JSON.</p>
+          </section>
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
             <div class="border-b border-white/10 pb-3 space-y-3">
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <div>
                   <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
-                  <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas.</p>
+                  <p class="text-[11px] text-zinc-400 mt-0.5">Aquí están juntas las copias de configuración y de todas las listas. Las copias locales JSON y las copias guardadas en Firebase son independientes.</p>
                 </div>
                 <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
