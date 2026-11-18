@@ -2474,7 +2474,7 @@
     }
 
     const originalUiTextNodes = new Map();
-    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#adminView,#customTabsContainer";
+    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#submissionsList,#adminActiveListContainer,#adminCountriesList,#adminMessagesList,#ghGalleryContainer,#customTabsContainer";
     async function applyAdditionalLanguage(lang) {
       const base = translations.es || {};
       const tagged = [...document.querySelectorAll("[data-i18n]")];
