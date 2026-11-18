@@ -144,10 +144,11 @@
     }
 
 
-    .modal-lang-picker{position:relative;flex:0 0 auto;z-index:80;width:clamp(122px,34vw,170px)}
-    .header-lang-picker{width:clamp(122px,34vw,170px);max-width:none;min-width:122px}
-    .modal-lang-trigger{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;height:34px;min-width:0;padding:0 10px;border-radius:10px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(145deg,#27272a,#18181b);color:#a7f3d0;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:inset 0 1px rgba(255,255,255,.06)}
-    .modal-lang-menu{position:absolute;left:0;right:auto;top:calc(100% + 6px);width:clamp(190px,56vw,230px);max-width:80vw;max-height:min(48vh,340px);overflow-y:auto;padding:5px;border:1px solid rgba(52,211,153,.3);border-radius:12px;background:#18181b;box-shadow:0 12px 30px rgba(0,0,0,.55);z-index:100}
+    .modal-lang-picker{position:relative;flex:0 1 auto;z-index:80;width:100%;min-width:0;max-width:100%}
+    .header-lang-picker{width:100%;min-width:0;max-width:100%}
+    .modal-lang-trigger{display:flex;width:100%;min-width:0;align-items:center;justify-content:center;gap:5px;height:34px;padding:0 5px;border-radius:10px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(145deg,#27272a,#18181b);color:#a7f3d0;font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;box-shadow:inset 0 1px rgba(255,255,255,.06)}
+    .modal-lang-trigger span:first-child{overflow:hidden;text-overflow:ellipsis}
+    .modal-lang-menu{position:absolute;left:0;right:auto;top:calc(100% + 6px);width:min(230px,78vw);max-width:calc(100vw - 24px);max-height:min(48vh,340px);overflow-y:auto;padding:5px;border:1px solid rgba(52,211,153,.3);border-radius:12px;background:#18181b;box-shadow:0 12px 30px rgba(0,0,0,.55);z-index:100}
     .modal-lang-menu.hidden{display:none}
     .modal-lang-option{display:grid;grid-template-columns:25px 42px minmax(0,1fr);width:100%;align-items:center;gap:8px;padding:8px 9px;border:0;border-radius:8px;background:transparent;color:#e4e4e7;text-align:left;font-size:11px;font-weight:600}
     .modal-lang-option .lang-flag{font-size:16px}
@@ -155,7 +156,12 @@
     .modal-lang-option .lang-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .modal-lang-option:hover,.modal-lang-option[aria-selected="true"]{background:rgba(16,185,129,.16);color:#a7f3d0}
     .modal-lang-option[aria-selected="true"]::after{content:"✓";grid-column:3;grid-row:1;justify-self:end;color:#34d399;font-weight:900}
-    @media(max-width:380px){.modal-lang-picker,.header-lang-picker{width:clamp(116px,34vw,145px);min-width:116px}.modal-lang-menu{max-height:42vh}}
+    header > div:first-child{grid-template-columns:minmax(64px,.8fr) minmax(72px,1fr) minmax(72px,1fr) 34px;gap:5px}
+    header > div:first-child > div:first-child{min-width:0;display:contents}
+    header > div:first-child > div:first-child > div:first-child{min-width:0;width:100%;padding:0 2px}
+    #btnContactHeader{min-width:0!important;padding:0 4px!important}
+    body.admin-mode .header-lang-picker{width:100%;min-width:0}
+    @media(max-width:380px){.modal-lang-menu{max-height:42vh}header > div:first-child{gap:4px;padding:4px}}
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
@@ -2417,20 +2423,36 @@
     };
 
     // ==================== NAVEGACIÓN ====================
+    function translationHash(value) {
+      let h=2166136261;
+      for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619);}
+      return (h>>>0).toString(36);
+    }
+    function decodeTranslatedText(value) {
+      const box=document.createElement("textarea");
+      box.innerHTML=value;
+      return box.value;
+    }
     async function translateUiText(text, lang) {
-      if (!text || !text.trim()) return text;
-      const cacheKey = "nwr_ui_" + lang + "_" + text.slice(0, 70);
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) return cached;
+      if (!text || !text.trim() || lang==="es") return text;
+      const cacheKey="nwr_ui_v2_"+lang+"_"+translationHash(text);
       try {
-        const response = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text.slice(0, 450)) + "&langpair=es|" + encodeURIComponent(lang));
-        const data = await response.json();
-        const translated = data?.responseData?.translatedText;
-        if (translated && !translated.includes("MYMEMORY WARNING")) {
-          sessionStorage.setItem(cacheKey, translated);
-          return translated;
+        const cached=localStorage.getItem(cacheKey);
+        if(cached) return cached;
+      } catch(e) {}
+      try {
+        const response=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,450))+"&langpair=es|"+encodeURIComponent(lang),{cache:"force-cache"});
+        if(!response.ok) throw new Error("Translation HTTP "+response.status);
+        const data=await response.json();
+        const raw=data?.responseData?.translatedText;
+        if(raw && !raw.includes("MYMEMORY WARNING") && data?.responseStatus!==403) {
+          const translated=decodeTranslatedText(raw);
+          if(translated && translated.trim() && translated.trim().toLowerCase()!==text.trim().toLowerCase()) {
+            try{localStorage.setItem(cacheKey,translated);}catch(e){}
+            return translated;
+          }
         }
-      } catch (e) {}
+      } catch(e) { console.warn("Traducción no disponible para este texto:",e); }
       return text;
     }
 
@@ -2465,7 +2487,13 @@
       while((node=walker.nextNode())) {
         const parent=node.parentElement;
         if(!parent || !node.nodeValue.trim()) continue;
-        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],[data-i18n],'+dynamicContentSelectors)) continue;
+        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],'+dynamicContentSelectors)) continue;
+        const tagged=parent.closest('[data-i18n]');
+        if(tagged) {
+          const key=tagged.getAttribute("data-i18n");
+          const baseSource=(translations.es||{})[key];
+          if(typeof baseSource==="string" && !/[<>]/.test(baseSource)) continue;
+        }
         if(!originalUiTextNodes.has(node)) originalUiTextNodes.set(node,node.nodeValue);
         const source=originalUiTextNodes.get(node);
         if(!source || !/\p{L}{2}/u.test(source)) continue;
@@ -2522,7 +2550,47 @@
       updateVotingUI(globalVotingActive);
       applyAllCustomButtons();
       await renderAllTabNotices();
-      if (lang !== "es") await applyAdditionalLanguage(lang);
+      if (lang !== "es") await runAutomaticTranslationPass(lang);
+    }
+
+    let languageMutationObserver=null, languageTranslationTimer=null, languageTranslationRunning=false;
+    function scheduleAutomaticTranslation() {
+      if(currentLang==="es" || languageTranslationTimer) return;
+      languageTranslationTimer=setTimeout(async()=>{
+        languageTranslationTimer=null;
+        if(languageTranslationRunning || currentLang==="es") return;
+        languageTranslationRunning=true;
+        const lang=currentLang;
+        try {
+          if(languageMutationObserver) languageMutationObserver.disconnect();
+          await applyAdditionalLanguage(lang);
+        } catch(e) { console.warn("No se pudo completar la traducción dinámica:",e); }
+        finally {
+          languageTranslationRunning=false;
+          if(languageMutationObserver && document.body) languageMutationObserver.observe(document.body,{childList:true,subtree:true});
+        }
+      },90);
+    }
+    async function runAutomaticTranslationPass(lang) {
+      if(lang==="es") return;
+      if(languageTranslationTimer){clearTimeout(languageTranslationTimer);languageTranslationTimer=null;}
+      if(languageTranslationRunning) return;
+      languageTranslationRunning=true;
+      try {
+        if(languageMutationObserver) languageMutationObserver.disconnect();
+        await applyAdditionalLanguage(lang);
+      } finally {
+        languageTranslationRunning=false;
+        if(languageMutationObserver && document.body) languageMutationObserver.observe(document.body,{childList:true,subtree:true});
+      }
+    }
+    function startAutomaticTranslationObserver() {
+      if(languageMutationObserver || !document.body) return;
+      languageMutationObserver=new MutationObserver(records=>{
+        if(currentLang==="es") return;
+        if(records.some(record=>[...record.addedNodes].some(node=>node.nodeType===1 || (node.nodeType===3 && node.nodeValue.trim())))) scheduleAutomaticTranslation();
+      });
+      languageMutationObserver.observe(document.body,{childList:true,subtree:true});
     }
 
     const modalLanguageOptions = [["es","🇪🇸 Español"],["en","🇬🇧 English"],["fr","🇫🇷 Français"],["de","🇩🇪 Deutsch"],["it","🇮🇹 Italiano"],["pt","🇵🇹 Português"],["nl","🇳🇱 Nederlands"],["pl","🇵🇱 Polski"],["ru","🇷🇺 Русский"],["uk","🇺🇦 Українська"],["zh-CN","🇨🇳 中文"],["ja","🇯🇵 日本語"],["ko","🇰🇷 한국어"],["ar","🇸🇦 العربية"],["hi","🇮🇳 हिन्दी"],["tr","🇹🇷 Türkçe"],["ro","🇷🇴 Română"],["el","🇬🇷 Ελληνικά"],["sv","🇸🇪 Svenska"],["no","🇳🇴 Norsk"],["da","🇩🇰 Dansk"],["fi","🇫🇮 Suomi"],["cs","🇨🇿 Čeština"],["sk","🇸🇰 Slovenčina"],["hu","🇭🇺 Magyar"],["bg","🇧🇬 Български"],["hr","🇭🇷 Hrvatski"],["sr","🇷🇸 Српски"],["he","🇮🇱 עברית"],["id","🇮🇩 Bahasa Indonesia"],["ms","🇲🇾 Bahasa Melayu"],["th","🇹🇭 ไทย"],["vi","🇻🇳 Tiếng Việt"],["tl","🇵🇭 Filipino"]];
@@ -2539,7 +2607,7 @@
       const selected = modalLanguageOptions.find(([code]) => code === currentLang) || modalLanguageOptions[0];
       document.querySelectorAll("[data-modal-lang-picker]").forEach(picker => {
         const trigger = picker.querySelector(".modal-lang-trigger");
-        if (trigger) { const parts=selected[1].split(" "); trigger.innerHTML = '<span>'+parts[0]+' '+selected[0].toUpperCase()+' · '+parts.slice(1).join(" ")+'</span><span aria-hidden="true">⌄</span>'; }
+        if (trigger) { const parts=selected[1].split(" "); trigger.innerHTML = '<span>'+parts[0]+' '+selected[0].toUpperCase()+'</span><span aria-hidden="true">⌄</span>'; }
         picker.querySelectorAll(".modal-lang-option").forEach(option => option.setAttribute("aria-selected", option.dataset.lang === currentLang ? "true" : "false"));
       });
     }
@@ -3494,6 +3562,7 @@
     // ==================== INICIO ====================
     document.addEventListener("DOMContentLoaded", () => {
       buildModalLanguagePickers();
+      startAutomaticTranslationObserver();
       setLanguage(currentLang);
       initClientIp();
       listenActiveUsers();
