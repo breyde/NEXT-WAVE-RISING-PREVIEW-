@@ -32,6 +32,7 @@
     #adminTabsBar { display:none !important; width:100%; max-width:100%; min-width:0; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; overflow:hidden; background:rgba(9,9,11,.92); border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:6px; box-shadow:0 8px 22px rgba(0,0,0,.2); }
     body.admin-mode #adminTabsBar { display:grid !important; }
     body.admin-mode #topConfigBtn.admin-gear-active { color:#34d399 !important; border-color:rgba(52,211,153,.65) !important; background:rgba(16,185,129,.16) !important; box-shadow:0 0 0 1px rgba(16,185,129,.12); }
+    body.admin-mode.admin-panel-closed #adminTabsBar { display:none !important; }
     #adminTabsBar button { min-width:0 !important; max-width:100%; width:100%; white-space:normal !important; overflow-wrap:anywhere; text-align:center; display:flex; align-items:center; justify-content:center; line-height:1.15; padding:8px 3px !important; font-size:clamp(8px,2.4vw,10px) !important; border:1px solid transparent !important; border-radius:10px !important; background:transparent !important; color:#a1a1aa !important; }
     #adminTabsBar button:hover { background:rgba(255,255,255,.06) !important; color:#fff !important; }
     #adminTabsBar button.admin-tab-active { background:linear-gradient(135deg,rgba(16,185,129,.22),rgba(6,182,212,.14)) !important; color:#6ee7b7 !important; border-color:rgba(16,185,129,.42) !important; box-shadow:inset 0 0 0 1px rgba(16,185,129,.06); }
@@ -2516,11 +2517,6 @@
       });
       $(map[tab][0]).classList.add("admin-tab-active");
       $(map[tab][1]).classList.remove('hidden');
-      const gear = $("topConfigBtn");
-      if (gear) {
-        gear.classList.toggle("admin-gear-active", tab === "config");
-        gear.setAttribute("aria-pressed", tab === "config" ? "true" : "false");
-      }
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
       else if (tab === 'config') {
@@ -2542,23 +2538,27 @@
 
     window.quickOpenConfig = () => {
       const adminView = $("adminView");
-      if (adminView.classList.contains("hidden")) adminView.classList.remove("hidden");
+      adminView.classList.remove("hidden");
+      document.body.classList.remove("admin-panel-closed");
       switchAdminTab('config');
       const gear = $("topConfigBtn");
       if (gear) { gear.classList.add("admin-gear-active"); gear.setAttribute("aria-pressed","true"); }
     };
     window.toggleQuickConfig = () => {
-      if (!$("adminView") || $("adminView").classList.contains("hidden")) return;
-      const gear = $("topConfigBtn");
-      const isActive = gear?.classList.contains("admin-gear-active");
-      if (isActive) {
+      const adminView = $("adminView");
+      if (!adminView || adminView.classList.contains("hidden")) {
+        adminView?.classList.remove("hidden");
+        document.body.classList.remove("admin-panel-closed");
         switchAdminTab('principal');
-        gear.classList.remove("admin-gear-active");
-        gear.setAttribute("aria-pressed","false");
-      } else {
-        switchAdminTab('config');
+        const gear = $("topConfigBtn");
         gear?.classList.add("admin-gear-active");
         gear?.setAttribute("aria-pressed","true");
+      } else {
+        adminView.classList.add("hidden");
+        document.body.classList.add("admin-panel-closed");
+        const gear = $("topConfigBtn");
+        gear?.classList.remove("admin-gear-active");
+        gear?.setAttribute("aria-pressed","false");
       }
     };
 
@@ -3363,6 +3363,7 @@
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
           document.body.classList.add("admin-mode");
+          document.body.classList.remove("admin-panel-closed");
           switchAdminTab("principal");
           const gear = $("topConfigBtn");
           if (gear) { gear.classList.remove("admin-gear-active"); gear.setAttribute("aria-pressed","false"); }
@@ -3381,7 +3382,7 @@
           $("adminTabsBar").style.display = "none";
           const gear = $("topConfigBtn");
           if (gear) { gear.classList.remove("admin-gear-active"); gear.setAttribute("aria-pressed","false"); }
-          document.body.classList.remove("admin-mode", "admin-show-site");
+          document.body.classList.remove("admin-mode", "admin-show-site", "admin-panel-closed");
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
