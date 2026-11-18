@@ -927,6 +927,17 @@
             </div>
             <p id="siteConfigBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Las copias se descargan en tu dispositivo como archivo JSON.</p>
           </section>
+          <section class="glass rounded-2xl p-5 space-y-3 border border-violet-500/40">
+            <div><h3 class="font-bold text-violet-300 text-sm uppercase">🔐 Copia de seguridad de reglas Firebase</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Guarda aquí una copia privada de las reglas de Firestore. Esta copia no publica ni modifica las reglas activas: para aplicarlas tendrás que hacerlo desde la consola de Firebase.</p></div>
+            <textarea id="firestoreRulesEditor" spellcheck="false" class="w-full min-h-[300px] px-3 py-3 rounded-xl bg-zinc-950 border border-zinc-700 text-[11px] leading-relaxed text-zinc-200 font-mono" placeholder="Reglas de Firestore..."></textarea>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="saveFirestoreRulesBackup()" class="flex-1 min-w-[145px] px-3 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-400 text-white font-bold text-xs">💾 Guardar copia en Firebase</button>
+              <button type="button" onclick="loadFirestoreRulesBackup(true)" class="flex-1 min-w-[120px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs">↩️ Recuperar guardada</button>
+              <button type="button" onclick="copyFirestoreRulesBackup()" class="flex-1 min-w-[100px] px-3 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold text-xs border border-cyan-500/30">📋 Copiar</button>
+              <button type="button" onclick="downloadFirestoreRulesBackup()" class="flex-1 min-w-[100px] px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10">⬇️ Descargar</button>
+            </div><p id="firestoreRulesBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Reglas precargadas. Guarda para conservarlas en Firebase.</p>
+          </section>
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
             <div class="border-b border-white/10 pb-3 space-y-3">
               <div class="flex flex-wrap justify-between items-center gap-2">
@@ -3035,13 +3046,44 @@
       } catch (e) {}
     }
 
+    const DEFAULT_FIRESTORE_RULES_BACKUP = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    function isOwner() {\n      return request.auth != null\n        && request.auth.token.email == \"br3yda@gmail.com\";\n    }\n    match /active_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /monthly_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /annual_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /settings/{id} { allow read: if true; allow write: if isOwner(); }\n    match /submissions/{id} {\n      allow read: if isOwner();\n      allow create: if request.resource.data.keys().hasOnly([\"artist\",\"title\",\"url\",\"email\",\"timestamp\",\"dateString\",\"votes\",\"voters\"])\n        && request.resource.data.artist is string && request.resource.data.artist.size() > 0 && request.resource.data.artist.size() <= 100\n        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200\n        && request.resource.data.url is string && request.resource.data.url.matches('https://open\\\\.spotify\\\\.com/track/[A-Za-z0-9]+.*')\n        && request.resource.data.email is string && request.resource.data.email.size() <= 254\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string\n        && request.resource.data.votes == 0 && request.resource.data.voters is list && request.resource.data.voters.size() == 0;\n      allow update, delete: if isOwner();\n    }\n    match /weekly_public/{id} {\n      allow read: if true;\n      allow create: if request.resource.data.keys().hasOnly([\"artist\",\"title\",\"url\",\"timestamp\",\"dateString\"])\n        && request.resource.data.artist is string && request.resource.data.artist.size() > 0 && request.resource.data.artist.size() <= 100\n        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200\n        && request.resource.data.url is string && request.resource.data.url.matches('https://open\\\\.spotify\\\\.com/track/[A-Za-z0-9]+.*')\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string;\n      allow update, delete: if isOwner();\n    }\n    match /stats/visitors {\n      allow read: if true;\n      allow create: if request.resource.data.keys().hasOnly([\"total\"]) && request.resource.data.total is number && request.resource.data.total == 1;\n      allow update: if request.resource.data.keys().hasOnly([\"total\"]) && request.resource.data.total is number && request.resource.data.total == resource.data.total + 1;\n      allow delete: if false;\n    }\n    match /contact_messages/{id} {\n      allow read: if isOwner();\n      allow create: if request.resource.data.keys().hasOnly([\"name\",\"email\",\"message\",\"timestamp\",\"dateString\",\"read\"])\n        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100\n        && request.resource.data.email is string && request.resource.data.email.size() > 0 && request.resource.data.email.size() <= 254\n        && request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() <= 3000\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string && request.resource.data.read == false;\n      allow update, delete: if isOwner();\n    }\n    match /artist_countries/{id} { allow read, write: if isOwner(); }\n    match /backups/{id} { allow read, write: if isOwner(); }\n    match /voters_log/{id} { allow read, write: if isOwner(); }\n    match /chat_users/{id} { allow read, write: if isOwner(); }\n    match /chat_messages/{id} { allow read, write: if isOwner(); }\n    match /chat_presence/{id} { allow read, write: if isOwner(); }\n    match /stats/{id} { allow read, write: if isOwner(); }\n    match /{document=**} { allow read, write: if false; }\n  }\n}";
+    const FIRESTORE_RULES_BACKUP_ID = "_firestore_rules_current";
+    window.saveFirestoreRulesBackup = async () => {
+      const editor = $("firestoreRulesEditor"), status = $("firestoreRulesBackupStatus");
+      const rulesText = editor ? editor.value.trim() : "";
+      if (!rulesText) { if (status) status.textContent = "Pega las reglas antes de guardarlas."; return; }
+      try {
+        await db.collection("backups").doc(FIRESTORE_RULES_BACKUP_ID).set({ kind: "firestore_rules", edition: "Copia de reglas Firebase", rulesText, timestamp: Date.now(), dateString: madridStr() });
+        if (status) status.textContent = "✅ Reglas guardadas de forma privada en Firebase: " + madridStr();
+      } catch (e) { if (status) status.textContent = "❌ No se pudieron guardar: " + e.message; }
+    };
+    window.loadFirestoreRulesBackup = async (force = true) => {
+      const editor = $("firestoreRulesEditor"), status = $("firestoreRulesBackupStatus"); if (!editor) return;
+      try {
+        const snap = await db.collection("backups").doc(FIRESTORE_RULES_BACKUP_ID).get();
+        if (snap.exists && snap.data().rulesText) { if (force || !editor.value.trim()) editor.value = snap.data().rulesText; if (status) status.textContent = "✅ Copia guardada disponible · " + (snap.data().dateString || "") + "."; }
+        else if (!editor.value.trim()) { editor.value = DEFAULT_FIRESTORE_RULES_BACKUP; if (status) status.textContent = "Reglas precargadas. Pulsa «Guardar copia en Firebase» para conservarlas."; }
+      } catch (e) { if (!editor.value.trim()) editor.value = DEFAULT_FIRESTORE_RULES_BACKUP; if (status) status.textContent = "No se pudo consultar la copia guardada: " + e.message; }
+    };
+    window.copyFirestoreRulesBackup = async () => { const editor = $("firestoreRulesEditor"); if (!editor || !editor.value.trim()) return alert("No hay reglas para copiar."); try { await navigator.clipboard.writeText(editor.value); alert("Reglas copiadas."); } catch (e) { editor.focus(); editor.select(); alert("Selecciona y copia el texto manualmente."); } };
+    window.downloadFirestoreRulesBackup = () => { const editor = $("firestoreRulesEditor"); if (!editor || !editor.value.trim()) return alert("No hay reglas para descargar."); const blob = new Blob([editor.value], { type: "text/plain;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "firestore.rules"; a.click(); URL.revokeObjectURL(url); };
     async function loadAdminBackups() {
       const container = $("adminBackupsList"), badge = $("backupsCountBadge");
       try {
         const snap = await db.collection("backups").orderBy("timestamp", "desc").get();
         backupsCache = {};
-        const list = snap.docs.map(d => { const item = { id: d.id, ...d.data() }; backupsCache[d.id] = item; return item; });
+        const allItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const rulesBackup = allItems.find(item => item.kind === "firestore_rules");
+        const list = allItems.filter(item => item.kind !== "firestore_rules");
+        list.forEach(item => { backupsCache[item.id] = item; });
         if (badge) badge.textContent = list.length;
+        const rulesEditor = $("firestoreRulesEditor");
+        if (rulesEditor && !rulesEditor.dataset.initialized) {
+          rulesEditor.value = rulesBackup && rulesBackup.rulesText ? rulesBackup.rulesText : DEFAULT_FIRESTORE_RULES_BACKUP;
+          rulesEditor.dataset.initialized = "1";
+          const rulesStatus = $("firestoreRulesBackupStatus");
+          if (rulesStatus) rulesStatus.textContent = rulesBackup ? "✅ Copia privada guardada disponible · " + (rulesBackup.dateString || "") : "Reglas precargadas. Pulsa «Guardar copia en Firebase» para conservarlas.";
+        }
         if (!container) return;
         if (!list.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay copias de seguridad guardadas todavía.</p>'; return; }
 
