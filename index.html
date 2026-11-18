@@ -162,12 +162,66 @@
     #btnContactHeader{min-width:0!important;padding:0 4px!important}
     body.admin-mode .header-lang-picker{width:100%;min-width:0}
     @media(max-width:380px){.modal-lang-menu{max-height:42vh}header > div:first-child{gap:4px;padding:4px}}
-    /* Vista pública: los tres controles superiores ocupan exactamente un tercio cada uno. */
+    /* Botonera superior basada en la referencia: cristal oscuro, acento verde y votación roja.
+       En vista pública hay tres controles a partes iguales; la rueda solo aparece en administración. */
+    header > div:first-child {
+      display:grid !important;
+      grid-template-columns:repeat(3,minmax(0,1fr)) 38px;
+      gap:2px !important;
+      padding:5px !important;
+      border:1px solid rgba(16,185,129,.20) !important;
+      border-radius:16px !important;
+      background:rgba(18,24,22,.92) !important;
+      -webkit-backdrop-filter:blur(14px);
+      backdrop-filter:blur(14px);
+      box-shadow:0 10px 30px -10px rgba(0,0,0,.7),0 0 15px rgba(16,185,129,.05);
+    }
+    header > div:first-child > div { display:contents !important; }
     body:not(.admin-mode) header > div:first-child { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
     body:not(.admin-mode) .header-lang-picker,
     body:not(.admin-mode) #btnContactHeader,
-    body:not(.admin-mode) #headerVotingStatus { width:100%; min-width:0 !important; max-width:100%; }
-    body:not(.admin-mode) header > div:first-child { gap:2px !important; padding:2px !important; }
+    body:not(.admin-mode) #headerVotingStatus {
+      width:100% !important;
+      min-width:0 !important;
+      max-width:100%;
+      height:38px;
+      box-sizing:border-box;
+      margin:0 !important;
+      border-radius:11px !important;
+    }
+    body:not(.admin-mode) #btnContactHeader {
+      justify-content:center;
+      gap:5px;
+      padding:0 4px !important;
+      background:#141c19 !important;
+      border:1px solid rgba(255,255,255,.12) !important;
+      color:#e5e7eb !important;
+      font-size:clamp(10px,2.8vw,12px) !important;
+      white-space:nowrap;
+    }
+    body:not(.admin-mode) #btnContactHeader span:first-child { color:#34d399; }
+    body:not(.admin-mode) #headerVotingStatus {
+      justify-content:center;
+      gap:4px;
+      padding:0 4px !important;
+      background:#1a1414 !important;
+      border:1px solid rgba(239,68,68,.32) !important;
+      color:#fecaca !important;
+      font-size:clamp(8px,2.45vw,11px) !important;
+      line-height:1.05;
+      text-align:center;
+      white-space:nowrap;
+    }
+    body:not(.admin-mode) .modal-lang-trigger {
+      height:38px;
+      border-radius:11px;
+      background:#141c19;
+      border-color:rgba(16,185,129,.25);
+    }
+    body.admin-mode header > div:first-child {
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.25fr) 38px !important;
+    }
+    body.admin-mode #topConfigBtn { display:flex !important; }
 
     /* Barra superior compacta: tres controles iguales en público y rueda solo en admin. */
     header > div:first-of-type {
