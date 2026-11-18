@@ -162,6 +162,11 @@
     #btnContactHeader{min-width:0!important;padding:0 4px!important}
     body.admin-mode .header-lang-picker{width:100%;min-width:0}
     @media(max-width:380px){.modal-lang-menu{max-height:42vh}header > div:first-child{gap:4px;padding:4px}}
+    /* Vista pública: los tres controles superiores ocupan exactamente un tercio cada uno. */
+    body:not(.admin-mode) header > div:first-child { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+    body:not(.admin-mode) .header-lang-picker,
+    body:not(.admin-mode) #btnContactHeader,
+    body:not(.admin-mode) #headerVotingStatus { width:100%; min-width:0 !important; max-width:100%; }
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
