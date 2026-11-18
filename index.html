@@ -2435,11 +2435,31 @@
     }
     async function translateUiText(text, lang) {
       if (!text || !text.trim() || lang==="es") return text;
-      const cacheKey="nwr_ui_v2_"+lang+"_"+translationHash(text);
+      const cacheKey="nwr_ui_v3_"+lang+"_"+translationHash(text);
       try {
         const cached=localStorage.getItem(cacheKey);
         if(cached) return cached;
       } catch(e) {}
+      const apertiumCodes={en:"eng",fr:"fra",it:"ita",pt:"por"};
+      const target=apertiumCodes[lang];
+      if(target) {
+        try {
+          const params=new URLSearchParams({q:text.slice(0,450),langpair:"spa|"+target});
+          const response=await fetch("https://apertium.org/apy/translate?"+params.toString(),{cache:"no-store"});
+          if(!response.ok) throw new Error("Apertium HTTP "+response.status);
+          const data=await response.json();
+          const raw=data?.responseData?.translatedText || "";
+          const translated=decodeTranslatedText(raw);
+          if(Number(data?.responseStatus)===200 && translated && translated.trim() &&
+             translated.trim().toLowerCase()!==text.trim().toLowerCase()) {
+            try{localStorage.setItem(cacheKey,translated);}catch(e){}
+            return translated;
+          }
+          throw new Error(data?.responseDetails || "Apertium no devolvió traducción");
+        } catch(e) {
+          console.warn("Apertium no disponible; se probará el respaldo:",e);
+        }
+      }
       try {
         const response=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,450))+"&langpair=es|"+encodeURIComponent(lang),{cache:"force-cache"});
         if(!response.ok) throw new Error("Translation HTTP "+response.status);
@@ -2456,8 +2476,8 @@
             return translated;
           }
         }
-        if(failed) console.warn("El servicio de traducción no ha aceptado la solicitud:",data?.responseDetails || raw || status);
-      } catch(e) { console.warn("Traducción no disponible para este texto:",e); }
+        if(failed) console.warn("El servicio de respaldo no ha aceptado la solicitud:",data?.responseDetails || raw || status);
+      } catch(e) { console.warn("No hay servicio de traducción disponible para este texto:",e); }
       return text;
     }
 
@@ -2535,7 +2555,7 @@
       });
     }
     async function setLanguage(lang) {
-      const supported = ["es","en","fr","de","it","pt","nl","pl","ru","uk","zh-CN","ja","ko","ar","hi","tr","ro","el","sv","no","da","fi","cs","sk","hu","bg","hr","sr","he","id","ms","th","vi","tl"];
+      const supported = ["es","en","fr","it","pt"];
       if (!supported.includes(lang)) lang = "es";
       currentLang = lang;
       localStorage.setItem("nwr_site_language_v2", lang);
@@ -2599,7 +2619,7 @@
       languageMutationObserver.observe(document.body,{childList:true,subtree:true});
     }
 
-    const modalLanguageOptions = [["es","🇪🇸 Español"],["en","🇬🇧 English"],["fr","🇫🇷 Français"],["de","🇩🇪 Deutsch"],["it","🇮🇹 Italiano"],["pt","🇵🇹 Português"],["nl","🇳🇱 Nederlands"],["pl","🇵🇱 Polski"],["ru","🇷🇺 Русский"],["uk","🇺🇦 Українська"],["zh-CN","🇨🇳 中文"],["ja","🇯🇵 日本語"],["ko","🇰🇷 한국어"],["ar","🇸🇦 العربية"],["hi","🇮🇳 हिन्दी"],["tr","🇹🇷 Türkçe"],["ro","🇷🇴 Română"],["el","🇬🇷 Ελληνικά"],["sv","🇸🇪 Svenska"],["no","🇳🇴 Norsk"],["da","🇩🇰 Dansk"],["fi","🇫🇮 Suomi"],["cs","🇨🇿 Čeština"],["sk","🇸🇰 Slovenčina"],["hu","🇭🇺 Magyar"],["bg","🇧🇬 Български"],["hr","🇭🇷 Hrvatski"],["sr","🇷🇸 Српски"],["he","🇮🇱 עברית"],["id","🇮🇩 Bahasa Indonesia"],["ms","🇲🇾 Bahasa Melayu"],["th","🇹🇭 ไทย"],["vi","🇻🇳 Tiếng Việt"],["tl","🇵🇭 Filipino"]];
+    const modalLanguageOptions = [["es","🇪🇸 Español"],["en","🇬🇧 English"],["fr","🇫🇷 Français"],["it","🇮🇹 Italiano"],["pt","🇵🇹 Português"]];
     function buildModalLanguagePickers() {
       document.querySelectorAll("[data-modal-lang-picker]").forEach(picker => {
         const menu = picker.querySelector(".modal-lang-menu");
