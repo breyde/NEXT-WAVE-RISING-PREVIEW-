@@ -2192,7 +2192,7 @@
       const view = document.getElementById(viewId);
       if (!view) return;
       const excluded = new Set(["brandHeaderContainer", "graphicBannerContainer"]);
-      const children = Array.from(view.children).filter(el => !excluded.has(el.id) && !/^mediaPositionSlot/.test(el.id || ""));
+      const children = Array.from(view.children).filter(el => !excluded.has(el.id) && !/^mediaPositionSlot/.test(el.id || "") && !el.classList.contains("hidden") && (el.children.length > 0 || (el.textContent || "").trim().length > 0));
       for (let n = 5; n <= 10; n++) {
         const target = children[n - 5];
         if (!target) break;
