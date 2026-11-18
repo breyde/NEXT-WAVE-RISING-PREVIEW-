@@ -2538,8 +2538,9 @@
       const doWeekly = document.getElementById(`rest_weekly_${backupId}`)?.checked || false;
       const doMonthly = document.getElementById(`rest_monthly_${backupId}`)?.checked || false;
       const doAnnual = document.getElementById(`rest_annual_${backupId}`)?.checked || false;
+      const doCountries = document.getElementById(`rest_countries_${backupId}`)?.checked || false;
 
-      if (!doActive && !doWeekly && !doMonthly && !doAnnual) {
+      if (!doActive && !doWeekly && !doMonthly && !doAnnual && !doCountries) {
         return alert("⚠️ Selecciona al menos una lista marcada para restaurar.");
       }
 
@@ -2548,6 +2549,7 @@
       if (doWeekly) summary.push("• Cola Semanal");
       if (doMonthly) summary.push("• Lista Mensual");
       if (doAnnual) summary.push("• Lista Anual");
+      if (doCountries) summary.push("• Países / artistas");
 
       if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las siguientes listas actuales con los datos de esta copia de seguridad:\n\n${summary.join('\n')}\n\nLas listas NO marcadas permanecerán intactas.\n¿Deseas confirmar la sustitución?`)) return;
 
@@ -2575,8 +2577,21 @@
         if (doWeekly) await clearAndReplace(b.weeklyTracks, 'submissions');
         if (doMonthly) await clearAndReplace(b.monthlyTracks, 'monthly_list');
         if (doAnnual) await clearAndReplace(b.annualTracks, 'annual_list');
+        if (doCountries) {
+          const snap = await db.collection('artist_countries').get();
+          for (let i = 0; i < snap.docs.length; i += 450) {
+            const batch = db.batch(); snap.docs.slice(i, i + 450).forEach(doc => batch.delete(doc.ref)); await batch.commit();
+          }
+          const rows = b.countriesList || [];
+          for (let i = 0; i < rows.length; i += 450) {
+            const batch = db.batch();
+            rows.slice(i, i + 450).forEach(row => { const clean = { ...row }; delete clean.id; batch.set(db.collection('artist_countries').doc(), clean); });
+            await batch.commit();
+          }
+        }
 
         await loadAllLists();
+        if (doCountries) await loadAdminCountries();
         alert("✅ Restauración y sustitución completada con éxito en las listas seleccionadas.");
       } catch (e) {
         alert("Error en la restauración: " + e.message);
@@ -2733,7 +2748,7 @@
               `).join('') + `</div>`;
           };
 
-          if (aT.length || wT.length || mT.length || anT.length) {
+          if (aT.length || wT.length || mT.length || anT.length || cT.length) {
             restoreRecordsHtml = `
               <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
                 <div class="flex flex-col gap-2">
@@ -2744,6 +2759,7 @@
                     ${wT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola Semanal (${wT.length})</label>` : ''}
                     ${mT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Lista Mensual (${mT.length})</label>` : ''}
                     ${anT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Lista Anual (${anT.length})</label>` : ''}
+                    ${cT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_countries_${b.id}" checked class="accent-purple-500"> Países (${cT.length})</label>` : ''}
                   </div>
                   <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Listas Marcadas (Sustituir)</button>
                 </div>
