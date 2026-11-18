@@ -1428,15 +1428,20 @@
 
     function toggleModal(id, force) {
       const el = $(id);
-      if (el) el.classList.toggle('hidden', force !== undefined ? !force : undefined);
+      if (!el) return;
+      el.classList.toggle('hidden', force !== undefined ? !force : undefined);
+      if (!el.classList.contains('hidden') && currentLang !== "es") {
+        Promise.resolve().then(() => applyAdditionalLanguage(currentLang));
+      }
     }
 
-    function openInfoModal() {
+    async function openInfoModal() {
       const t = (translations[currentLang] || translations.es), m = $('infoModal');
       if (m) {
         m.querySelector('[data-i18n="infoModalTitle"]').innerHTML = t.infoModalTitle;
         m.querySelector('[data-i18n="infoModalBody"]').innerHTML = t.infoModalBody;
         toggleModal('infoModal', true);
+        if (currentLang !== "es") await applyAdditionalLanguage(currentLang);
       }
     }
 
@@ -2502,6 +2507,7 @@
       currentLang = lang;
       localStorage.setItem("nwr_site_language", lang);
       syncModalLanguagePickers();
+      if (lang === "es") restoreOriginalUiText();
       const t = translations[lang] || translations.es;
       $("txtAdminBtn").textContent = !$("adminView").classList.contains("hidden") ? t.backApp : t.adminBtn;
       document.querySelectorAll("[data-i18n]").forEach(el => {
