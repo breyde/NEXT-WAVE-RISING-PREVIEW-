@@ -129,7 +129,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
-    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2 relative"><a id="graphicBannerImageLink" class="hidden max-w-full" target="_blank" rel="noopener noreferrer"><img id="graphicBannerImage" alt="Banner promocional" class="max-w-full object-contain rounded-xl"></a><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2 relative"><a id="graphicBannerImageLink" class="hidden max-w-full" target="_blank" rel="noopener noreferrer"><img id="graphicBannerImage" alt="Banner promocional" class="max-w-full object-contain rounded-xl"></a><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe><a id="graphicBannerExternalLink" class="hidden basis-full text-center text-xs font-semibold text-fuchsia-200 underline underline-offset-4 py-1" target="_blank" rel="noopener noreferrer">↗ Abrir promoción</a></div>
 
     <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -2141,8 +2141,8 @@
 
     function renderGraphicBanner(tab) {
       const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
-      const img = $("graphicBannerImage"), imageLink = $("graphicBannerImageLink"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
-      if (!box || !img || !imageLink || !video || !yt) return;
+      const img = $("graphicBannerImage"), imageLink = $("graphicBannerImageLink"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube"), externalLink = $("graphicBannerExternalLink");
+      if (!box || !img || !imageLink || !video || !yt || !externalLink) return;
       const tabs = Array.isArray(b.tabs) ? b.tabs : [];
       const allowed = b.tabsAll === true || tabs.includes(tab);
       const type = b.type || "image";
@@ -2150,8 +2150,10 @@
       box.classList.toggle("hidden", !visible);
       applyMediaPositions();
       video.pause(); video.removeAttribute("src"); video.load();
-      [imageLink, video, yt].forEach(el => { el.classList.add("hidden"); if (el !== imageLink) el.removeAttribute("src"); });
+      [imageLink, video, yt, externalLink].forEach(el => { el.classList.add("hidden"); if (el !== imageLink && el !== externalLink) el.removeAttribute("src"); });
       if (!visible) return;
+      if (b.clickUrl) { externalLink.href = b.clickUrl; externalLink.classList.remove("hidden"); }
+      else externalLink.removeAttribute("href");
       const width = validHeaderWidth(b.width || "100%");
       const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
       if (type === "image") {
