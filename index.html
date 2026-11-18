@@ -3647,6 +3647,20 @@
         const cleanUrl = rawUrl.split("?")[0].trim();
         if (!/^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/.test(cleanUrl)) return err("Enlace no válido. Pega el enlace directo de la CANCIÓN en Spotify.", "Invalid link. Paste the direct Spotify TRACK link.");
 
+        if (window.NWR_PREVIEW_MODE) {
+          btn.disabled = true; btn.textContent = "Añadiendo a la demo…";
+          const item = { artist, title, url: cleanUrl, email, createdAt: new Date().toISOString(), demo: true };
+          const saved = JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]");
+          saved.push(item); localStorage.setItem("nwr_demo_submissions", JSON.stringify(saved));
+          $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
+          receipt.classList.remove("hidden");
+          fb.textContent = "Propuesta añadida solo a esta demostración. No se ha enviado a la cola real.";
+          fb.className = "text-xs text-center text-emerald-400 font-medium"; fb.classList.remove("hidden");
+          $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
+          $("submissionForm").classList.add("opacity-50", "pointer-events-none");
+          btn.disabled = false; btn.textContent = translations[currentLang].submitBtn;
+          return;
+        }
         btn.disabled = true; btn.textContent = currentLang === 'es' ? "Verificando..." : "Verifying...";
         receipt.classList.add("hidden"); fb.classList.add("hidden");
 
