@@ -603,6 +603,17 @@
           </div>
 
 
+          <div class="glass rounded-2xl p-5 space-y-4 border border-violet-500/30">
+            <div><h3 class="font-bold text-violet-300 text-sm uppercase">🛠️ PESTAÑAS DEL ADMINISTRADOR</h3><p class="text-[11px] text-zinc-400 mt-1">Este gestor solo modifica la barra del administrador, no las pestañas públicas.</p></div>
+            <div id="adminAdminTabsManagerList" class="space-y-2.5 text-xs"></div>
+            <div class="pt-3 border-t border-white/10 space-y-2.5"><p class="text-xs font-bold text-white">➕ CREAR PESTAÑA ADMIN</p>
+              <input id="newAdminTabLabel" type="text" placeholder="Nombre de la pestaña" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+              <input id="newAdminTabIcon" type="url" placeholder="URL del icono (opcional)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+              <label class="inline-block px-3 py-2 rounded-lg bg-violet-500/20 text-violet-200 border border-violet-500/40 cursor-pointer text-xs">📁 ELEGIR DE BIBLIOTECA<input type="file" accept="image/*" class="hidden" onchange="handleNewAdminTabIcon(event)"></label>
+              <textarea id="newAdminTabContent" rows="3" placeholder="Contenido para la pestaña nueva (opcional)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></textarea>
+              <button type="button" onclick="createAdminCustomTab()" class="w-full py-2.5 bg-violet-500 hover:bg-violet-400 text-zinc-950 font-bold rounded-xl text-xs">＋ CREAR PESTAÑA</button></div>
+            <button type="button" onclick="saveAdminTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 GUARDAR PESTAÑAS ADMIN</button>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
               <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
@@ -1191,6 +1202,7 @@
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
     const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'diseno', 'galeria', 'ajustes', 'spotify', 'backups'];
+    const DEFAULT_ADMIN_TABS = ADMIN_TABS.map(id => ({id:id,label:({principal:'🏠 INICIO',activa:'📚 LISTAS',paises:'🌍 PAÍSES',mensajes:'✉️ MENSAJES',diseno:'🎨 DISEÑO',galeria:'🖼️ GALERÍA',ajustes:'⚙️ AJUSTES',spotify:'🎵 SPOTIFY',backups:'🗂️ COPIAS'})[id],iconUrl:'',visible:true,custom:false}));
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = localStorage.getItem('nwr_site_language_v2') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -1233,6 +1245,7 @@
         featured: { preset: 'compact', height: 152, startSec: 0 }
       },
       tabsConfig: JSON.parse(JSON.stringify(defaultTabsList)),
+      adminTabsConfig: JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS)),
       customButtons: {}
     };
 
@@ -1746,7 +1759,18 @@
       renderFeaturedPlayer();
     }
 
-    function renderAdminTabsManager() {
+    function getAdminTabsConfig(){if(!Array.isArray(config.adminTabsConfig)||!config.adminTabsConfig.length)config.adminTabsConfig=JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS));return config.adminTabsConfig;}
+    function renderAdminNavigation(){const bar=$("adminTabsBar");if(!bar)return;bar.innerHTML=getAdminTabsConfig().filter(t=>t.visible!==false).map(t=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-5 w-5 object-contain inline-block mr-1">':"";let badge="";if(t.id==="activa")badge=' (<span id="adminActiveCountBadge">0</span>)';if(t.id==="paises")badge=' (<span id="countriesCountBadge">0</span>)';if(t.id==="mensajes")badge=' (<span id="msgCountBadge">0</span>)';if(t.id==="backups")badge=' (<span id="backupsCountBadge">0</span>)';return '<button type="button" onclick="switchAdminTab(\'' + t.id + '\')" id="adminTab' + t.id + '" class="' + (t.id==="principal"?"admin-tab-active":"") + '">' + img + escapeHtml(t.label||t.id.toUpperCase()) + badge + '</button>';}).join("");}
+    function renderAdminCustomViews(){const host=$("adminView");if(!host)return;let area=$("adminCustomViews");if(!area){area=document.createElement("div");area.id="adminCustomViews";host.appendChild(area);}area.innerHTML=getAdminTabsConfig().filter(t=>t.custom).map(t=>'<div id="adminCustomView' + t.id + '" class="hidden glass rounded-2xl p-5 space-y-3"><h3 class="font-bold text-violet-300">' + escapeHtml(t.label) + '</h3>' + (t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-10 w-10 object-contain">':"") + '<div class="text-sm text-zinc-200 whitespace-pre-line">' + escapeHtml(t.content||"") + '</div></div>').join("");}
+    function renderAdminAdminTabsManager(){const box=$("adminAdminTabsManagerList");if(!box)return;box.innerHTML=getAdminTabsConfig().map((t,i)=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-6 w-6 object-contain">':"";return '<div class="p-3 bg-zinc-950 rounded-xl border border-white/10 space-y-2"><div class="flex justify-between items-center gap-2"><label class="flex items-center gap-2"><input type="checkbox" ' + (t.visible!==false?"checked":"") + ' onchange="updateAdminTab(' + i + ',\'visible\',this.checked)" class="accent-emerald-500">' + img + '<b>' + escapeHtml(t.label||t.id) + '</b></label><div class="flex gap-1"><button onclick="moveAdminTab(' + i + ',-1)" class="px-2 py-1 bg-zinc-800 rounded">⬆️</button><button onclick="moveAdminTab(' + i + ',1)" class="px-2 py-1 bg-zinc-800 rounded">⬇️</button>' + (t.custom?'<button onclick="deleteAdminCustomTab(' + i + ')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">🗑️</button>':"") + '</div></div><input value="' + escapeHtml(t.label||"") + '" onchange="updateAdminTab(' + i + ',\'label\',this.value)" placeholder="Nombre" class="w-full px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><div class="flex gap-2"><input value="' + escapeHtml(t.iconUrl||"") + '" onchange="updateAdminTab(' + i + ',\'iconUrl\',this.value)" placeholder="URL del icono" class="flex-1 min-w-0 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><label class="px-2 py-1 bg-violet-500/20 rounded cursor-pointer">📁<input type="file" accept="image/*" class="hidden" onchange="handleExistingAdminTabIcon(event,' + i + ')"></label></div></div>';}).join("");}
+    window.updateAdminTab=(i,k,v)=>{getAdminTabsConfig()[i][k]=v;};
+    window.moveAdminTab=(i,d)=>{const a=getAdminTabsConfig(),j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renderAdminAdminTabsManager();};
+    window.handleExistingAdminTabIcon=(e,i)=>{const file=e.target.files&&e.target.files[0];if(file)handleExamineToGithubOrLocal(file,url=>{getAdminTabsConfig()[i].iconUrl=url;renderAdminAdminTabsManager();});};
+    window.handleNewAdminTabIcon=e=>{const file=e.target.files&&e.target.files[0];if(file)handleExamineToGithubOrLocal(file,url=>{$("newAdminTabIcon").value=url;});};
+    window.createAdminCustomTab=()=>{const label=$("newAdminTabLabel").value.trim(),iconUrl=normalizeUrl($("newAdminTabIcon").value),content=$("newAdminTabContent").value.trim();if(!label)return alert("Escribe un nombre.");const id="customadmin_"+Date.now();getAdminTabsConfig().push({id,label,iconUrl,content,visible:true,custom:true});$("newAdminTabLabel").value=$("newAdminTabIcon").value=$("newAdminTabContent").value="";renderAdminAdminTabsManager();};
+    window.deleteAdminCustomTab=i=>{if(!confirm("¿Eliminar esta pestaña personalizada?"))return;getAdminTabsConfig().splice(i,1);renderAdminAdminTabsManager();renderAdminNavigation();renderAdminCustomViews();};
+    window.saveAdminTabsConfiguration=async()=>{try{await db.collection("settings").doc("activeEdition").set({adminTabsConfig:getAdminTabsConfig()},{merge:true});renderAdminNavigation();renderAdminCustomViews();alert("✅ Pestañas del administrador guardadas.");}catch(e){alert("Error al guardar: "+e.message);}};
+        function renderAdminTabsManager() {
       const list = $("adminTabsManagerList");
       if (!list) return;
       const tabs = config.tabsConfig || defaultTabsList;
@@ -2748,46 +2772,10 @@
       }
     };
 
-    function switchAdminTab(tab) {
-      const map = {
-        principal: ['adminTabPrincipal', 'adminViewPrincipal'],
-        activa: ['adminTabActiva', 'adminViewActiva'],
-        paises: ['adminTabPaises', 'adminViewPaises'],
-        mensajes: ['adminTabMensajes', 'adminViewMensajes'],
-        diseno: ['adminTabDiseno', 'adminViewDiseno'],
-        galeria: ['adminTabGaleria', 'adminViewGaleria'],
-        ajustes: ['adminTabAjustes', 'adminViewAjustes'],
-        spotify: ['adminTabSpotify', 'adminViewSpotify'],
-        backups: ['adminTabBackups', 'adminViewBackups']
-      };
-      if (!map[tab]) tab = 'principal';
-      ADMIN_TABS.forEach(k => {
-        $(map[k][0]).classList.remove("admin-tab-active");
-        $(map[k][1]).classList.add('hidden');
-      });
-      $(map[tab][0]).classList.add("admin-tab-active");
-      $(map[tab][1]).classList.remove('hidden');
-      if (tab === 'paises') loadAdminCountries();
-      else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'galeria') {
-        updateGithubTokenStatus();
-        loadGithubGallery();
-      }
-      else if (tab === 'diseno') {
-        loadHeaderMediaEditor();
-        renderAdminTabsManager();
-        loadButtonCustomForm();
-        loadSelectedTabNoticeToForm();
-        renderAllTabNotices();
-      }
-      else if (tab === 'ajustes') {
-        updateDefaultTabSelectUI();
-        updateFeaturedAdminUI();
-        loadPlayerStyleForm();
-        loadAdminChatUsers();
-      }
-      else if (tab === 'spotify') loadSpotifySyncSettings();
-      else if (tab === 'backups') loadAdminBackups();
+    function switchAdminTab(tab){
+      const tabs=getAdminTabsConfig(),item=tabs.find(t=>t.id===tab&&t.visible!==false);if(!item)tab=tabs.find(t=>t.visible!==false&&!t.custom)?.id||"principal";
+      tabs.forEach(t=>{const btn=$("adminTab"+t.id);if(btn)btn.classList.toggle("admin-tab-active",t.id===tab);const view=$("adminView"+t.id.charAt(0).toUpperCase()+t.id.slice(1));if(view)view.classList.toggle("hidden",t.id!==tab);const cv=$("adminCustomView"+t.id);if(cv)cv.classList.toggle("hidden",t.id!==tab);});
+      if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){loadHeaderMediaEditor();renderAdminTabsManager();renderAdminAdminTabsManager();loadButtonCustomForm();loadSelectedTabNoticeToForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
     }
 
     window.quickOpenConfig = () => {
@@ -3451,6 +3439,8 @@
       }
 
       renderNavigationAndCustomViews();
+      renderAdminNavigation();
+      renderAdminCustomViews();
       switchTab(currentActiveTab);
       updateVotingUI(config.votingActive !== false);
       applyAllCustomButtons();
