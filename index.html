@@ -2473,11 +2473,13 @@
       return text;
     }
 
+    const originalUiTextNodes = new Map();
+    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#adminView,#customTabsContainer";
     async function applyAdditionalLanguage(lang) {
       const base = translations.es || {};
-      const nodes = [...document.querySelectorAll("[data-i18n]")];
-      for (let i=0;i<nodes.length;i+=4) {
-        await Promise.all(nodes.slice(i,i+4).map(async el => {
+      const tagged = [...document.querySelectorAll("[data-i18n]")];
+      for (let i=0;i<tagged.length;i+=4) {
+        await Promise.all(tagged.slice(i,i+4).map(async el => {
           const key=el.getAttribute("data-i18n"), source=base[key];
           if(typeof source==="string" && source.trim() && !/[<>]/.test(source)) {
             const translated=await translateUiText(source,lang);
@@ -2493,6 +2495,50 @@
           if(currentLang===lang && translated) el.placeholder=translated;
         }));
       }
+
+      // Traduce también los textos fijos que no estaban etiquetados, sin tocar
+      // nombres de artistas, canciones, mensajes del chat ni datos aportados por usuarios.
+      const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+      const pending=[];
+      let node;
+      while((node=walker.nextNode())) {
+        const parent=node.parentElement;
+        if(!parent || !node.nodeValue.trim()) continue;
+        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],[data-i18n],'+dynamicContentSelectors)) continue;
+        if(!originalUiTextNodes.has(node)) originalUiTextNodes.set(node,node.nodeValue);
+        const source=originalUiTextNodes.get(node);
+        if(!source || !/[\\p{L}]{2}/u.test(source)) continue;
+        pending.push({node,source});
+      }
+      for(let i=0;i<pending.length;i+=5) {
+        await Promise.all(pending.slice(i,i+5).map(async item=>{
+          const translated=await translateUiText(item.source,lang);
+          if(currentLang===lang && translated && item.node.isConnected) item.node.nodeValue=translated;
+        }));
+      }
+      // Traduce también etiquetas accesibles y títulos de controles.
+      const attrs=[...document.querySelectorAll("[title],[aria-label]")].filter(el=>!el.closest(dynamicContentSelectors));
+      for(let i=0;i<attrs.length;i+=4) {
+        await Promise.all(attrs.slice(i,i+4).map(async el=>{
+          for(const attr of ["title","aria-label"]) {
+            const key="original"+attr.replace(/^[a-z]/,c=>c.toUpperCase());
+            if(!el.dataset[key] && el.hasAttribute(attr)) el.dataset[key]=el.getAttribute(attr);
+            const source=el.dataset[key];
+            if(source) {
+              const translated=await translateUiText(source,lang);
+              if(currentLang===lang && translated) el.setAttribute(attr,translated);
+            }
+          }
+        }));
+      }
+    }
+    function restoreOriginalUiText() {
+      originalUiTextNodes.forEach((value,node)=>{ if(node.isConnected) node.nodeValue=value; });
+      document.querySelectorAll("input[data-original-placeholder],textarea[data-original-placeholder]").forEach(el=>el.placeholder=el.dataset.originalPlaceholder);
+      document.querySelectorAll("[data-original-title],[data-original-aria-label]").forEach(el=>{
+        if(el.dataset.originalTitle) el.title=el.dataset.originalTitle;
+        if(el.dataset.originalAriaLabel) el.setAttribute("aria-label",el.dataset.originalAriaLabel);
+      });
     }
     async function setLanguage(lang) {
       const supported = ["es","en","fr","de","it","pt","nl","pl","ru","uk","zh-CN","ja","ko","ar","hi","tr","ro","el","sv","no","da","fi","cs","sk","hu","bg","hr","sr","he","id","ms","th","vi","tl"];
@@ -2515,7 +2561,7 @@
       renderNavigationAndCustomViews();
       updateVotingUI(globalVotingActive);
       applyAllCustomButtons();
-      if (lang !== "es" && lang !== "en") await applyAdditionalLanguage(lang);
+      if (lang !== "es") await applyAdditionalLanguage(lang);
     }
 
     const modalLanguageOptions = [["es","🇪🇸 Español"],["en","🇬🇧 English"],["fr","🇫🇷 Français"],["de","🇩🇪 Deutsch"],["it","🇮🇹 Italiano"],["pt","🇵🇹 Português"],["nl","🇳🇱 Nederlands"],["pl","🇵🇱 Polski"],["ru","🇷🇺 Русский"],["uk","🇺🇦 Українська"],["zh-CN","🇨🇳 中文"],["ja","🇯🇵 日本語"],["ko","🇰🇷 한국어"],["ar","🇸🇦 العربية"],["hi","🇮🇳 हिन्दी"],["tr","🇹🇷 Türkçe"],["ro","🇷🇴 Română"],["el","🇬🇷 Ελληνικά"],["sv","🇸🇪 Svenska"],["no","🇳🇴 Norsk"],["da","🇩🇰 Dansk"],["fi","🇫🇮 Suomi"],["cs","🇨🇿 Čeština"],["sk","🇸🇰 Slovenčina"],["hu","🇭🇺 Magyar"],["bg","🇧🇬 Български"],["hr","🇭🇷 Hrvatski"],["sr","🇷🇸 Српски"],["he","🇮🇱 עברית"],["id","🇮🇩 Bahasa Indonesia"],["ms","🇲🇾 Bahasa Melayu"],["th","🇹🇭 ไทย"],["vi","🇻🇳 Tiếng Việt"],["tl","🇵🇭 Filipino"]];
