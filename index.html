@@ -1962,9 +1962,11 @@
     async function loadAdminCountries() {
       const container = $("adminCountriesList"), badge = $("countriesCountBadge");
       try {
-        const [snap, visitorSnap] = await Promise.all([db.collection("artist_countries").get(), db.collection("visitor_countries").get()]);
+        const snap = await db.collection("artist_countries").get();
+        let visitorSnap = null;
+        try { visitorSnap = await db.collection("visitor_countries").get(); } catch (visitorError) { console.warn("Lectura de visitantes pendiente de activar en las reglas de Firestore:", visitorError); }
         const visitorTotals = {};
-        visitorSnap.forEach(doc => { const v = doc.data(), code = String(v.countryCode || "").toUpperCase(); if (!/^[A-Z]{2}$/.test(code)) return; if (!visitorTotals[code]) visitorTotals[code] = { country: v.country || code, flag: v.flag || flagFromCode(code), count: 0 }; visitorTotals[code].count++; });
+        if (visitorSnap) visitorSnap.forEach(doc => { const v = doc.data(), code = String(v.countryCode || "").toUpperCase(); if (!/^[A-Z]{2}$/.test(code)) return; if (!visitorTotals[code]) visitorTotals[code] = { country: v.country || code, flag: v.flag || flagFromCode(code), count: 0 }; visitorTotals[code].count++; });
         const visitorSummary = $("visitorCountriesSummary");
         if (visitorSummary) {
           const rows = Object.entries(visitorTotals).sort((a,b) => b[1].count-a[1].count);
