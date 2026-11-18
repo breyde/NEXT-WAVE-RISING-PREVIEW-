@@ -3073,7 +3073,11 @@
     window.runSafeFirestoreImport = async function() {
       const status = $("safeImportStatus"), btn = $("runSafeImportBtn");
       const user = auth.currentUser;
-      if (!user) return alert("Inicia sesión como curador antes de importar.");
+      if (!user) return alert("Inicia sesión antes de importar.");
+      if ((user.email || "").trim().toLowerCase() !== "br3yda@gmail.com") {
+        status.textContent = "⛔ Importación reservada a la cuenta propietaria.";
+        return alert("Esta función solo está autorizada para br3yda@gmail.com.");
+      }
       const files = [
         { input: "importActiveFile", collection: "active_list", label: "Lista Activa", kind: "track" },
         { input: "importWeeklyFile", collection: "submissions", label: "Cola Semanal", kind: "track" },
