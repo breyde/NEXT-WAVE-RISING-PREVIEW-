@@ -757,7 +757,7 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, se traducirá automáticamente al cambiar el idioma de la web.</p>
             </div>
             <div class="space-y-2.5">
               <div>
@@ -1705,7 +1705,7 @@
                 ${cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-7 w-7 object-contain rounded">` : ''}
                 <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : (t.labelEs || t.id))}</h3>
               </div>
-              <button type="button" onclick="translateCustomTabContent('${t.id}')" class="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-cyan-300 border border-white/10">🌐 ES / EN</button>
+
             </div>
             ${cleanGif ? `<div class="flex justify-center"><img src="${escapeHtml(cleanGif)}" class="max-h-48 rounded-xl object-contain"></div>` : ''}
             <div id="customTabBody_${t.id}" class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${escapeHtml(t.content || '')}</div>
@@ -2374,16 +2374,19 @@
         const msgEs = notices[k];
         if (msgEs?.trim()) {
           let displayMsg = msgEs;
-          if (currentLang === 'en') {
-            if (noticesEn[k]?.trim()) displayMsg = noticesEn[k];
-            else if (autoTranslatedNotices[k]) displayMsg = autoTranslatedNotices[k];
+          if (currentLang !== 'es') {
+            if (currentLang === 'en' && noticesEn[k]?.trim()) displayMsg = noticesEn[k];
             else {
-              displayMsg = await translateTextToEnglish(msgEs);
-              autoTranslatedNotices[k] = displayMsg;
+              const cacheKey = currentLang + "_" + k;
+              if (autoTranslatedNotices[cacheKey]) displayMsg = autoTranslatedNotices[cacheKey];
+              else {
+                displayMsg = await translateUiText(msgEs, currentLang);
+                autoTranslatedNotices[cacheKey] = displayMsg;
+              }
             }
           }
           b.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
-          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><button type="button" onclick="toggleNoticeLanguage('${k}')" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-amber-300 font-bold text-[10px] border border-amber-400/30 transition">🌐 ES / EN</button></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
+          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
         } else { b.className = "hidden"; b.innerHTML = ""; }
       }
 
@@ -2474,7 +2477,7 @@
     }
 
     const originalUiTextNodes = new Map();
-    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#submissionsList,#adminActiveListContainer,#adminCountriesList,#adminMessagesList,#ghGalleryContainer,#customTabsContainer";
+    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#submissionsList,#adminActiveListContainer,#adminCountriesList,#adminMessagesList,#ghGalleryContainer,[id^=\"customTabBody_\"]";
     async function applyAdditionalLanguage(lang) {
       const base = translations.es || {};
       const tagged = [...document.querySelectorAll("[data-i18n]")];
@@ -2561,6 +2564,7 @@
       renderNavigationAndCustomViews();
       updateVotingUI(globalVotingActive);
       applyAllCustomButtons();
+      await renderAllTabNotices();
       if (lang !== "es") await applyAdditionalLanguage(lang);
     }
 
