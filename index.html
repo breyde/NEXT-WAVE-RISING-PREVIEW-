@@ -1966,7 +1966,7 @@
     async function loadAdminCountries() {
       const container = $("adminCountriesList"), badge = $("countriesCountBadge");
       try {
-        const snap = await db.collection("artist_countries").get();
+        const [snap, weeklyCountrySnap] = await Promise.all([db.collection("artist_countries").get(), db.collection("weekly_public").get()]);
         let visitorSnap = null;
         try { visitorSnap = await db.collection("visitor_countries").get(); } catch (visitorError) { console.warn("Lectura de visitantes pendiente de activar en las reglas de Firestore:", visitorError); }
         const visitorTotals = {};
@@ -1976,6 +1976,19 @@
           const rows = Object.entries(visitorTotals).sort((a,b) => b[1].count-a[1].count);
           visitorSummary.innerHTML = rows.length ? '<div class="flex flex-wrap gap-2">' + rows.map(([code,v]) => '<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10">' + v.flag + ' <strong>' + escapeHtml(v.country) + '</strong> <span class="text-emerald-300">· ' + v.count + '</span></span>').join('') + '</div><p class="text-[10px] text-zinc-500">Visitantes únicos por navegador/dispositivo; puede haber duplicados entre dispositivos.</p>' : '<p class="text-zinc-400">Aún no hay visitantes geolocalizados. Revisa las reglas de Firestore y recarga.</p>';
         }
+        const weeklyArtists = {};
+        weeklyCountrySnap.forEach(doc => {
+          const d = doc.data(), artist = String(d.artist || "").trim(), code = String(d.countryCode || "").toUpperCase();
+          if (!artist || !/^[A-Z]{2}$/.test(code) || !d.country) return;
+          const key = artist.toLocaleLowerCase();
+          if (!weeklyArtists[key]) weeklyArtists[key] = { artist, country: d.country, countryCode: code, flag: d.flag || flagFromCode(code), count: 0, latest: 0 };
+          const item = weeklyArtists[key]; item.count++;
+          const ts = Number(d.timestamp || 0);
+          if (ts >= item.latest) { item.country = d.country; item.countryCode = code; item.flag = d.flag || flagFromCode(code); item.latest = ts; }
+        });
+        const weeklyRows = Object.values(weeklyArtists).sort((x,y) => y.count - x.count);
+        const weeklySummaryHtml = weeklyRows.length ? '<div class="mt-3 pt-3 border-t border-white/10"><h5 class="text-cyan-300 font-bold text-[11px] uppercase mb-2">🎵 Artistas que han enviado temas</h5><div class="space-y-1.5">' + weeklyRows.map(x => '<div class="flex justify-between gap-2 rounded-lg bg-zinc-900 px-2.5 py-2"><span>' + x.flag + ' <strong>' + escapeHtml(x.artist) + '</strong></span><span class="text-zinc-300">' + escapeHtml(x.country) + ' · ' + x.count + ' tema(s)</span></div>').join('') + '</div></div>' : '';
+        if (visitorSummary) visitorSummary.insertAdjacentHTML("beforeend", weeklySummaryHtml);
         countriesCache = [];
         snap.forEach(d => { const data = d.data(); if (data.email?.trim()) countriesCache.push({ id: d.id, ...data }); });
         countriesCache.sort((a, b) => (b.submissionsCount || 1) - (a.submissionsCount || 1) || (a.artist || "").localeCompare(b.artist || ""));
@@ -3965,7 +3978,7 @@
           const submittedDate = madridStr();
           const submissionBatch = db.batch();
           submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
-          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate });
+          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate, ...(safeGeo ? { country: String(safeGeo.country).slice(0, 80), countryCode: String(safeGeo.countryCode).toUpperCase(), flag: safeGeo.flag || flagFromCode(String(safeGeo.countryCode).toUpperCase()) } : {}) });
           await submissionBatch.commit();
           // Guardar país y bandera detectados por el mismo método que registra a los visitantes.
           // Si el servicio no responde, se conserva cualquier país previo del artista.
