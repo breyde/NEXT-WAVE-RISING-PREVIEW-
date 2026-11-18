@@ -184,7 +184,7 @@
     <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
     <div id="adminTabsBar">
       <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="admin-tab-active">🏠 INICIO</button>
-      <button onclick="switchAdminTab('activa')" id="adminTabActiva">📻 LISTA ACTIVA (<span id="adminActiveCountBadge">0</span>)</button>
+      <button onclick="switchAdminTab('activa')" id="adminTabActiva">📚 LISTAS · LISTA ACTIVA (<span id="adminActiveCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('paises')" id="adminTabPaises">🌍 PAÍSES (<span id="countriesCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes">✉️ MENSAJES (<span id="msgCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('diseno')" id="adminTabDiseno">🎨 DISEÑO</button>
@@ -489,10 +489,7 @@
               ℹ️ Al pulsar <strong>Nueva Edición (Rotar Listas)</strong>: se guarda copia de sistema, la <strong>Lista Activa</strong> pasa a la <strong>Mensual</strong>, la <strong>Cola Semanal</strong> pasa a ser la nueva <strong>Lista Activa</strong> (con votación activada) y el campeón de la activa anterior pasa a <strong>Destacado</strong> y reingresa en Cola Semanal.
             </p>
           </div>
-          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
-            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 Cola Semanal Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
-            <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
-          </div>
+
         </div>
 
         <!-- LISTA ACTIVA -->
@@ -505,7 +502,14 @@
             <input type="url" id="adminActiveUrl" placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
             <input type="email" id="adminActiveEmail" placeholder="Correo electrónico (opcional)" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
             <button type="button" onclick="addTrackToActiveList()" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded-xl text-xs shadow transition">Añadir a Lista Activa (Sin Límites)</button>
-          </div>
+                  <div class="glass rounded-2xl p-5 space-y-3 mb-8">
+          <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 COLA SEMANAL · ADMIN</h3><span id="subCount">0</span></div>
+          <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
+        </div>
+        <div class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/30"><div class="flex justify-between"><h3 class="font-bold text-cyan-400 text-sm">🗓️ LISTA MENSUAL · ADMIN</h3><strong id="adminMonthlyCount">0</strong></div><div id="adminMonthlyListContainer" class="space-y-3 text-xs">Cargando...</div></div>
+        <div class="glass rounded-2xl p-5 space-y-3 border border-amber-500/30"><div class="flex justify-between"><h3 class="font-bold text-amber-400 text-sm">📀 LISTA ANUAL · ADMIN</h3><strong id="adminAnnualCount">0</strong></div><div id="adminAnnualListContainer" class="space-y-3 text-xs">Cargando...</div></div>
+        <div class="glass rounded-2xl p-5 space-y-3 border border-purple-500/30"><div class="flex justify-between items-center"><h3 class="font-bold text-purple-400 text-sm">🏆 TOP ANUAL · ADMIN</h3><button type="button" onclick="addTopAnnualTrack()" class="px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">＋ Añadir tema</button></div><p class="text-[10px] text-zinc-400">Clasificación anual administrada por el equipo.</p><div id="adminTopAnnualListContainer" class="space-y-3 text-xs">Cargando...</div></div>
+</div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
               <h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3>
@@ -3455,6 +3459,25 @@
       applyAllCustomButtons();
     }
 
+    function adminTrackRowHtml(track, index, collection) {
+      const safeId = String(track.id || "");
+      return '<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex flex-wrap justify-between items-center gap-2"><div class="min-w-0"><p class="font-bold text-white">' + (index+1) + '. ' + escapeHtml(track.artist || "Artista") + ' — <span class="text-emerald-400">' + escapeHtml(track.title || "Sin título") + '</span></p><p class="text-[10px] text-zinc-400 truncate">' + escapeHtml(track.url || "") + '</p></div><div class="flex gap-1.5"><a href="' + (track.url || "").split("?")[0] + '" target="_blank" rel="noopener noreferrer" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a><button type="button" onclick="editAdminTrack(\'' + collection + '\',\'' + safeId + '\')" class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded">Editar</button><button type="button" onclick="deleteAdminTrack(\'' + collection + '\',\'' + safeId + '\')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button></div></div>';
+    }
+    window.editAdminTrack = async (collection, id) => {
+      if (!["submissions","monthly_list","annual_list","top_annual"].includes(collection)) return;
+      try { const ref=db.collection(collection).doc(id), snap=await ref.get(); if(!snap.exists)return alert("El tema ya no existe."); const d=snap.data();
+        const artist=prompt("Artista:",d.artist||""); if(artist===null)return; const title=prompt("Título:",d.title||""); if(title===null)return; const url=prompt("Enlace Spotify:",d.url||""); if(url===null)return;
+        if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); await ref.update({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0]}); await loadAllLists();
+      } catch(e){alert("No se pudo editar: "+e.message);}
+    };
+    window.deleteAdminTrack = async (collection,id) => {
+      if (!["submissions","monthly_list","annual_list","top_annual"].includes(collection)) return;
+      if(!confirm("¿Eliminar este tema?"))return; try{await db.collection(collection).doc(id).delete();await loadAllLists();}catch(e){alert("No se pudo eliminar: "+e.message);}
+    };
+    window.addTopAnnualTrack = async () => {
+      const artist=prompt("Artista:"); if(artist===null)return; const title=prompt("Título:"); if(title===null)return; const url=prompt("Enlace Spotify:"); if(url===null)return;
+      if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); try{await db.collection("top_annual").add({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0],timestamp:Date.now()});await loadAllLists();}catch(e){alert("No se pudo añadir: "+e.message);}
+    };
     async function loadAllLists() {
       const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
