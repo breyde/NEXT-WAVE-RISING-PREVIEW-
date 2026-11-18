@@ -3936,5 +3936,36 @@
   });
   </script>
 
+
+  <script>
+  // Intercepta envíos en la vista previa antes del manejador Firebase original.
+  document.addEventListener("click", function(event) {
+    const btn=event.target.closest("#submitBtn");
+    if(!btn || !window.NWR_PREVIEW_MODE) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    const $=id=>document.getElementById(id);
+    const artist=$("artistName").value.trim(), title=$("trackTitle").value.trim();
+    const url=$("trackUrl").value.trim(), email=$("artistEmail").value.trim();
+    const fb=$("feedbackMsg"), receipt=$("receiptCard");
+    const error=msg=>{fb.textContent=msg;fb.className="text-xs text-center text-rose-400 font-medium";fb.classList.remove("hidden");};
+    if(!$("confirmSaveCheckbox").checked) return error("Confirma primero que has guardado la playlist.");
+    if(!artist||!title||!url||!email) return error("Completa todos los campos obligatorios.");
+    if(!/^[^\\s@/]+@[^\\s@/]+\\.[^\\s@/]+$/.test(email)) return error("Correo electrónico no válido.");
+    if(!/^https?:\\/\\/(open\\.)?spotify\\.com\\/(intl-[a-z]{2}\\/)?track\\/[a-zA-Z0-9]{22}\\/?$/.test(url.split("?")[0].trim())) return error("Pega un enlace directo válido de una canción de Spotify.");
+    btn.disabled=true;btn.textContent="Añadiendo a la demo…";
+    $("receiptArtist").textContent=artist;$("receiptTitle").textContent=title;$("receiptEmail").textContent=email;
+    receipt.classList.remove("hidden");
+    const item={artist,title,url,email,createdAt:new Date().toISOString(),demo:true};
+    const saved=JSON.parse(localStorage.getItem("nwr_demo_submissions")||"[]");saved.push(item);
+    localStorage.setItem("nwr_demo_submissions",JSON.stringify(saved));
+    const list=$("publicSubmissionsList");
+    if(list){const card=document.createElement("div");card.className="rounded-xl border border-emerald-500/20 bg-zinc-900/70 p-3";card.textContent=artist+" — "+title+" · PROPUESTA DEMO";list.prepend(card);}
+    fb.textContent="Propuesta añadida solo a esta demostración. No se ha enviado a la cola real.";fb.className="text-xs text-center text-emerald-400 font-medium";fb.classList.remove("hidden");
+    $("submissionForm").reset();$("confirmSaveCheckbox").checked=false;
+    $("submissionForm").classList.add("opacity-50","pointer-events-none");
+    btn.disabled=false;btn.textContent=translations[currentLang]?.submitBtn||"Enviar propuesta";
+  },true);
+  </script>
+
 </body>
 </html>
