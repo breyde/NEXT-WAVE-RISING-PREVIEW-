@@ -3980,9 +3980,7 @@
           submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
           submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate, ...(safeGeo ? { country: String(safeGeo.country).slice(0, 80), countryCode: String(safeGeo.countryCode).toUpperCase(), flag: safeGeo.flag || flagFromCode(String(safeGeo.countryCode).toUpperCase()) } : {}) });
           await submissionBatch.commit();
-          // Guardar país y bandera detectados por el mismo método que registra a los visitantes.
-          // Si el servicio no responde, se conserva cualquier país previo del artista.
-          await registerOrUpdateArtistCountry(artist, email, safeGeo);
+          // El país queda guardado en weekly_public y se muestra agregado en la pestaña Países.
 
           $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
