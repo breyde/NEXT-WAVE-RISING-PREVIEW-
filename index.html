@@ -295,6 +295,15 @@
       </div>
 
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
+        <section id="safeImportPanel" class="glass rounded-2xl p-4 space-y-3 border border-cyan-500/30">
+          <div><h3 class="font-bold text-cyan-300 text-sm">📦 Importación de datos — Firebase de pruebas</h3>
+          <p class="text-xs text-zinc-400 mt-1">Solo disponible con sesión de curador. Selecciona los JSON de Lista Activa, Cola Semanal y Países. No borra documentos existentes; omite duplicados.</p></div>
+          <label class="block text-xs text-zinc-300">Lista Activa (JSON)<input id="importActiveFile" type="file" accept=".json,application/json" class="block w-full mt-1 text-xs"></label>
+          <label class="block text-xs text-zinc-300">Cola Semanal (JSON)<input id="importWeeklyFile" type="file" accept=".json,application/json" class="block w-full mt-1 text-xs"></label>
+          <label class="block text-xs text-zinc-300">Países (JSON)<input id="importCountriesFile" type="file" accept=".json,application/json" class="block w-full mt-1 text-xs"></label>
+          <button id="runSafeImportBtn" type="button" onclick="runSafeFirestoreImport()" class="w-full py-2.5 rounded-xl neon-btn text-zinc-950 font-bold text-sm">Importar archivos seleccionados</button>
+          <p id="safeImportStatus" class="text-xs text-zinc-300" aria-live="polite">Las colecciones Mensual, Anual, Copias, Votos y Chat no necesitan documentos iniciales.</p>
+        </section>
         <div class="flex flex-wrap justify-between items-center bg-zinc-900/90 px-3.5 py-2 rounded-xl border border-white/10 text-xs gap-2">
           <span class="text-emerald-400 font-bold truncate" id="adminLoggedUserLabel">● Sesión activa</span>
           <span class="text-cyan-400 font-bold whitespace-nowrap">👥 Online: <strong id="adminActiveUsersCount">00</strong></span>
@@ -3059,6 +3068,69 @@
         $("topConfigBtn").classList.remove("flex");
       } catch (e) {}
     };
+
+    // ==================== IMPORTADOR SEGURO PARA FIREBASE DE PRUEBAS ====================
+    window.runSafeFirestoreImport = async function() {
+      const status = $("safeImportStatus"), btn = $("runSafeImportBtn");
+      const user = auth.currentUser;
+      if (!user) return alert("Inicia sesión como curador antes de importar.");
+      const files = [
+        { input: "importActiveFile", collection: "active_list", label: "Lista Activa", kind: "track" },
+        { input: "importWeeklyFile", collection: "submissions", label: "Cola Semanal", kind: "track" },
+        { input: "importCountriesFile", collection: "artist_countries", label: "Países", kind: "country" }
+      ];
+      const selected = files.filter(x => $(x.input)?.files?.[0]);
+      if (!selected.length) return alert("Selecciona al menos un archivo JSON.");
+      if (!confirm("Se añadirán registros a las colecciones del Firebase de pruebas. No se borrará ningún dato. ¿Continuar?")) return;
+      btn.disabled = true; status.textContent = "⏳ Validando e importando…";
+      const totals = [];
+      try {
+        for (const item of selected) {
+          const raw = await itemFileText(item.input);
+          const parsed = JSON.parse(raw);
+          const rows = Array.isArray(parsed) ? parsed : (parsed.records || parsed.tracks || parsed.data || []);
+          if (!Array.isArray(rows)) throw new Error(item.label + ": el JSON no contiene una lista.");
+          let added = 0, skipped = 0;
+          for (let offset = 0; offset < rows.length; offset += 400) {
+            const chunk = rows.slice(offset, offset + 400);
+            const batch = db.batch();
+            for (const row of chunk) {
+              if (!row || typeof row !== "object") { skipped++; continue; }
+              if (item.kind === "track") {
+                const artist = String(row.artist || "").trim(), title = String(row.title || "").trim();
+                const url = String(row.url || "").trim().split("?")[0];
+                if (!artist || !title || !/^https?:\/\/open\.spotify\.com\/track\/[A-Za-z0-9]+$/i.test(url)) { skipped++; continue; }
+                const dupe = await db.collection(item.collection).where("url", "==", url).limit(1).get();
+                if (!dupe.empty) { skipped++; continue; }
+                const ref = db.collection(item.collection).doc();
+                batch.set(ref, { artist, title, url, email: String(row.email || "").trim(), timestamp: Number(row.timestamp) || Date.now(), dateString: String(row.dateString || madridStr()), votes: Number(row.votes) || 0, voters: Array.isArray(row.voters) ? row.voters : [] });
+              } else {
+                const email = String(row.email || "").trim().toLowerCase(), artist = String(row.artist || "").trim();
+                if (!email || !artist) { skipped++; continue; }
+                const id = email.replace(/[.#$\/\[\]]/g, "_");
+                const ref = db.collection("artist_countries").doc(id);
+                const exists = await ref.get();
+                if (exists.exists) { skipped++; continue; }
+                batch.set(ref, { email, artist, firstPublishedDate: String(row.firstPublishedDate || row.firstDate || madridStr()), lastSubmissionDate: String(row.lastSubmissionDate || row.lastDate || madridStr()), submissionsCount: Number(row.submissionsCount || row.count) || 1, country: String(row.country || "Desconocido"), city: String(row.city || ""), flag: String(row.flag || "🌐") });
+              }
+              added++;
+            }
+            if (added) await batch.commit();
+          }
+          totals.push(item.label + ": " + added + " añadidos, " + skipped + " omitidos");
+        }
+        status.textContent = "✅ " + totals.join(" · ");
+        await Promise.all([loadAllLists(), loadAdminCountries()]);
+      } catch (e) {
+        status.textContent = "❌ " + (e.message || "Error de importación");
+        alert("No se completó la importación: " + (e.message || e));
+      } finally { btn.disabled = false; }
+    };
+    async function itemFileText(id) {
+      const file = $(id)?.files?.[0];
+      if (!file) throw new Error("Falta seleccionar el archivo " + id + ".");
+      return await file.text();
+    }
 
     // ==================== INICIO ====================
     document.addEventListener("DOMContentLoaded", () => {
