@@ -602,6 +602,7 @@
                 <button type="button" onclick="exportCountriesList()" class="text-xs px-2.5 py-1.5 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 border border-white/10 font-bold">📋 Copiar Listado</button>
               </div>
             </div>
+            <div class="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3 space-y-2"><div class="flex flex-wrap items-center justify-between gap-2"><h4 class="text-emerald-300 font-bold text-xs uppercase">👣 Visitantes por país</h4><span class="text-[10px] text-zinc-500">País aproximado · sin guardar IP</span></div><div id="visitorCountriesSummary" class="space-y-1.5 text-xs"><p class="text-zinc-400">Cargando visitas...</p></div></div>
             <div id="adminCountriesList" class="space-y-2.5 text-xs"><p class="text-zinc-400 text-center py-6">Cargando artistas y países...</p></div>
           </div>
         </div>
@@ -1392,73 +1393,52 @@
     }
 
     async function fetchGeoByIp(ip = "") {
-      const cacheKey = 'nwr_geo_' + (ip || 'self');
+      const validCountry = code => /^[A-Z]{2}$/.test(String(code || "").toUpperCase());
+      const cacheKey = "nwr_geo_country_v2_" + (ip || "self");
       const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try { return JSON.parse(cached); } catch (e) { sessionStorage.removeItem(cacheKey); }
-      }
-
-      // Primero consulta el servicio principal de geolocalización.
-      try {
-        const res = await fetch(`https://ipwho.is/${ip}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("ipwho.is HTTP " + res.status);
-        const d = await res.json();
-        if (d && d.success && d.ip) {
-          const info = {
-            ip: d.ip,
-            country: d.country || "",
-            city: d.city || "",
-            flag: d.flag?.emoji || flagFromCode(d.country_code)
-          };
-          sessionStorage.setItem(cacheKey, JSON.stringify(info));
-          return info;
+      if (cached) { try { const value = JSON.parse(cached); if (value && value.country && validCountry(value.countryCode)) return value; } catch (_) { sessionStorage.removeItem(cacheKey); } }
+      const providers = [
+        async () => {
+          const url = ip ? "https://ipapi.co/" + encodeURIComponent(ip) + "/json/" : "https://ipapi.co/json/";
+          const response = await fetch(url, { cache: "no-store" }); if (!response.ok) throw new Error("ipapi HTTP " + response.status);
+          const d = await response.json(); const code = String(d.country_code || "").toUpperCase();
+          if (!validCountry(code) || d.error) throw new Error("ipapi sin país válido");
+          return { ip: d.ip || ip || "", countryCode: code, country: d.country_name || code, city: d.city || "", flag: flagFromCode(code) };
+        },
+        async () => {
+          const url = ip ? "https://ipwho.is/" + encodeURIComponent(ip) : "https://ipwho.is/";
+          const response = await fetch(url, { cache: "no-store" }); if (!response.ok) throw new Error("ipwho HTTP " + response.status);
+          const d = await response.json(); const code = String(d.country_code || "").toUpperCase();
+          if (!d.success || !validCountry(code)) throw new Error("ipwho sin país válido");
+          return { ip: d.ip || ip || "", countryCode: code, country: d.country || code, city: d.city || "", flag: d.flag?.emoji || flagFromCode(code) };
         }
-      } catch (e) { console.warn("Geolocalización ipwho.is no disponible:", e); }
+      ];
+      for (const provider of providers) { try { const info = await provider(); sessionStorage.setItem(cacheKey, JSON.stringify(info)); return info; } catch (error) { console.warn("Proveedor de país no disponible:", error); } }
+      return { ip: ip || "", countryCode: "", country: "", city: "", flag: "🌐" };
+    }
 
-      // Segundo proveedor: obtiene IP y país directamente desde el navegador del visitante.
-      if (!ip) {
-        try {
-          const r2 = await fetch('https://ipapi.co/json/', { cache: "no-store" });
-          if (!r2.ok) throw new Error("ipapi.co HTTP " + r2.status);
-          const d2 = await r2.json();
-          if (d2 && d2.ip) {
-            const info = {
-              ip: d2.ip,
-              country: d2.country_name || "",
-              city: d2.city || "",
-              flag: flagFromCode(d2.country_code)
-            };
-            sessionStorage.setItem(cacheKey, JSON.stringify(info));
-            return info;
-          }
-        } catch (e2) { console.warn("Geolocalización ipapi.co no disponible:", e2); }
-
-        // Último recurso: al menos guardar la IP pública aunque no se pueda resolver el país.
-        try {
-          const r3 = await fetch('https://api.ipify.org?format=json', { cache: "no-store" });
-          if (!r3.ok) throw new Error("ipify HTTP " + r3.status);
-          const d3 = await r3.json();
-          if (d3 && d3.ip) {
-            const info = { ip: d3.ip, country: "", city: "", flag: "🌐" };
-            sessionStorage.setItem(cacheKey, JSON.stringify(info));
-            return info;
-          }
-        } catch (e3) { console.warn("Detección de IP pública no disponible:", e3); }
-      }
-
-      return { ip: ip || "unknown_ip", country: "", city: "", flag: "🌐" };
+    async function recordVisitorCountry(geo) {
+      const code = String(geo?.countryCode || "").toUpperCase();
+      if (!/^[A-Z]{2}$/.test(code) || !geo?.country) return;
+      let visitorId = localStorage.getItem("nwr_country_visitor_id");
+      if (!visitorId) { visitorId = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : "v_" + Date.now().toString(36) + Math.random().toString(36).slice(2); localStorage.setItem("nwr_country_visitor_id", visitorId); }
+      if (localStorage.getItem("nwr_country_registered") === "1") return;
+      try {
+        await db.collection("visitor_countries").doc(visitorId).set({ country: String(geo.country).slice(0,80), countryCode: code, city: String(geo.city || "").slice(0,80), flag: geo.flag || flagFromCode(code), firstSeen: Date.now() });
+        localStorage.setItem("nwr_country_registered", "1");
+      } catch (error) { console.warn("No se pudo registrar el país del visitante:", error); }
     }
 
     async function initClientIp() {
       const info = await fetchGeoByIp("");
-      if (info && info.ip && info.ip !== "unknown_ip") {
-        clientIp = info.ip;
-        clientGeo = { country: info.country || "", city: info.city || "", flag: info.flag || "🌐" };
-        localStorage.setItem('nwr_client_ip', clientIp);
+      if (info && info.countryCode) {
+        clientIp = info.ip || "";
+        clientGeo = { country: info.country || "", city: info.city || "", flag: info.flag || "🌐", countryCode: info.countryCode };
+        if (clientIp) localStorage.setItem("nwr_client_ip", clientIp);
+        await recordVisitorCountry(clientGeo);
       }
       updateChatPresence();
     }
-
     // ==================== PESTAÑA INICIAL Y TEMA DESTACADO ====================
     function updateDefaultTabSelectUI() {
       const sel = $("adminDefaultTabSelect");
@@ -1982,7 +1962,14 @@
     async function loadAdminCountries() {
       const container = $("adminCountriesList"), badge = $("countriesCountBadge");
       try {
-        const snap = await db.collection("artist_countries").get();
+        const [snap, visitorSnap] = await Promise.all([db.collection("artist_countries").get(), db.collection("visitor_countries").get()]);
+        const visitorTotals = {};
+        visitorSnap.forEach(doc => { const v = doc.data(), code = String(v.countryCode || "").toUpperCase(); if (!/^[A-Z]{2}$/.test(code)) return; if (!visitorTotals[code]) visitorTotals[code] = { country: v.country || code, flag: v.flag || flagFromCode(code), count: 0 }; visitorTotals[code].count++; });
+        const visitorSummary = $("visitorCountriesSummary");
+        if (visitorSummary) {
+          const rows = Object.entries(visitorTotals).sort((a,b) => b[1].count-a[1].count);
+          visitorSummary.innerHTML = rows.length ? '<div class="flex flex-wrap gap-2">' + rows.map(([code,v]) => '<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10">' + v.flag + ' <strong>' + escapeHtml(v.country) + '</strong> <span class="text-emerald-300">· ' + v.count + '</span></span>').join('') + '</div><p class="text-[10px] text-zinc-500">Visitantes únicos por navegador/dispositivo; puede haber duplicados entre dispositivos.</p>' : '<p class="text-zinc-400">Aún no hay visitantes geolocalizados. Revisa las reglas de Firestore y recarga.</p>';
+        }
         countriesCache = [];
         snap.forEach(d => { const data = d.data(); if (data.email?.trim()) countriesCache.push({ id: d.id, ...data }); });
         countriesCache.sort((a, b) => (b.submissionsCount || 1) - (a.submissionsCount || 1) || (a.artist || "").localeCompare(b.artist || ""));
