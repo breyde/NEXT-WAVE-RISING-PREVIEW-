@@ -66,6 +66,12 @@
      body.admin-mode #adminTabsBar { display:grid !important; }
      body.admin-mode.admin-panel-closed #adminTabsBar { display:none !important; }
      body.admin-mode #adminShowSiteBtn { flex:0 0 auto; }
+
+      /* Vista pública: botonera casi al borde superior y contenido inmediatamente debajo. */
+      body:not(.admin-mode) { padding-top:4px !important; }
+      body:not(.admin-mode) > header { margin-top:0 !important; margin-bottom:4px !important; row-gap:4px !important; }
+      body:not(.admin-mode) > main#mainContentContainer { margin-top:0 !important; }
+
      </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
