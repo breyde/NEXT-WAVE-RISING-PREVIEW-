@@ -3872,6 +3872,17 @@
       setTimeout(() => {
         fill("publicActiveList", [demoCard("Artista de muestra", "Luz de madrugada"), demoCard("Proyecto ficticio", "Ritmo sin fronteras")], "publicActiveCount");
         fill("publicSubmissionsList", [demoCard("Banda de ejemplo", "Horizonte abierto"), demoCard("Artista invitado", "Voces del futuro")], "publicSubCount");
+        const savedPublic = JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]");
+        const publicQueue = document.getElementById("publicSubmissionsList");
+        savedPublic.forEach(item => {
+          const card = document.createElement("article");
+          card.className = "glass rounded-xl p-3 border border-emerald-500/20";
+          const name = document.createElement("p"); name.className = "font-bold text-sm text-white"; name.textContent = item.title + " · PROPUESTA DEMO";
+          const artist = document.createElement("p"); artist.className = "text-xs text-zinc-400"; artist.textContent = item.artist;
+          card.append(name, artist); publicQueue?.prepend(card);
+        });
+        const publicCount = document.getElementById("publicSubCount");
+        if (publicCount) publicCount.textContent = String(2 + savedPublic.length);
         fill("monthlyListContainer", [demoCard("Selección de muestra", "Lo mejor del mes")], "monthlyCount");
         fill("annualListContainer", [demoCard("Archivo ficticio", "Selección anual")], "annualCount");
         const set = (id, value) => { const el=document.getElementById(id); if(el) el.textContent=value; };
@@ -3909,9 +3920,13 @@
       const top = document.getElementById("topConfigBtn");
       top?.classList.remove("hidden"); top?.classList.add("flex");
       const seed = [
-        {artist:"Luna Norte",title:"Horizonte de papel",status:"Pendiente"},
-        {artist:"Mar Abierto",title:"Vuelvo a empezar",status:"Revisada"},
-        {artist:"Neón Sur",title:"Kilómetros de luz",status:"Declarada"}
+        {artist:"Luna Norte",title:"Horizonte de papel",status:"Pendiente",demoSample:true},
+        {artist:"Mar Abierto",title:"Vuelvo a empezar",status:"Revisada",demoSample:true},
+        {artist:"Neón Sur",title:"Kilómetros de luz",status:"Declarada",demoSample:true},
+        ...JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]").map(item => ({
+          artist: item.artist, title: item.title, email: item.email, url: item.url,
+          status: "Nueva · DEMO", demoSample: false
+        }))
       ];
       const target = document.getElementById("submissionsList");
       if (target && !target.dataset.demoFilled) {
