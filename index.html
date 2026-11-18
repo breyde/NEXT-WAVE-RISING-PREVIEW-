@@ -200,7 +200,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
-    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="block max-w-full object-contain rounded-xl"></div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
 
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
       <span class="shrink-0">📜</span>
@@ -462,6 +462,87 @@
 
         <!-- PRINCIPAL -->
         <div id="adminViewPrincipal" class="space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
+            </div>
+            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
+
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
+              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
+              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
+                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
+                </label>
+              </div>
+              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
+              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
+            </div>
+            <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
+          </div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
+            <div>
+              <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner multimedia independiente</h3>
+              <p class="text-[11px] text-zinc-400">Admite imagen/GIF, vídeo de tu biblioteca y YouTube, igual que la cabecera. Configura dónde lo verá el público.</p>
+            </div>
+            <div>
+              <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Contenido del banner:</label>
+              <select id="adminBannerMediaType" onchange="updateBannerMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
+              </select>
+            </div>
+            <div id="adminBannerUrlGroup" class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
+              <div class="flex gap-2">
+                <input type="url" id="adminBannerUrl" placeholder="URL directa o enlace de YouTube" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-200 text-xs cursor-pointer whitespace-nowrap">📁 Importar<input id="adminBannerFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" class="hidden" onchange="handleBannerFileUpload(event)"></label>
+              </div>
+              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input id="adminBannerWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input id="adminBannerHeight" type="number" min="40" max="1200" value="150" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div id="adminBannerFitGroup">
+              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
+              <select id="adminBannerObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
+            </div>
+            <div id="adminBannerVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-fuchsia-300">Opciones de vídeo de biblioteca</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoAutoplay"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoMuted" checked> Silenciado</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoLoop" checked> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoControls" checked> Controles</label>
+              </div>
+            </div>
+            <div id="adminBannerYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeAutoplay"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeMute" checked> Silenciar</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeLoop"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeControls" checked> Mostrar controles</label>
+              </div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminBannerYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div class="rounded-xl bg-zinc-950/70 border border-white/10 p-3 space-y-2">
+              <div class="flex items-center justify-between gap-2"><label class="text-[11px] text-zinc-200 font-bold">Pestañas donde aparecerá para usuarios</label><div class="flex gap-2"><button type="button" onclick="setBannerTabsSelection(true)" class="text-[10px] text-emerald-300">Todas</button><button type="button" onclick="setBannerTabsSelection(false)" class="text-[10px] text-zinc-400">Ninguna</button></div></div>
+              <div id="adminBannerTabsList" class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300"></div>
+            </div>
+            <label class="flex items-center gap-2 text-xs text-zinc-300"><input type="checkbox" id="adminBannerEnabled" checked> Mostrar banner</label>
+            <div id="adminBannerPreview" class="hidden rounded-xl bg-zinc-950 p-2 flex justify-center items-center min-h-16">
+              <img id="adminBannerPreviewImage" alt="Vista previa del banner" class="hidden max-w-full object-contain">
+              <video id="adminBannerPreviewVideo" class="hidden max-w-full" playsinline muted controls></video>
+              <iframe id="adminBannerPreviewYoutube" class="hidden max-w-full border-0" title="Vista previa de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+            </div>
+            <div class="flex gap-2"><button type="button" onclick="saveGraphicBanner()" class="flex-1 py-2.5 bg-fuchsia-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="clearGraphicBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
+          </div>
+
           <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Rotación Semanal</h3>
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
@@ -586,212 +667,7 @@
             <input id="visitorPrestigeBonusInput" type="number" min="0" max="1000000" step="1" value="1000" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm">
             <button type="button" onclick="saveVisitorPrestigeBonus()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar bonus</button>
           </div>
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
-            </div>
-            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
-
-            <div class="pt-3 border-t border-white/10 space-y-2.5">
-              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
-              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-              <div class="flex gap-1.5 items-center">
-                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                  <span>📁 Examinar</span>
-                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
-                </label>
-              </div>
-              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
-              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
-            </div>
-            <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
-          </div>
-
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-violet-500/30">
-            <div><h3 class="font-bold text-violet-300 text-sm uppercase">🛠️ PESTAÑAS DEL ADMINISTRADOR</h3><p class="text-[11px] text-zinc-400 mt-1">Este gestor solo modifica la barra del administrador, no las pestañas públicas.</p></div>
-            <div id="adminAdminTabsManagerList" class="space-y-2.5 text-xs"></div>
-            <div class="pt-3 border-t border-white/10 space-y-2.5"><p class="text-xs font-bold text-white">➕ CREAR PESTAÑA ADMIN</p>
-              <input id="newAdminTabLabel" type="text" placeholder="Nombre de la pestaña" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-              <input id="newAdminTabIcon" type="url" placeholder="URL del icono (opcional)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-              <label class="inline-block px-3 py-2 rounded-lg bg-violet-500/20 text-violet-200 border border-violet-500/40 cursor-pointer text-xs">📁 ELEGIR DE BIBLIOTECA<input type="file" accept="image/*" class="hidden" onchange="handleNewAdminTabIcon(event)"></label>
-              <textarea id="newAdminTabContent" rows="3" placeholder="Contenido para la pestaña nueva (opcional)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></textarea>
-              <button type="button" onclick="createAdminCustomTab()" class="w-full py-2.5 bg-violet-500 hover:bg-violet-400 text-zinc-950 font-bold rounded-xl text-xs">＋ CREAR PESTAÑA</button></div>
-            <button type="button" onclick="saveAdminTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 GUARDAR PESTAÑAS ADMIN</button>
-          </div>
-          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
-            <div>
-              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
-            </div>
-            <div class="space-y-3">
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Elemento:</label>
-                <select id="adminButtonSelect" onchange="loadButtonCustomForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                  <option value="votingBadgeActive">🟢 Indicador Votación Activa (Arriba derecha)</option>
-                  <option value="votingBadgeInactive">🔴 Indicador Votación Inactiva (Arriba derecha)</option>
-                  <option value="btnContactHeader">✉️ Botón Contacto (Cabecera)</option>
-                  <option value="btnInfoHeader">📜 Botón Normas y Funcionamiento (Cabecera)</option>
-                  <option value="activePlaylistLinkBtn">🟢 Abrir Playlist Spotify (Lista Activa)</option>
-                  <option value="btnGoVoteActive">⭐ Ir a Votar (Lista Activa)</option>
-                  <option value="playlistLinkBtn">🟢 Abrir Playlist Spotify (Cola Semanal)</option>
-                  <option value="submitBtn">🚀 Enviar Propuesta (Formulario)</option>
-                  <option value="btnVotingRules">📜 Normas de Votación (Pestaña Votar)</option>
-                  <option value="btnChatJoin">💬 Entrar al Chat</option>
-                  <option value="btnChatSend">📨 Enviar Mensaje Chat</option>
-                  <option value="toggleAdminBtn">⚙️ Panel Curadores (Pie de página)</option>
-                </select>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Texto personalizado (vacío = por defecto):</label>
-                  <input type="text" id="adminBtnText" placeholder="Texto..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño:</label>
-                  <select id="adminBtnSize" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                    <option value="">Por defecto</option>
-                    <option value="sm">Pequeño (Compacto)</option>
-                    <option value="md">Mediano (Estándar)</option>
-                    <option value="lg">Grande (Destacado)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Fondo:</label>
-                  <div class="flex gap-1.5 items-center">
-                    <input type="color" id="adminBtnBgColor" value="#10b981" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
-                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseBg" class="accent-pink-500"> Aplicar</label>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Texto:</label>
-                  <div class="flex gap-1.5 items-center">
-                    <input type="color" id="adminBtnTextColor" value="#ffffff" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
-                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseText" class="accent-pink-500"> Aplicar</label>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen/GIF (o pulsa Examinar para subir a GitHub):</label>
-                <div class="flex gap-1.5 items-center">
-                  <input type="url" id="adminBtnGifUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                  <label class="px-3 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                    <span>📁 Examinar</span>
-                    <input type="file" accept="image/*" onchange="handleBtnGifUpload(event)" class="hidden">
-                  </label>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo</button>
-                <button type="button" onclick="resetButtonCustomization()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
-            <div>
-              <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, se traducirá automáticamente al cambiar el idioma de la web.</p>
-            </div>
-            <div class="space-y-2.5">
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
-                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje en Español 🇪🇸 *</label>
-                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante en español..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Traducción al Inglés 🇬🇧 (opcional - se traduce solo si se deja vacío):</label>
-                <textarea id="adminNoticeTextEnInput" rows="2" placeholder="Optional English version..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="saveTabNotice()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar / Actualizar Aviso</button>
-                <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="px-3.5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/40 transition">🗑️ Quitar</button>
-              </div>
-            </div>
-            <div class="pt-2 border-t border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-zinc-300 uppercase">Avisos Activos Actualmente:</p>
-              <div id="adminActiveNoticesList" class="space-y-2 text-xs"><p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p></div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño y reproducción aquí.</p>
-            </div>
-            <div class="space-y-2">
-              <label class="block text-[11px] text-zinc-300 font-semibold">Contenido de la cabecera:</label>
-              <select id="adminHeaderMediaType" onchange="updateHeaderMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <option value="text">Texto original</option><option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
-              </select>
-            </div>
-            <div id="adminHeaderUrlGroup" class="space-y-2">
-              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
-              <div class="flex gap-1.5 items-center">
-                <input type="url" id="adminLogoUrlInput" placeholder="URL directa de img/ o enlace de YouTube..." class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                  <span>📁 Importar</span><input type="file" id="adminLogoFileInput" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" onchange="handleLogoFileUpload(event)" class="hidden">
-                </label>
-              </div>
-              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal del vídeo. Para imagen/vídeo puedes importar un archivo o seleccionarlo en la galería.</p>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %):</label><input type="text" id="adminHeaderWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px):</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-zinc-950/70 border border-cyan-500/20">
-              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición vertical (10 niveles)</label><select id="adminHeaderVerticalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <option value="-45">1 · Muy arriba</option><option value="-35">2 · Arriba</option><option value="-25">3 · Alto</option><option value="-15">4 · Algo alto</option><option value="-5">5 · Centro alto</option><option value="5">6 · Centro bajo</option><option value="15">7 · Algo bajo</option><option value="25">8 · Bajo</option><option value="35">9 · Más abajo</option><option value="45">10 · Muy abajo</option>
-              </select></div><div class="col-span-2"><label class="block text-[11px] text-zinc-300 mb-1">Alineación horizontal</label><select id="adminHeaderHorizontalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="flex-start">Izquierda</option><option value="center">Centro</option><option value="flex-end">Derecha</option></select></div></div>
-            <div id="adminHeaderFitGroup">
-              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
-              <select id="adminHeaderObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
-            </div>
-            <div id="adminHeaderVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-cyan-300">Opciones de vídeo de biblioteca</p>
-              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoAutoplay" class="accent-cyan-500"> Autoplay</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoMuted" checked class="accent-cyan-500"> Silenciado</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoLoop" checked class="accent-cyan-500"> Bucle (loop)</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoControls" checked class="accent-cyan-500"> Controles</label>
-              </div><p class="text-[10px] text-zinc-500">Los navegadores suelen exigir vídeo silenciado para permitir autoplay.</p>
-            </div>
-            <div id="adminHeaderYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
-              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeAutoplay" class="accent-red-500"> Autoplay</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeMute" checked class="accent-red-500"> Silenciar</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeLoop" class="accent-red-500"> Bucle (loop)</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeControls" checked class="accent-red-500"> Mostrar controles</label>
-              </div>
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminHeaderYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-              <p class="text-[10px] text-zinc-500">YouTube puede limitar autoplay según el navegador. El bucle de un vídeo se configura automáticamente.</p>
-            </div>
-            <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
-              <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
-            </div>
-            <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
-          </div>
-        </div>
-        <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
-          <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner gráfico independiente</h3>
-          <p class="text-[11px] text-zinc-400">Imagen/GIF independiente del logo, con tamaño y visibilidad por pestañas.</p>
-          <div class="flex gap-2"><input type="url" id="adminBannerUrl" placeholder="URL directa de imagen/GIF" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><label class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-200 text-xs cursor-pointer">📁 Subir<input id="adminBannerFile" type="file" accept="image/*" class="hidden" onchange="handleBannerFileUpload(event)"></label></div>
-          <div class="grid grid-cols-2 gap-2"><input id="adminBannerWidth" value="100%" placeholder="Ancho (100% o 900px)" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><input id="adminBannerHeight" type="number" min="40" max="700" value="150" placeholder="Alto px" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-          <div><label class="block text-[11px] text-zinc-300 mb-1">Pestañas (IDs separados por comas; vacío = todas)</label><input id="adminBannerTabs" placeholder="active, weekly, monthly" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-          <label class="flex items-center gap-2 text-xs text-zinc-300"><input type="checkbox" id="adminBannerEnabled" checked> Mostrar banner</label>
-          <div id="adminBannerPreview" class="hidden rounded-xl bg-zinc-950 p-2"><img alt="Vista previa" class="max-h-36 mx-auto object-contain"></div>
-          <div class="flex gap-2"><button type="button" onclick="saveGraphicBanner()" class="flex-1 py-2.5 bg-fuchsia-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="clearGraphicBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
-        </div>
+          
         <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
@@ -1256,7 +1132,7 @@
       headerHeight: 220,
       headerVerticalPosition: 0,
       headerHorizontalPosition: "center",
-      graphicBanner: { enabled: false, url: "", width: "100%", height: 150, tabs: [] },
+      graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, tabs: [], tabsAll: true, objectFit: "contain", videoAutoplay: false, videoMuted: true, videoLoop: true, videoControls: true, youtubeAutoplay: false, youtubeMute: true, youtubeLoop: false, youtubeControls: true, youtubeStart: 0 },
       headerObjectFit: "contain",
       headerVideoAutoplay: false,
       headerVideoMuted: true,
@@ -2245,51 +2121,142 @@
     }
 
     function renderGraphicBanner(tab) {
-      const box = $("graphicBannerContainer"), img = $("graphicBannerImage"), b = config.graphicBanner || {};
-      if (!box || !img) return;
+      const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
+      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
+      if (!box || !img || !video || !yt) return;
       const tabs = Array.isArray(b.tabs) ? b.tabs : [];
-      const visible = b.enabled === true && !!b.url && (!tabs.length || tabs.includes(tab));
+      const allowed = b.tabsAll === true || tabs.includes(tab);
+      const type = b.type || "image";
+      const visible = b.enabled === true && !!b.url && allowed;
       box.classList.toggle("hidden", !visible);
-      if (!visible) { img.removeAttribute("src"); return; }
-      img.src = b.url;
-      img.style.width = validHeaderWidth(b.width || "100%");
-      img.style.height = Math.max(40, Math.min(700, Number(b.height) || 150)) + "px";
+      video.pause(); video.removeAttribute("src"); video.load();
+      [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
+      if (!visible) return;
+      const width = validHeaderWidth(b.width || "100%");
+      const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
+      if (type === "image") {
+        img.src = b.url; img.style.width = width; img.style.height = height + "px";
+        img.style.maxWidth = "100%"; img.style.objectFit = b.objectFit || "contain"; img.classList.remove("hidden");
+      } else if (type === "video") {
+        video.src = b.url; video.style.width = width; video.style.height = height + "px";
+        video.style.maxWidth = "100%"; video.style.objectFit = b.objectFit || "contain";
+        video.autoplay = !!b.videoAutoplay; video.muted = b.videoMuted !== false;
+        video.loop = b.videoLoop !== false; video.controls = b.videoControls !== false;
+        video.playsInline = true; video.classList.remove("hidden");
+        if (video.autoplay) video.play().catch(() => {});
+      } else if (type === "youtube") {
+        const id = getYoutubeVideoId(b.url);
+        if (!id) return;
+        const params = new URLSearchParams({
+          autoplay: b.youtubeAutoplay ? "1" : "0", mute: b.youtubeMute !== false ? "1" : "0",
+          loop: b.youtubeLoop ? "1" : "0", controls: b.youtubeControls === false ? "0" : "1",
+          start: String(Math.max(0, Number(b.youtubeStart) || 0)), rel: "0", playsinline: "1"
+        });
+        if (b.youtubeLoop) params.set("playlist", id);
+        yt.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+        yt.style.width = width; yt.style.height = height + "px"; yt.style.maxWidth = "100%";
+        yt.classList.remove("hidden");
+      }
     }
+    function renderBannerTabCheckboxes(selectedTabs, allLegacy) {
+      const host = $("adminBannerTabsList");
+      if (!host) return;
+      const tabs = (config.tabsConfig || defaultTabsList).filter(t => t.visible !== false);
+      const selected = new Set(Array.isArray(selectedTabs) ? selectedTabs : []);
+      host.innerHTML = tabs.map(t => {
+        const checked = allLegacy || selected.has(t.id);
+        return `<label class="flex items-center gap-2 rounded-lg bg-zinc-900/80 px-2 py-2"><input type="checkbox" data-banner-tab="${escapeHtml(t.id)}" ${checked ? "checked" : ""} class="accent-fuchsia-500"><span>${escapeHtml(t.labelEs || t.labelEn || t.id)}</span></label>`;
+      }).join("") || '<p class="col-span-2 text-zinc-500">No hay pestañas públicas visibles.</p>';
+    }
+    window.setBannerTabsSelection = all => {
+      document.querySelectorAll("#adminBannerTabsList input[data-banner-tab]").forEach(el => { el.checked = !!all; });
+    };
+    function selectedBannerTabs() {
+      return Array.from(document.querySelectorAll("#adminBannerTabsList input[data-banner-tab]:checked")).map(el => el.getAttribute("data-banner-tab"));
+    }
+    window.updateBannerMediaEditor = () => {
+      const type = $("adminBannerMediaType")?.value || "image";
+      $("adminBannerFitGroup")?.classList.toggle("hidden", type === "youtube");
+      $("adminBannerVideoOptions")?.classList.toggle("hidden", type !== "video");
+      $("adminBannerYoutubeOptions")?.classList.toggle("hidden", type !== "youtube");
+      const url = normalizeUrl($("adminBannerUrl")?.value || "");
+      const preview = $("adminBannerPreview");
+      const img = $("adminBannerPreviewImage"), video = $("adminBannerPreviewVideo"), yt = $("adminBannerPreviewYoutube");
+      [img, video, yt].forEach(el => { if (el) { el.classList.add("hidden"); if (el !== video) el.removeAttribute("src"); } });
+      if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
+      if (!url) { preview?.classList.add("hidden"); return; }
+      const width = validHeaderWidth($("adminBannerWidth")?.value || "100%");
+      const height = Math.max(40, Math.min(1200, Number($("adminBannerHeight")?.value) || 150));
+      if (type === "image" && img) { img.src=url; img.style.width=width; img.style.height=height+"px"; img.classList.remove("hidden"); }
+      else if (type === "video" && video) { video.src=url; video.style.width=width; video.style.height=height+"px"; video.classList.remove("hidden"); }
+      else if (type === "youtube" && yt) {
+        const id=getYoutubeVideoId(url);
+        if (id) { yt.src=`https://www.youtube-nocookie.com/embed/${id}?controls=1&rel=0`; yt.style.width=width; yt.style.height=height+"px"; yt.classList.remove("hidden"); }
+      }
+      preview?.classList.remove("hidden");
+    };
     function loadGraphicBannerEditor() {
       const b = config.graphicBanner || {};
+      const type = b.type || "image";
+      if ($("adminBannerMediaType")) $("adminBannerMediaType").value = type;
       if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
       if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
       if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
-      if ($("adminBannerTabs")) $("adminBannerTabs").value = Array.isArray(b.tabs) ? b.tabs.join(", ") : "";
+      if ($("adminBannerObjectFit")) $("adminBannerObjectFit").value = b.objectFit || "contain";
       if ($("adminBannerEnabled")) $("adminBannerEnabled").checked = b.enabled === true;
-      const p = $("adminBannerPreview"), im = p && p.querySelector("img");
-      if (p && im && b.url) { im.src = b.url; p.classList.remove("hidden"); }
-      else if (p) p.classList.add("hidden");
+      if ($("adminBannerVideoAutoplay")) $("adminBannerVideoAutoplay").checked = !!b.videoAutoplay;
+      if ($("adminBannerVideoMuted")) $("adminBannerVideoMuted").checked = b.videoMuted !== false;
+      if ($("adminBannerVideoLoop")) $("adminBannerVideoLoop").checked = b.videoLoop !== false;
+      if ($("adminBannerVideoControls")) $("adminBannerVideoControls").checked = b.videoControls !== false;
+      if ($("adminBannerYoutubeAutoplay")) $("adminBannerYoutubeAutoplay").checked = !!b.youtubeAutoplay;
+      if ($("adminBannerYoutubeMute")) $("adminBannerYoutubeMute").checked = b.youtubeMute !== false;
+      if ($("adminBannerYoutubeLoop")) $("adminBannerYoutubeLoop").checked = !!b.youtubeLoop;
+      if ($("adminBannerYoutubeControls")) $("adminBannerYoutubeControls").checked = b.youtubeControls !== false;
+      if ($("adminBannerYoutubeStart")) $("adminBannerYoutubeStart").value = b.youtubeStart || 0;
+      const legacyAll = b.tabsAll === true || (b.tabsAll === undefined && (!Array.isArray(b.tabs) || b.tabs.length === 0));
+      renderBannerTabCheckboxes(b.tabs, legacyAll);
+      updateBannerMediaEditor();
     }
     window.handleBannerFileUpload = e => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      if (!file.type.startsWith("image/")) { alert("Selecciona una imagen o GIF."); e.target.value = ""; return; }
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) { alert("Selecciona una imagen, GIF o vídeo."); e.target.value = ""; return; }
+      if (file.type.startsWith("video/") && file.size > 50 * 1024 * 1024) { alert("El vídeo supera el límite de 50 MB."); e.target.value = ""; return; }
       handleExamineToGithubOrLocal(file, url => {
+        $("adminBannerMediaType").value = file.type.startsWith("video/") ? "video" : "image";
         $("adminBannerUrl").value = url;
-        const p = $("adminBannerPreview"), im = p.querySelector("img");
-        im.src = url; p.classList.remove("hidden"); e.target.value = "";
+        updateBannerMediaEditor();
+        e.target.value = "";
       });
     };
     window.saveGraphicBanner = async () => {
+      const type = $("adminBannerMediaType").value;
       const url = normalizeUrl($("adminBannerUrl").value);
-      const tabs = $("adminBannerTabs").value.split(",").map(x => x.trim()).filter(Boolean);
-      const data = { graphicBanner: { enabled: $("adminBannerEnabled").checked && !!url, url, width: validHeaderWidth($("adminBannerWidth").value), height: Math.max(40, Math.min(700, Number($("adminBannerHeight").value) || 150)), tabs } };
+      if (!url) return alert("Introduce una URL o importa un archivo para el banner.");
+      if (type === "youtube" && !getYoutubeVideoId(url)) return alert("El enlace de YouTube no parece válido.");
+      if (type === "video" && !/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url) && !confirm("La URL no termina en una extensión de vídeo habitual. ¿Quieres guardarla de todos modos?")) return;
+      const tabs = selectedBannerTabs();
+      const data = { graphicBanner: {
+        enabled: $("adminBannerEnabled").checked, type, url,
+        width: validHeaderWidth($("adminBannerWidth").value),
+        height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
+        tabs, tabsAll: false, objectFit: $("adminBannerObjectFit").value,
+        videoAutoplay: $("adminBannerVideoAutoplay").checked, videoMuted: $("adminBannerVideoMuted").checked,
+        videoLoop: $("adminBannerVideoLoop").checked, videoControls: $("adminBannerVideoControls").checked,
+        youtubeAutoplay: $("adminBannerYoutubeAutoplay").checked, youtubeMute: $("adminBannerYoutubeMute").checked,
+        youtubeLoop: $("adminBannerYoutubeLoop").checked, youtubeControls: $("adminBannerYoutubeControls").checked,
+        youtubeStart: Math.max(0, Number($("adminBannerYoutubeStart").value) || 0)
+      }};
       try {
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
         config.graphicBanner = data.graphicBanner;
         renderGraphicBanner(currentActiveTab); loadGraphicBannerEditor();
-        alert("Banner guardado correctamente.");
+        alert("Banner multimedia guardado correctamente.");
       } catch (e) { alert("No se pudo guardar el banner: " + e.message); }
     };
     window.clearGraphicBanner = async () => {
-      if (!confirm("¿Quitar el banner gráfico?")) return;
-      const data = { graphicBanner: { enabled: false, url: "", width: "100%", height: 150, tabs: [] } };
+      if (!confirm("¿Quitar el banner multimedia?")) return;
+      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, tabs: [], tabsAll: false, objectFit: "contain" } };
       try {
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
         config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
@@ -2887,7 +2854,7 @@
     function switchAdminTab(tab){
       const tabs=getAdminTabsConfig(),item=tabs.find(t=>t.id===tab&&t.visible!==false);if(!item)tab=tabs.find(t=>t.visible!==false&&!t.custom)?.id||"principal";
       tabs.forEach(t=>{const btn=$("adminTab"+t.id);if(btn)btn.classList.toggle("admin-tab-active",t.id===tab);const view=$("adminView"+t.id.charAt(0).toUpperCase()+t.id.slice(1));if(view)view.classList.toggle("hidden",t.id!==tab);const cv=$("adminCustomView"+t.id);if(cv)cv.classList.toggle("hidden",t.id!==tab);});
-      if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){loadHeaderMediaEditor();renderAdminTabsManager();renderAdminAdminTabsManager();loadButtonCustomForm();loadSelectedTabNoticeToForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
+      if(tab==="principal"){loadHeaderMediaEditor();loadGraphicBannerEditor();}else if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){renderAdminTabsManager();renderAdminAdminTabsManager();loadButtonCustomForm();loadSelectedTabNoticeToForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
     }
 
     window.quickOpenConfig = () => {
