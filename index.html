@@ -579,6 +579,12 @@
           </div>
         </div>
         <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
+            <div><h3 class="font-bold text-emerald-400 text-sm uppercase">✨ Contador de prestigio</h3><p class="text-[11px] text-zinc-400 mt-1">Añade un bonus visual al contador público. Las visitas reales se conservan por separado.</p></div>
+            <label class="block text-xs text-zinc-300" for="visitorPrestigeBonusInput">Bonus de prestigio</label>
+            <input id="visitorPrestigeBonusInput" type="number" min="0" max="1000000" step="1" value="1000" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm">
+            <button type="button" onclick="saveVisitorPrestigeBonus()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar bonus</button>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
@@ -1246,7 +1252,22 @@
       },
       tabsConfig: JSON.parse(JSON.stringify(defaultTabsList)),
       adminTabsConfig: JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS)),
-      customButtons: {}
+      customButtons: {},
+      visitorPrestigeBonus: 1000
+    };
+    let realUniqueVisitors = 0;
+    function renderVisitorPrestigeCount() {
+      const bonus = Math.max(0, Number(config.visitorPrestigeBonus ?? 1000) || 0);
+      if ($("uniqueVisitorCount")) $("uniqueVisitorCount").textContent = (realUniqueVisitors + bonus).toLocaleString("es-ES");
+    }
+    window.saveVisitorPrestigeBonus = async () => {
+      const value = Math.max(0, Math.min(1000000, Math.floor(Number($("visitorPrestigeBonusInput").value) || 0)));
+      try {
+        config.visitorPrestigeBonus = value;
+        await db.collection("settings").doc("activeEdition").set({ visitorPrestigeBonus: value }, { merge: true });
+        renderVisitorPrestigeCount();
+        alert("Bonus de prestigio guardado. Las visitas reales siguen registrándose por separado.");
+      } catch (e) { alert("No se pudo guardar el bonus: " + e.message); }
     };
 
     async function translateTextToEnglish(text) {
@@ -3430,6 +3451,8 @@
       $("adminEditionInput").value = config.edition;
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
+      if ($("visitorPrestigeBonusInput")) $("visitorPrestigeBonusInput").value = Number(config.visitorPrestigeBonus ?? 1000);
+      renderVisitorPrestigeCount();
       applyHeaderMediaConfig();
       if ($("adminHeaderMediaType")) loadHeaderMediaEditor();
 
@@ -3697,7 +3720,8 @@
             localStorage.setItem("nwr_visited_unique", "true");
           }
           const s = await ref.get();
-          $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 0) : "0";
+          realUniqueVisitors = s.exists ? (Number(s.data().total) || 0) : 0;
+          renderVisitorPrestigeCount();
         } catch (e) { $("uniqueVisitorCount").textContent = "-"; }
       })();
 
