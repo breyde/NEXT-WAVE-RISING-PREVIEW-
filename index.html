@@ -129,7 +129,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
-    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2 relative"><a id="graphicBannerImageLink" class="hidden max-w-full" target="_blank" rel="noopener noreferrer"><img id="graphicBannerImage" alt="Banner promocional" class="max-w-full object-contain rounded-xl"></a><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
 
     <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -493,6 +493,7 @@
               </div>
               <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
             </div>
+            <div class="space-y-2 rounded-xl border border-fuchsia-400/20 bg-zinc-950/50 p-3"><label class="block text-[11px] text-fuchsia-200 font-bold">Enlace web al pulsar el banner (opcional)</label><input type="url" id="adminBannerClickUrl" placeholder="https://ejemplo.com/promocion" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><p class="text-[10px] text-zinc-500">Pega cualquier enlace web: Spotify, promociones, campañas o tu propia página. Se abrirá en una pestaña nueva.</p></div>
             <div class="grid grid-cols-2 gap-2">
               <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input id="adminBannerWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
@@ -2140,8 +2141,8 @@
 
     function renderGraphicBanner(tab) {
       const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
-      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
-      if (!box || !img || !video || !yt) return;
+      const img = $("graphicBannerImage"), imageLink = $("graphicBannerImageLink"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
+      if (!box || !img || !imageLink || !video || !yt) return;
       const tabs = Array.isArray(b.tabs) ? b.tabs : [];
       const allowed = b.tabsAll === true || tabs.includes(tab);
       const type = b.type || "image";
@@ -2149,13 +2150,14 @@
       box.classList.toggle("hidden", !visible);
       applyMediaPositions();
       video.pause(); video.removeAttribute("src"); video.load();
-      [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
+      [imageLink, video, yt].forEach(el => { el.classList.add("hidden"); if (el !== imageLink) el.removeAttribute("src"); });
       if (!visible) return;
       const width = validHeaderWidth(b.width || "100%");
       const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
       if (type === "image") {
         img.src = b.url; img.style.width = width; img.style.height = height + "px";
-        img.style.maxWidth = "100%"; img.style.objectFit = b.objectFit || "contain"; img.classList.remove("hidden");
+        img.style.maxWidth = "100%"; img.style.objectFit = b.objectFit || "contain";
+        imageLink.href = b.clickUrl || b.url; imageLink.classList.remove("hidden");
       } else if (type === "video") {
         video.src = b.url; video.style.width = width; video.style.height = height + "px";
         video.style.maxWidth = "100%"; video.style.objectFit = b.objectFit || "contain";
@@ -2219,6 +2221,7 @@
       const type = b.type || "image";
       if ($("adminBannerMediaType")) $("adminBannerMediaType").value = type;
       if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
+      if ($("adminBannerClickUrl")) $("adminBannerClickUrl").value = b.clickUrl || "";
       if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
       if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
       if ($("adminBannerPosition")) $("adminBannerPosition").value = String(b.position ?? 1);
@@ -2258,6 +2261,7 @@
       const tabs = selectedBannerTabs();
       const data = { graphicBanner: {
         enabled: $("adminBannerEnabled").checked, type, url,
+        clickUrl: normalizeUrl($("adminBannerClickUrl").value || ""),
         width: validHeaderWidth($("adminBannerWidth").value),
         height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
         position: Math.max(0, Math.min(10, Number($("adminBannerPosition").value) || 0)),
@@ -2277,7 +2281,7 @@
     };
     window.clearGraphicBanner = async () => {
       if (!confirm("¿Quitar el banner multimedia?")) return;
-      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: false, objectFit: "contain" } };
+      const data = { graphicBanner: { enabled: false, type: "image", url: "", clickUrl: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: false, objectFit: "contain" } };
       try {
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
         config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
