@@ -200,6 +200,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="block max-w-full object-contain rounded-xl"></div>
 
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
       <span class="shrink-0">📜</span>
@@ -780,6 +781,16 @@
             </div>
             <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
           </div>
+        </div>
+        <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
+          <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner gráfico independiente</h3>
+          <p class="text-[11px] text-zinc-400">Imagen/GIF independiente del logo, con tamaño y visibilidad por pestañas.</p>
+          <div class="flex gap-2"><input type="url" id="adminBannerUrl" placeholder="URL directa de imagen/GIF" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><label class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-200 text-xs cursor-pointer">📁 Subir<input id="adminBannerFile" type="file" accept="image/*" class="hidden" onchange="handleBannerFileUpload(event)"></label></div>
+          <div class="grid grid-cols-2 gap-2"><input id="adminBannerWidth" value="100%" placeholder="Ancho (100% o 900px)" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><input id="adminBannerHeight" type="number" min="40" max="700" value="150" placeholder="Alto px" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+          <div><label class="block text-[11px] text-zinc-300 mb-1">Pestañas (IDs separados por comas; vacío = todas)</label><input id="adminBannerTabs" placeholder="active, weekly, monthly" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+          <label class="flex items-center gap-2 text-xs text-zinc-300"><input type="checkbox" id="adminBannerEnabled" checked> Mostrar banner</label>
+          <div id="adminBannerPreview" class="hidden rounded-xl bg-zinc-950 p-2"><img alt="Vista previa" class="max-h-36 mx-auto object-contain"></div>
+          <div class="flex gap-2"><button type="button" onclick="saveGraphicBanner()" class="flex-1 py-2.5 bg-fuchsia-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="clearGraphicBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
         </div>
         <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
