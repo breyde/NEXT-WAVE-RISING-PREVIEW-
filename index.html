@@ -294,7 +294,7 @@
         <div class="space-y-2">
           <input type="email" id="adminEmailInput" placeholder="Correo de administrador" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
           <input type="password" id="adminPassInput" placeholder="Contraseña" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar con Firebase</button>
+          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar en modo demostración</button>
         </div>
       </div>
 
@@ -3515,16 +3515,18 @@
       // Control de interfaz: solo muestra el panel a la cuenta curadora prevista.
       // La seguridad real debe reforzarse también en las reglas de Firestore.
       auth.onAuthStateChanged(user => {
-        const isCurator = !!user && user.uid === ADMIN_UID;
+        const isCurator = window.NWR_PREVIEW_MODE ? sessionStorage.getItem("nwr_demo_admin") === "1" : !!user && user.uid === ADMIN_UID;
         if (isCurator) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
-          $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
+          $("adminLoggedUserLabel").textContent = window.NWR_PREVIEW_MODE ? "● ADMINISTRACIÓN DEMO · LOCAL" : `● Curador: ${user.email}`;
           $("topConfigBtn").classList.remove("hidden");
           $("topConfigBtn").classList.add("flex");
-          loadAllLists();
-          loadAdminCountries();
-          loadAdminBackups();
+          if (!window.NWR_PREVIEW_MODE) {
+            loadAllLists();
+            loadAdminCountries();
+            loadAdminBackups();
+          }
         } else {
           $("adminDashboard").classList.add("hidden");
           $("adminLoginBox").classList.remove("hidden");
@@ -3871,5 +3873,68 @@
       }, 1200);
     });
   </script>
+
+  <script>
+  // Administración de demostración aislada: nunca autentica ni escribe en Firebase.
+  window.NWR_PREVIEW_MODE = true;
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginBox = document.getElementById("adminLoginBox");
+    const loginBtn = document.getElementById("adminLoginBtn");
+    const dashboard = document.getElementById("adminDashboard");
+    const banner = document.createElement("div");
+    banner.className = "mx-3 mt-3 rounded-xl border border-amber-400/40 bg-amber-950/50 p-3 text-xs text-amber-200";
+    banner.textContent = "MODO ADMIN DEMO · Cambios guardados solo en este navegador. Firebase, usuarios reales y operaciones reales están desconectados.";
+    document.getElementById("adminView")?.prepend(banner);
+
+    const enterDemo = () => {
+      sessionStorage.setItem("nwr_demo_admin", "1");
+      loginBox?.classList.add("hidden");
+      dashboard?.classList.remove("hidden");
+      const label = document.getElementById("adminLoggedUserLabel");
+      if (label) label.textContent = "● ADMINISTRACIÓN DEMO · LOCAL";
+      const top = document.getElementById("topConfigBtn");
+      top?.classList.remove("hidden"); top?.classList.add("flex");
+      const seed = [
+        {artist:"Luna Norte",title:"Horizonte de papel",status:"Pendiente"},
+        {artist:"Mar Abierto",title:"Vuelvo a empezar",status:"Revisada"},
+        {artist:"Neón Sur",title:"Kilómetros de luz",status:"Declarada"}
+      ];
+      const target = document.getElementById("submissionsList");
+      if (target && !target.dataset.demoFilled) {
+        target.dataset.demoFilled = "1";
+        target.innerHTML = "";
+        seed.forEach((item,idx) => {
+          const card=document.createElement("div");
+          card.className="rounded-xl border border-white/10 bg-zinc-900/70 p-3 space-y-2";
+          card.innerHTML='<div class="font-bold text-white"></div><div class="text-zinc-400 text-xs"></div><div class="flex gap-2 flex-wrap"><button class="demo-status px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 text-xs">Marcar revisada</button><button class="demo-status px-2 py-1 rounded bg-amber-500/20 text-amber-200 text-xs">Dejar pendiente</button></div><div class="text-[10px] text-zinc-500">Registro ficticio · demostración</div>';
+          card.querySelector("div").textContent=item.artist;
+          card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;
+          card.querySelectorAll("button")[0].addEventListener("click",()=>{item.status="Revisada";card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
+          card.querySelectorAll("button")[1].addEventListener("click",()=>{item.status="Pendiente";card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
+          target.append(card);
+        });
+        const count=document.getElementById("subCount"); if(count) count.textContent=seed.length;
+      }
+      const active=document.getElementById("adminActiveListContainer");
+      if(active && !active.dataset.demoFilled){active.dataset.demoFilled="1";active.innerHTML='<div class="rounded-xl border border-white/10 bg-zinc-900/70 p-3"><strong>Demo Artist</strong><p class="text-zinc-400">Canción de muestra · Lista activa</p><small class="text-zinc-500">Datos ficticios</small></div>';}
+      document.querySelectorAll("#adminDashboard button").forEach(btn=>{
+        const action=btn.getAttribute("onclick")||"";
+        const safe=action.includes("switchAdminTab")||action.includes("logoutCurator")||action.includes("export");
+        if(!safe && !btn.classList.contains("demo-status")){btn.disabled=true;btn.title="Desactivado en la demostración para proteger los datos reales";btn.classList.add("opacity-40","cursor-not-allowed");}
+      });
+      document.querySelectorAll("#adminDashboard input").forEach(input=>{
+        if(input.id!=="adminEditionInput" && input.id!=="adminPlaylistInput" && input.id!=="adminTrackInput") input.disabled=true;
+      });
+      ["adminEditionInput","adminPlaylistInput","adminTrackInput"].forEach(id=>{
+        const el=document.getElementById(id); if(el){const k="nwr_demo_"+id;el.value=localStorage.getItem(k)||el.value;el.addEventListener("change",()=>localStorage.setItem(k,el.value));}
+      });
+    };
+    const saveDemo=()=>{const cards=[...document.querySelectorAll("#submissionsList .rounded-xl")].map(c=>c.innerText);localStorage.setItem("nwr_demo_review_cards",JSON.stringify(cards));};
+    if(loginBtn){loginBtn.textContent="Entrar en modo demostración";loginBtn.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();enterDemo();},true);}
+    window.logoutCurator=()=>{sessionStorage.removeItem("nwr_demo_admin");dashboard?.classList.add("hidden");loginBox?.classList.remove("hidden");document.getElementById("topConfigBtn")?.classList.add("hidden");};
+    if(sessionStorage.getItem("nwr_demo_admin")==="1") enterDemo();
+  });
+  </script>
+
 </body>
 </html>
