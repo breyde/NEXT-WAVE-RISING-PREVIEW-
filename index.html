@@ -1185,7 +1185,7 @@
     const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
-    let currentLang = localStorage.getItem('nwr_site_language') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
+    let currentLang = localStorage.getItem('nwr_site_language_v2') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false, autoTranslatedNotices = {};
@@ -2444,14 +2444,19 @@
         const response=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,450))+"&langpair=es|"+encodeURIComponent(lang),{cache:"force-cache"});
         if(!response.ok) throw new Error("Translation HTTP "+response.status);
         const data=await response.json();
-        const raw=data?.responseData?.translatedText;
-        if(raw && !raw.includes("MYMEMORY WARNING") && data?.responseStatus!==403) {
+        const status=Number(data?.responseStatus);
+        const raw=data?.responseData?.translatedText || "";
+        const errorText=String(data?.responseDetails || raw).toLowerCase();
+        const failed=status!==200 || data?.quotaFinished===true ||
+          /quota|limit exceeded|invalid source language|invalid target language|please select two distinct languages|warning/.test(errorText);
+        if(!failed && raw) {
           const translated=decodeTranslatedText(raw);
           if(translated && translated.trim() && translated.trim().toLowerCase()!==text.trim().toLowerCase()) {
             try{localStorage.setItem(cacheKey,translated);}catch(e){}
             return translated;
           }
         }
+        if(failed) console.warn("El servicio de traducción no ha aceptado la solicitud:",data?.responseDetails || raw || status);
       } catch(e) { console.warn("Traducción no disponible para este texto:",e); }
       return text;
     }
@@ -2460,7 +2465,7 @@
     const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#submissionsList,#adminActiveListContainer,#adminCountriesList,#adminMessagesList,#ghGalleryContainer,[id^=\"noticeText_\"]";
     async function applyAdditionalLanguage(lang) {
       const base = translations.es || {};
-      const tagged = [...document.querySelectorAll("[data-i18n]")];
+      const tagged = [...document.querySelectorAll("[data-i18n]")].filter(el=>!el.closest('[hidden],.hidden'));
       for (let i=0;i<tagged.length;i+=4) {
         await Promise.all(tagged.slice(i,i+4).map(async el => {
           const key=el.getAttribute("data-i18n"), source=base[key];
@@ -2487,7 +2492,7 @@
       while((node=walker.nextNode())) {
         const parent=node.parentElement;
         if(!parent || !node.nodeValue.trim()) continue;
-        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],'+dynamicContentSelectors)) continue;
+        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],[hidden],.hidden,'+dynamicContentSelectors)) continue;
         const tagged=parent.closest('[data-i18n]');
         if(tagged) {
           const key=tagged.getAttribute("data-i18n");
@@ -2533,7 +2538,8 @@
       const supported = ["es","en","fr","de","it","pt","nl","pl","ru","uk","zh-CN","ja","ko","ar","hi","tr","ro","el","sv","no","da","fi","cs","sk","hu","bg","hr","sr","he","id","ms","th","vi","tl"];
       if (!supported.includes(lang)) lang = "es";
       currentLang = lang;
-      localStorage.setItem("nwr_site_language", lang);
+      localStorage.setItem("nwr_site_language_v2", lang);
+      document.documentElement.lang = lang;
       syncModalLanguagePickers();
       if (lang === "es") restoreOriginalUiText();
       const t = translations[lang] || translations.es;
