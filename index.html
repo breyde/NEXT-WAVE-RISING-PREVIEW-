@@ -3837,6 +3837,39 @@
         }, error => console.warn("No se pudo sincronizar el estado de votación:", error));
       });
     });
+
+    // MODO DEMOSTRACIÓN: contenido ficticio, sin conexión a datos reales.
+    document.addEventListener("DOMContentLoaded", () => {
+      const demoCard = (artist, title, tag="EJEMPLO") => `
+        <article class="glass rounded-xl p-3 border border-white/10 flex items-center justify-between gap-3">
+          <div class="min-w-0"><p class="text-[9px] tracking-widest text-emerald-400 font-bold">${tag} · DATOS FICTICIOS</p>
+          <p class="font-bold text-sm text-white truncate">${title}</p>
+          <p class="text-xs text-zinc-400 truncate">${artist}</p></div>
+          <span class="text-xl" aria-hidden="true">♫</span>
+        </article>`;
+      const fill = (id, cards, countId) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = cards.join("");
+        const count = document.getElementById(countId);
+        if (count) count.textContent = String(cards.length);
+      };
+      setTimeout(() => {
+        fill("publicActiveList", [demoCard("Artista de muestra", "Luz de madrugada"), demoCard("Proyecto ficticio", "Ritmo sin fronteras")], "publicActiveCount");
+        fill("publicSubmissionsList", [demoCard("Banda de ejemplo", "Horizonte abierto"), demoCard("Artista invitado", "Voces del futuro")], "publicSubCount");
+        fill("monthlyListContainer", [demoCard("Selección de muestra", "Lo mejor del mes")], "monthlyCount");
+        fill("annualListContainer", [demoCard("Archivo ficticio", "Selección anual")], "annualCount");
+        const set = (id, value) => { const el=document.getElementById(id); if(el) el.textContent=value; };
+        set("statVotersCount","12"); set("statTracksVotedCount","4"); set("statTotalVotesCount","28");
+        set("uniqueVisitorCount","—");
+        ["btnChatJoin","btnChatSend","resetVotesBtn","migrateVotePrivacyBtn","clearLegacyChatPresenceBtn"].forEach(id => {
+          const el=document.getElementById(id); if(el){el.disabled=true;el.title="Desactivado en la vista previa";}
+        });
+        const demoNote=document.createElement("p");
+        demoNote.className="text-[10px] text-amber-300 text-center mt-2";
+        demoNote.textContent="Los nombres, canciones y cifras visibles son datos ficticios de demostración.";
+        document.getElementById("publicActiveList")?.append(demoNote.cloneNode(true));
+      }, 1200);
+    });
   </script>
 </body>
 </html>
