@@ -1038,7 +1038,7 @@
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="infoModalTitle">📜 Manifiesto &amp; Funcionamiento</h3>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es'); openInfoModal();" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-[11px] font-bold text-emerald-300 border border-emerald-500/40">🌐 ES / EN</button>
+          <select class="modal-language-select" aria-label="Idioma de esta ventana" onchange="setLanguage(this.value); openInfoModal();" title="Idioma"><option value="es">🇪🇸 ES</option><option value="en">🇬🇧 EN</option><option value="fr">🇫🇷 FR</option><option value="de">🇩🇪 DE</option><option value="it">🇮🇹 IT</option><option value="pt">🇵🇹 PT</option><option value="nl">🇳🇱 NL</option><option value="pl">🇵🇱 PL</option><option value="ru">🇷🇺 RU</option><option value="uk">🇺🇦 UK</option><option value="zh-CN">🇨🇳 中文</option><option value="ja">🇯🇵 JA</option><option value="ko">🇰🇷 KO</option><option value="ar">🇸🇦 AR</option><option value="hi">🇮🇳 HI</option><option value="tr">🇹🇷 TR</option><option value="ro">🇷🇴 RO</option><option value="el">🇬🇷 EL</option><option value="sv">🇸🇪 SV</option><option value="no">🇳🇴 NO</option><option value="da">🇩🇰 DA</option><option value="fi">🇫🇮 FI</option><option value="cs">🇨🇿 CS</option><option value="sk">🇸🇰 SK</option><option value="hu">🇭🇺 HU</option><option value="bg">🇧🇬 BG</option><option value="hr">🇭🇷 HR</option><option value="sr">🇷🇸 SR</option><option value="he">🇮🇱 HE</option><option value="id">🇮🇩 ID</option><option value="ms">🇲🇾 MS</option><option value="th">🇹🇭 TH</option><option value="vi">🇻🇳 VI</option><option value="tl">🇵🇭 TL</option></select>
           <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
         </div>
       </div>
@@ -2508,9 +2508,10 @@
           el.textContent = await translateUiText(source, lang);
         }
       }
-      document.querySelectorAll("[data-i18n-ph]").forEach(async el => {
-        const key = el.getAttribute("data-i18n-ph");
-        if (typeof base[key] === "string") el.placeholder = await translateUiText(base[key], lang);
+      document.querySelectorAll("input[placeholder],textarea[placeholder]").forEach(async el => {
+        if (!el.dataset.originalPlaceholder) el.dataset.originalPlaceholder = el.placeholder;
+        const source = el.dataset.originalPlaceholder;
+        if (source) el.placeholder = await translateUiText(source, lang);
       });
     }
 
