@@ -759,6 +759,26 @@
 
         <!-- BACKUPS -->
         <div id="adminViewBackups" class="hidden space-y-4">
+          <section class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/40">
+            <div>
+              <h3 class="font-bold text-cyan-300 text-sm uppercase">📁 Copias JSON de listas</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Descarga las listas a tu dispositivo o importa un JSON. Al importar, se guarda como un backup nuevo en Firebase; no sustituye nada automáticamente.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <select id="jsonBackupScope" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="all">📦 Todas las listas</option>
+                <option value="active">📻 Lista Activa</option>
+                <option value="weekly">🔥 Cola Semanal</option>
+                <option value="monthly">🗓️ Lista Mensual</option>
+                <option value="annual">📀 Lista Anual</option>
+                <option value="countries">🌍 Países</option>
+              </select>
+              <button type="button" onclick="exportListsJson()" class="px-3 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold text-xs">⬇️ Exportar JSON</button>
+              <button type="button" onclick="document.getElementById('listsJsonImportInput').click()" class="px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar JSON</button>
+              <input id="listsJsonImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importListsJson(event)">
+            </div>
+            <p id="listsJsonBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">La importación añade una copia al historial. Para restaurarla, usa el botón «Restaurar» de esa copia.</p>
+          </section>
           <section class="glass rounded-2xl p-5 space-y-3 border border-amber-500/40">
             <div>
               <h3 class="font-bold text-amber-300 text-sm uppercase">🧰 Copia de seguridad de configuración</h3>
@@ -2965,6 +2985,52 @@
         if (tVote) tVote.style.opacity = "0.6";
       }
     }
+
+    // Exportación e importación local de listas en JSON. La importación crea un backup, no modifica listas activas.
+    window.exportListsJson = async () => {
+      const status = $("listsJsonBackupStatus");
+      const scope = $("jsonBackupScope")?.value || "all";
+      const collections = { active: ["active_list", "activeTracks"], weekly: ["submissions", "weeklyTracks"], monthly: ["monthly_list", "monthlyTracks"], annual: ["annual_list", "annualTracks"], countries: ["artist_countries", "countriesList"] };
+      const payload = { app: "NEXT-WAVE-RISING-LISTS", schemaVersion: 1, scope, exportedAt: new Date().toISOString(),
+        activeTracks: [], weeklyTracks: [], monthlyTracks: [], annualTracks: [], countriesList: [] };
+      const selected = scope === "all" ? Object.values(collections) : [collections[scope]];
+      try {
+        for (const [collectionName, key] of selected) {
+          const snap = await db.collection(collectionName).get();
+          payload[key] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            }
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = "next-wave-rising-listas-" + scope + "-" + new Date().toISOString().slice(0,10) + ".json";
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        if (status) status.textContent = "✅ JSON descargado. Registros: " + Object.values(payload).filter(Array.isArray).reduce((n, arr) => n + arr.length, 0) + ".";
+      } catch (e) { if (status) status.textContent = "Error al exportar: " + e.message; }
+    };
+
+    window.importListsJson = async event => {
+      const input = event?.target, file = input?.files?.[0], status = $("listsJsonBackupStatus");
+      if (!file) return;
+      try {
+        if (file.size > 10 * 1024 * 1024) throw new Error("El archivo supera el límite de 10 MB.");
+        const data = JSON.parse(await file.text());
+        if (data?.app !== "NEXT-WAVE-RISING-LISTS" || data?.schemaVersion !== 1) throw new Error("El archivo no es un JSON de listas válido de Next Wave Rising.");
+        const keys = ["activeTracks", "weeklyTracks", "monthlyTracks", "annualTracks", "countriesList"];
+        for (const key of keys) if (data[key] !== undefined && !Array.isArray(data[key])) throw new Error("Formato no válido en " + key + ".");
+        if (!keys.some(key => (data[key] || []).length)) throw new Error("El archivo no contiene registros para importar.");
+        const payload = {
+          scope: data.scope || "all", edition: "JSON importado - " + new Date().toLocaleString(),
+          dateString: madridStr(), dateOnly: madridDateOnly(), timestamp: Date.now(),
+          activeTracks: data.activeTracks || [], weeklyTracks: data.weeklyTracks || [],
+          monthlyTracks: data.monthlyTracks || [], annualTracks: data.annualTracks || [],
+          countriesList: data.countriesList || []
+        };
+        if (!confirm("Se añadirá este archivo al historial de backups. Las listas actuales NO se modificarán hasta que elijas restaurar la copia. ¿Continuar?")) return;
+        await db.collection("backups").add(payload);
+        await loadAdminBackups();
+        if (status) status.textContent = "✅ JSON importado como copia nueva. Busca la copia en el historial y pulsa «Restaurar» cuando quieras.";
+      } catch (e) { if (status) status.textContent = "Error al importar: " + e.message; }
+      finally { if (input) input.value = ""; }
+    };
 
     // Copia local de ajustes visuales y funcionales (sin datos personales ni credenciales).
     window.exportSiteConfiguration = () => {
