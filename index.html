@@ -41,7 +41,6 @@
     body.admin-mode header { width:100%; max-width:100%; min-width:0; }
     body.admin-mode header > div:first-child { display:flex !important; flex-flow:row nowrap !important; align-items:center; justify-content:space-between; gap:clamp(3px,1.2vw,9px); width:100%; min-width:0; }
     body.admin-mode header > div:first-child > div { display:contents !important; }
-    body.admin-mode #siteLanguageSelect { min-width:0 !important; width:100%; max-width:100%; flex:0.72 1 0; height:clamp(31px,8.5vw,38px); padding:0 2px !important; font-size:clamp(8px,2.2vw,10px) !important; background:transparent; }
     body.admin-mode #btnContactHeader { min-width:0 !important; width:auto; flex:1.45 1 0; height:clamp(31px,8.5vw,38px); padding:0 !important; margin:0 !important; border-radius:11px; font-size:clamp(15px,4.4vw,19px) !important; justify-content:center; }
     body.admin-mode #btnContactHeader span:last-child { display:none; }
     body.admin-mode #headerVotingStatus { min-width:0 !important; width:auto; flex:1.05 1 0; height:clamp(31px,8.5vw,38px); padding:0 3px !important; font-size:clamp(9px,2.6vw,11px) !important; line-height:1.05; text-align:center; white-space:nowrap; }
@@ -52,7 +51,6 @@
     @media (max-width:380px) {
       body.admin-mode { padding-left:10px !important; padding-right:10px !important; }
       body.admin-mode #btnContactHeader span:last-child { display:none; }
-      body.admin-mode #siteLanguageSelect { font-size:9px !important; }
     }
 
     /* Barra superior rediseñada: una única botonera segmentada y adaptable. */
@@ -73,11 +71,9 @@
     }
     header > div:first-child > div { display:contents !important; }
     header > div:first-child > div > div,
-    #siteLanguageSelect,
     #btnContactHeader,
     #headerVotingStatus,
     #topConfigBtn { min-width:0 !important; max-width:100%; box-sizing:border-box; }
-    header > div:first-child > div > div:has(#siteLanguageSelect) {
       display:flex !important;
       align-items:center;
       justify-content:center;
@@ -87,9 +83,6 @@
       border-radius:12px;
       background:rgba(9,9,11,.58);
     }
-    #siteLanguageSelect { width:100%; max-width:25vw !important; min-width:0 !important; height:34px; padding:0 1px !important; background:transparent; color:#e4e4e7; font-size:clamp(8px,2.25vw,10px) !important; text-overflow:clip; }
-    header > div:first-child > div > div:has(#siteLanguageSelect) { flex:0 1 25vw; min-width:0; }
-    #siteLanguageSelect option { max-width:25vw; }
     #btnContactHeader {
       width:100%;
       height:38px;
@@ -157,7 +150,6 @@
       body.admin-mode header > div:first-child { grid-template-columns:minmax(0,.82fr) minmax(0,.8fr) minmax(0,.9fr) 34px; }
       body.admin-mode #topConfigBtn { width:34px; min-width:34px !important; height:36px; }
       #btnContactHeader { padding:0 4px !important; }
-      #siteLanguageSelect { font-size:9px !important; }
     }
 
 
@@ -1744,20 +1736,6 @@
       renderFeaturedPlayer();
     }
 
-    window.translateCustomTabContent = async id => {
-      const tab = (config.tabsConfig || []).find(x => x.id === id);
-      const bodyEl = $(`customTabBody_${id}`);
-      if (!tab || !bodyEl) return;
-      if (bodyEl.dataset.translated === "1") {
-        bodyEl.textContent = tab.content || "";
-        bodyEl.dataset.translated = "0";
-      } else {
-        bodyEl.textContent = "⏳ Translating...";
-        bodyEl.textContent = await translateTextToEnglish(tab.content || "");
-        bodyEl.dataset.translated = "1";
-      }
-    };
-
     function renderAdminTabsManager() {
       const list = $("adminTabsManagerList");
       if (!list) return;
@@ -2403,22 +2381,6 @@
       }
     }
 
-    window.toggleNoticeLanguage = async k => {
-      const pEl = $(`noticeText_${k}`);
-      const msgEs = (config.tabNotices || {})[k];
-      if (!pEl || !msgEs) return;
-      if (pEl.dataset.langMode === "en") {
-        pEl.textContent = msgEs;
-        pEl.dataset.langMode = "es";
-      } else {
-        pEl.textContent = "⏳ Translating...";
-        const enText = (config.tabNoticesEn || {})[k]?.trim() || autoTranslatedNotices[k] || await translateTextToEnglish(msgEs);
-        autoTranslatedNotices[k] = enText;
-        pEl.textContent = enText;
-        pEl.dataset.langMode = "en";
-      }
-    };
-
     window.loadSelectedTabNoticeToForm = () => {
       const k = $("adminNoticeTabSelect").value;
       $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
@@ -2548,9 +2510,6 @@
       if (!supported.includes(lang)) lang = "es";
       currentLang = lang;
       localStorage.setItem("nwr_site_language", lang);
-      const selector = $("siteLanguageSelect");
-      if (selector) selector.value = lang;
-      syncModalLanguagePickers();
       const t = translations[lang] || translations.es;
       $("txtAdminBtn").textContent = !$("adminView").classList.contains("hidden") ? t.backApp : t.adminBtn;
       document.querySelectorAll("[data-i18n]").forEach(el => {
