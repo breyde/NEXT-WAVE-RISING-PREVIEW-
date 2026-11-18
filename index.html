@@ -1841,21 +1841,24 @@
         const docRef = db.collection("artist_countries").doc(docId);
         const snap = await docRef.get();
         const nowStr = madridStr();
-        const cleanGeo = {
-          country: countryKnown ? country : "Desconocido",
-          city: countryKnown ? (geo.city || "") : "",
-          flag: countryKnown ? (geo.flag || "🌐") : "🌐"
-        };
+        const cleanGeo = countryKnown ? {
+          country,
+          countryCode: String(geo.countryCode || "").toUpperCase(),
+          city: geo.city || "",
+          flag: geo.flag || flagFromCode(String(geo.countryCode || "").toUpperCase())
+        } : null;
 
         if (snap.exists) {
           const prev = snap.data();
-          await docRef.update({
+          const updateData = {
             submissionsCount: (prev.submissionsCount || 1) + 1,
             lastSubmissionDate: nowStr,
-            ...cleanGeo,
             ip: firebase.firestore.FieldValue.delete(),
             ipCapturedAt: firebase.firestore.FieldValue.delete()
-          });
+          };
+          // Si el visitante ya tenía país identificado, no sustituirlo por "Desconocido".
+          if (cleanGeo) Object.assign(updateData, cleanGeo);
+          await docRef.update(updateData);
         } else {
           await docRef.set({
             email: cleanEmail,
@@ -1863,7 +1866,7 @@
             firstPublishedDate: nowStr,
             lastSubmissionDate: nowStr,
             submissionsCount: 1,
-            ...cleanGeo
+            ...(cleanGeo || { country: "Desconocido", countryCode: "", city: "", flag: "🌐" })
           });
         }
         return cleanGeo;
@@ -3944,9 +3947,17 @@
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
           if (dupTrack) { fb.textContent = currentLang === 'es' ? "⚠️ Esta canción ya está en la cola." : "⚠️ Track already in queue."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
 
-          // La IP se usa solo durante esta consulta; no se conserva en el registro de países.
-          const submitGeo = await fetchGeoByIp("");
-          const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
+          // Reutilizar la geolocalización que ya obtuvo la página para registrar al visitante.
+          // Así el formulario semanal no depende de una segunda consulta que puede fallar.
+          const hasKnownVisitorCountry = !!clientGeo?.country
+            && /^[A-Z]{2}$/.test(String(clientGeo.countryCode || "").toUpperCase());
+          if (!hasKnownVisitorCountry) {
+            await initClientIp();
+          }
+          const safeGeo = (clientGeo?.country
+            && /^[A-Z]{2}$/.test(String(clientGeo.countryCode || "").toUpperCase()))
+            ? { ...clientGeo, countryCode: String(clientGeo.countryCode).toUpperCase() }
+            : null;
 
           const submissionRef = db.collection("submissions").doc();
           const publicSubmissionRef = db.collection("weekly_public").doc(submissionRef.id);
@@ -3956,9 +3967,9 @@
           submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
           submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate });
           await submissionBatch.commit();
-          // Guardar solo el país validado; eliminar la IP del registro de Países.
+          // Guardar país y bandera detectados por el mismo método que registra a los visitantes.
+          // Si el servicio no responde, se conserva cualquier país previo del artista.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
-          sessionStorage.removeItem("nwr_geo_self");
 
           $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
