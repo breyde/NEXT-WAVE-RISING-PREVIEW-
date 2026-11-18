@@ -188,6 +188,7 @@
       <button onclick="switchAdminTab('paises')" id="adminTabPaises">🌍 PAÍSES (<span id="countriesCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes">✉️ MENSAJES (<span id="msgCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('diseno')" id="adminTabDiseno">🎨 DISEÑO</button>
+      <button onclick="switchAdminTab('galeria')" id="adminTabGaleria">🖼️ GALERÍA</button>
       <button onclick="switchAdminTab('ajustes')" id="adminTabAjustes">⚙️ AJUSTES</button>
       <button onclick="switchAdminTab('spotify')" id="adminTabSpotify">🎵 SPOTIFY</button>
       <button onclick="switchAdminTab('backups')" id="adminTabBackups">🗂️ COPIAS (<span id="backupsCountBadge">0</span>)</button>
@@ -543,7 +544,7 @@
         </div>
 
         <!-- CONFIGURACIÓN AVANZADA -->
-        <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
+        <div id="adminViewGaleria" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
@@ -575,8 +576,8 @@
               </div>
             </div>
           </div>
-
-
+        </div>
+        <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
@@ -1188,7 +1189,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'diseno', 'ajustes', 'spotify', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'diseno', 'galeria', 'ajustes', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = localStorage.getItem('nwr_site_language_v2') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -2753,6 +2754,7 @@
         paises: ['adminTabPaises', 'adminViewPaises'],
         mensajes: ['adminTabMensajes', 'adminViewMensajes'],
         diseno: ['adminTabDiseno', 'adminViewDiseno'],
+        galeria: ['adminTabGaleria', 'adminViewGaleria'],
         ajustes: ['adminTabAjustes', 'adminViewAjustes'],
         spotify: ['adminTabSpotify', 'adminViewSpotify'],
         backups: ['adminTabBackups', 'adminViewBackups']
@@ -2766,9 +2768,11 @@
       $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'diseno') {
+      else if (tab === 'galeria') {
         updateGithubTokenStatus();
         loadGithubGallery();
+      }
+      else if (tab === 'diseno') {
         loadHeaderMediaEditor();
         renderAdminTabsManager();
         loadButtonCustomForm();
