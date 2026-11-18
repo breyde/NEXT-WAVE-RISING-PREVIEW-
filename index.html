@@ -3476,12 +3476,13 @@
       if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); try{await db.collection("top_annual").add({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0],timestamp:Date.now()});await loadAllLists();}catch(e){alert("No se pudo añadir: "+e.message);}
     };
     async function loadAllLists() {
-      const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
+      const [votersRes, activeRes, subRes, monthlyRes, annualRes, topRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
         db.collection("submissions").orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
-        db.collection("annual_list").orderBy("timestamp", "asc").get()
+        db.collection("annual_list").orderBy("timestamp", "asc").get(),
+        db.collection("top_annual").orderBy("timestamp", "asc").get()
       ]);
 
       if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
@@ -3564,14 +3565,20 @@
       }
 
       // 3. MENSUAL & 4. ANUAL
-      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
+      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, adminCountId, adminContId, collection) => {
         if (res.status !== "fulfilled") return;
-        const items = res.value.docs.map(d => d.data());
+        const items = res.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $(countId).textContent = items.length;
-        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es)[emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es)[emptyKey]}</p>` : items.map((x, i) => renderPlayableTrackHtml(x, i, listKey, prefixFn(i))).join("");
+        if (adminCountId && $(adminCountId)) $(adminCountId).textContent = items.length;
+        if (adminContId && $(adminContId)) $(adminContId).innerHTML = items.length ? items.map((x,i) => adminTrackRowHtml(x,i,collection)).join("") : '<p class="text-zinc-400 py-3">Esta lista está vacía.</p>';
       };
-      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
-      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "adminMonthlyCount", "adminMonthlyListContainer", "monthly_list");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "adminAnnualCount", "adminAnnualListContainer", "annual_list");
+      if (topRes.status === "fulfilled") {
+        const topItems = topRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        $("adminTopAnnualListContainer").innerHTML = topItems.length ? topItems.map((x,i) => adminTrackRowHtml(x,i,"top_annual")).join("") : '<p class="text-zinc-400 py-3">Aún no hay temas en el TOP anual.</p>';
+      } else $("adminTopAnnualListContainer").innerHTML = '<p class="text-rose-300 py-3">No se pudo cargar el TOP anual.</p>';
     }
 
     // ==================== VOTACIONES ====================
