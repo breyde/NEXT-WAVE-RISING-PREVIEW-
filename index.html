@@ -2507,7 +2507,7 @@
         if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],[data-i18n],'+dynamicContentSelectors)) continue;
         if(!originalUiTextNodes.has(node)) originalUiTextNodes.set(node,node.nodeValue);
         const source=originalUiTextNodes.get(node);
-        if(!source || !/[\\p{L}]{2}/u.test(source)) continue;
+        if(!source || !/\p{L}{2}/u.test(source)) continue;
         pending.push({node,source});
       }
       for(let i=0;i<pending.length;i+=5) {
