@@ -53,6 +53,37 @@ service cloud.firestore {
       allow update, delete: if isOwner();
     }
 
+    // Public weekly queue: contains only display-safe track fields, never contributor email.
+    match /weekly_public/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          "artist", "title", "url", "timestamp", "dateString"
+        ])
+        && request.resource.data.artist is string
+        && request.resource.data.artist.size() > 0
+        && request.resource.data.artist.size() <= 100
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.url is string
+        && request.resource.data.url.matches('https://open\\.spotify\\.com/track/[A-Za-z0-9]+.*')
+        && request.resource.data.timestamp is number
+        && request.resource.data.dateString is string;
+      allow update, delete: if isOwner();
+    }
+
+    // Public visitor total: reads are public; writes may only increase by exactly one.
+    match /stats/visitors {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(["total"])
+        && request.resource.data.total is number
+        && request.resource.data.total == 1;
+      allow update: if request.resource.data.keys().hasOnly(["total"])
+        && request.resource.data.total is number
+        && request.resource.data.total == resource.data.total + 1;
+      allow delete: if false;
+    }
+
     // Public contact form: create only; inbox is private to the owner.
     match /contact_messages/{id} {
       allow read: if isOwner();
