@@ -397,6 +397,18 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
+          <section class="glass rounded-2xl p-5 space-y-3 border border-amber-500/40">
+            <div>
+              <h3 class="font-bold text-amber-300 text-sm uppercase">🧰 Copia de seguridad de configuración</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Guarda o recupera los ajustes de aspecto, iconos, pestañas, reproductores, cabecera, botones y avisos. No incluye listas, usuarios ni credenciales.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="exportSiteConfiguration()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs">⬇️ Exportar configuración</button>
+              <button type="button" onclick="document.getElementById('siteConfigImportInput').click()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar configuración</button>
+              <input id="siteConfigImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importSiteConfiguration(event)">
+            </div>
+            <p id="siteConfigBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Las copias se descargan en tu dispositivo como archivo JSON.</p>
+          </section>
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
@@ -2875,6 +2887,57 @@
         if (tVote) tVote.style.opacity = "0.6";
       }
     }
+
+    // Copia local de ajustes visuales y funcionales (sin datos personales ni credenciales).
+    window.exportSiteConfiguration = () => {
+      try {
+        const payload = {
+          app: "NEXT-WAVE-RISING",
+          schemaVersion: 1,
+          exportedAt: new Date().toISOString(),
+          config: JSON.parse(JSON.stringify(config))
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "next-wave-rising-configuracion-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        const status = $("siteConfigBackupStatus");
+        if (status) status.textContent = "✅ Configuración exportada. Guarda el archivo en un lugar seguro.";
+      } catch (e) {
+        const status = $("siteConfigBackupStatus");
+        if (status) status.textContent = "No se pudo exportar: " + e.message;
+      }
+    };
+
+    window.importSiteConfiguration = async event => {
+      const input = event?.target;
+      const file = input?.files?.[0];
+      if (!file) return;
+      const status = $("siteConfigBackupStatus");
+      try {
+        if (file.size > 2 * 1024 * 1024) throw new Error("El archivo supera el límite de 2 MB.");
+        const payload = JSON.parse(await file.text());
+        if (payload?.app !== "NEXT-WAVE-RISING" || payload?.schemaVersion !== 1 ||
+            !payload.config || typeof payload.config !== "object" || Array.isArray(payload.config)) {
+          throw new Error("El archivo no es una copia de configuración válida de Next Wave Rising.");
+        }
+        const accepted = confirm("Se restaurarán los ajustes guardados en este archivo. Las listas, votos y usuarios no se modificarán. ¿Continuar?");
+        if (!accepted) return;
+        await db.collection("settings").doc("activeEdition").set(payload.config, { merge: true });
+        Object.assign(config, payload.config);
+        await loadConfig();
+        if (status) status.textContent = "✅ Configuración restaurada correctamente desde el archivo.";
+      } catch (e) {
+        if (status) status.textContent = "Error al importar: " + e.message;
+      } finally {
+        if (input) input.value = "";
+      }
+    };
 
     async function loadConfig() {
       try {
