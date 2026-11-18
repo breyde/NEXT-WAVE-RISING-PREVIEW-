@@ -54,6 +54,118 @@
       body.admin-mode #btnContactHeader span:last-child { display:none; }
       body.admin-mode #siteLanguageSelect { font-size:9px !important; }
     }
+
+    /* Barra superior rediseñada: una única botonera segmentada y adaptable. */
+    header { min-width:0; }
+    header > div:first-child {
+      display:grid !important;
+      grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) auto;
+      align-items:center;
+      gap:6px;
+      width:100%;
+      min-width:0;
+      padding:5px;
+      box-sizing:border-box;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      background:linear-gradient(145deg,rgba(39,39,42,.96),rgba(17,17,19,.98));
+      box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045);
+    }
+    header > div:first-child > div { display:contents !important; }
+    header > div:first-child > div > div,
+    #siteLanguageSelect,
+    #btnContactHeader,
+    #headerVotingStatus,
+    #topConfigBtn { min-width:0 !important; max-width:100%; box-sizing:border-box; }
+    header > div:first-child > div > div:has(#siteLanguageSelect) {
+      display:flex !important;
+      align-items:center;
+      justify-content:center;
+      height:38px;
+      padding:0 5px;
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:12px;
+      background:rgba(9,9,11,.58);
+    }
+    #siteLanguageSelect {
+      width:100%;
+      height:34px;
+      padding:0 2px !important;
+      background:transparent;
+      color:#e4e4e7;
+      font-size:clamp(9px,2.6vw,11px) !important;
+      text-overflow:ellipsis;
+    }
+    #btnContactHeader {
+      width:100%;
+      height:38px;
+      margin:0 !important;
+      padding:0 8px !important;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border:1px solid rgba(255,255,255,.10) !important;
+      border-radius:12px !important;
+      background:linear-gradient(180deg,rgba(63,63,70,.55),rgba(39,39,42,.72)) !important;
+      color:#f4f4f5 !important;
+      font-size:clamp(10px,2.8vw,12px) !important;
+      white-space:nowrap;
+      box-shadow:inset 0 1px rgba(255,255,255,.06);
+    }
+    #btnContactHeader span:first-child { font-size:17px; flex:0 0 auto; }
+    #btnContactHeader span:last-child { overflow:hidden; text-overflow:ellipsis; }
+    #headerVotingStatus {
+      width:100%;
+      height:38px;
+      padding:0 5px !important;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border-radius:12px !important;
+      background:rgba(9,9,11,.58);
+      border:1px solid rgba(255,255,255,.09) !important;
+      font-size:clamp(9px,2.5vw,11px) !important;
+      white-space:nowrap;
+      overflow:hidden;
+    }
+    #headerVotingStatus span:last-child { overflow:hidden; text-overflow:ellipsis; }
+    #topConfigBtn {
+      width:38px;
+      height:38px;
+      min-width:38px !important;
+      padding:0 !important;
+      border-radius:12px !important;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(9,9,11,.72) !important;
+      border:1px solid rgba(255,255,255,.13) !important;
+      color:#a1a1aa !important;
+      font-size:19px !important;
+      box-shadow:inset 0 1px rgba(255,255,255,.04);
+    }
+    body.admin-mode header > div:first-child {
+      grid-template-columns:minmax(0,.86fr) minmax(0,1fr) minmax(0,.92fr) 38px;
+    }
+    body.admin-mode #btnContactHeader { flex:initial; }
+    body.admin-mode #btnContactHeader span:last-child { display:none; }
+    body.admin-mode #topConfigBtn { display:flex; }
+    body.admin-mode #topConfigBtn.admin-gear-active {
+      color:#6ee7b7 !important;
+      border-color:rgba(52,211,153,.65) !important;
+      background:linear-gradient(145deg,rgba(16,185,129,.22),rgba(6,78,59,.24)) !important;
+      box-shadow:0 0 14px rgba(16,185,129,.12),inset 0 1px rgba(255,255,255,.08);
+    }
+    @media (max-width:380px) {
+      header > div:first-child { gap:4px; padding:4px; }
+      body.admin-mode header > div:first-child { grid-template-columns:minmax(0,.82fr) minmax(0,.8fr) minmax(0,.9fr) 34px; }
+      body.admin-mode #topConfigBtn { width:34px; min-width:34px !important; height:36px; }
+      #btnContactHeader { padding:0 4px !important; }
+      #siteLanguageSelect { font-size:9px !important; }
+    }
+
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
