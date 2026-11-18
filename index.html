@@ -3541,6 +3541,21 @@
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com") {
+          try {
+            const publicSnap = await db.collection("weekly_public").get();
+            const publicIds = new Set(publicSnap.docs.map(d => d.id));
+            const missing = subs.filter(x => !publicIds.has(x.id));
+            for (let i = 0; i < missing.length; i += 450) {
+              const batch = db.batch();
+              missing.slice(i, i + 450).forEach(x => batch.set(db.collection("weekly_public").doc(x.id), {
+                artist: x.artist || "", title: x.title || "", url: x.url || "",
+                timestamp: Number(x.timestamp) || Date.now(), dateString: x.dateString || ""
+              }));
+              await batch.commit();
+            }
+          } catch (mirrorError) { console.warn("No se pudo sincronizar la cola pública:", mirrorError); }
+        }
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
           aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
@@ -3552,6 +3567,10 @@
           }).join("");
           pSub.innerHTML = subs.map((s, i) => renderPlayableTrackHtml(s, i, 'weekly', 'Reg: ' + (s.dateString || ''))).join("");
         }
+      } else {
+        $("publicSubCount").textContent = "—";
+        pSub.innerHTML = '<p class="text-rose-300 text-xs text-center py-4">No se pudo cargar la cola semanal. Comprueba los permisos de Firestore.</p>';
+        if (aSub) aSub.innerHTML = '<p class="text-rose-300">Error al cargar la cola semanal.</p>';
       }
 
       // 3. MENSUAL & 4. ANUAL
