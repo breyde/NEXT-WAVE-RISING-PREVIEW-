@@ -1305,7 +1305,7 @@
     }
 
     function openInfoModal() {
-      const t = translations[currentLang], m = $('infoModal');
+      const t = (translations[currentLang] || translations.es), m = $('infoModal');
       if (m) {
         m.querySelector('[data-i18n="infoModalTitle"]').innerHTML = t.infoModalTitle;
         m.querySelector('[data-i18n="infoModalBody"]').innerHTML = t.infoModalBody;
@@ -2221,7 +2221,7 @@
     async function renderAllTabNotices() {
       const notices = config.tabNotices || {};
       const noticesEn = config.tabNoticesEn || {};
-      const badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
+      const badge = (translations[currentLang] || translations.es).noticeImportantBadge || "AVISO IMPORTANTE";
       const tabs = config.tabsConfig || defaultTabsList;
 
       for (const t of tabs) {
@@ -2383,7 +2383,7 @@
       $(targetVId)?.classList.remove('hidden');
       const activeBtn = $(`tab_${tab}`);
       if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
-      $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
+      $("txtAdminBtn").textContent = (translations[currentLang] || translations.es).adminBtn;
       renderFeaturedPlayer();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
@@ -2471,7 +2471,7 @@
       const adminView = $("adminView");
       if (adminView.classList.contains("hidden")) {
         adminView.classList.remove("hidden");
-        $("txtAdminBtn").textContent = translations[currentLang].backApp;
+        $("txtAdminBtn").textContent = (translations[currentLang] || translations.es).backApp;
       }
       switchAdminTab('config');
       window.scrollTo({ top: adminView.offsetTop, behavior: 'smooth' });
@@ -3072,7 +3072,7 @@
         $("statTotalVotesCount").textContent = String(totalVotes).padStart(2, '0');
 
         if (!activeSubs.length) {
-          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
+          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es).activeListEmpty}</p>`;
           aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
@@ -3142,7 +3142,7 @@
         if (res.status !== "fulfilled") return;
         const items = res.value.docs.map(d => d.data());
         $(countId).textContent = items.length;
-        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es)[emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
       };
       renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
       renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
@@ -3245,7 +3245,7 @@
           $(vId)?.classList.add('hidden');
         });
         av.classList.toggle("hidden", !hid);
-        $("txtAdminBtn").textContent = hid ? translations[currentLang].backApp : translations[currentLang].adminBtn;
+        $("txtAdminBtn").textContent = hid ? (translations[currentLang] || translations.es).backApp : (translations[currentLang] || translations.es).adminBtn;
       });
 
       $("toggleVotingBtn").addEventListener("click", async () => {
@@ -3294,7 +3294,7 @@
           if (day === 4 && h >= 22) updateVotingUI(false);
 
           if (day === 5 || day === 6) { 
-            document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
+            document.getElementById("statusBadge").textContent = (translations[currentLang] || translations.es).statusClosed; 
             document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
             updateVotingUI(config.votingActive);
             document.getElementById("cdDays").textContent = "00";
@@ -3354,7 +3354,7 @@
           $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
         } catch (e) { err("Error de conexión.", "Connection error."); }
-        finally { btn.disabled = false; btn.textContent = translations[currentLang].submitBtn; }
+        finally { btn.disabled = false; btn.textContent = (translations[currentLang] || translations.es).submitBtn; }
       });
 
       $("saveConfigBtn").addEventListener("click", async () => {
