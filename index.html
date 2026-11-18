@@ -3317,6 +3317,7 @@
 
       auth.onAuthStateChanged(user => {
         if (user) {
+          $("adminView").classList.remove("hidden");
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
           document.body.classList.add("admin-mode");
@@ -3331,6 +3332,7 @@
           loadAdminBackups();
         } else {
           $("adminDashboard").classList.add("hidden");
+          $("adminView").classList.add("hidden");
           document.body.classList.remove("admin-mode", "admin-show-site");
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
