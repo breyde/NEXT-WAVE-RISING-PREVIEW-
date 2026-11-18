@@ -3515,7 +3515,7 @@
       // Control de interfaz: solo muestra el panel a la cuenta curadora prevista.
       // La seguridad real debe reforzarse también en las reglas de Firestore.
       auth.onAuthStateChanged(user => {
-        const isCurator = window.NWR_PREVIEW_MODE ? sessionStorage.getItem("nwr_demo_admin") === "1" : !!user && user.uid === ADMIN_UID;
+        const isCurator = window.NWR_PREVIEW_MODE ? localStorage.getItem("nwr_demo_admin") === "1" : !!user && user.uid === ADMIN_UID;
         if (isCurator) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
@@ -3912,13 +3912,14 @@
     document.getElementById("adminView")?.prepend(banner);
 
     const enterDemo = () => {
-      sessionStorage.setItem("nwr_demo_admin", "1");
+      localStorage.setItem("nwr_demo_admin", "1");
       loginBox?.classList.add("hidden");
       dashboard?.classList.remove("hidden");
       const label = document.getElementById("adminLoggedUserLabel");
       if (label) label.textContent = "● ADMINISTRACIÓN DEMO · LOCAL";
       const top = document.getElementById("topConfigBtn");
       top?.classList.remove("hidden"); top?.classList.add("flex");
+      const savedStatuses = JSON.parse(localStorage.getItem("nwr_demo_review_statuses") || "{}");
       const seed = [
         {artist:"Luna Norte",title:"Horizonte de papel",status:"Pendiente",demoSample:true},
         {artist:"Mar Abierto",title:"Vuelvo a empezar",status:"Revisada",demoSample:true},
@@ -3927,7 +3928,10 @@
           artist: item.artist, title: item.title, email: item.email, url: item.url,
           status: "Nueva · DEMO", demoSample: false
         }))
-      ];
+      ].map((item,idx) => {
+        const demoKey = item.url || "sample:" + idx;
+        return {...item, demoKey, status: savedStatuses[demoKey] || item.status};
+      });
       const target = document.getElementById("submissionsList");
       if (target && !target.dataset.demoFilled) {
         target.dataset.demoFilled = "1";
@@ -3935,11 +3939,13 @@
         seed.forEach((item,idx) => {
           const card=document.createElement("div");
           card.className="rounded-xl border border-white/10 bg-zinc-900/70 p-3 space-y-2";
+          card.dataset.demoKey=item.demoKey;
+          card.dataset.demoStatus=item.status;
           card.innerHTML='<div class="font-bold text-white"></div><div class="text-zinc-400 text-xs"></div><div class="flex gap-2 flex-wrap"><button class="demo-status px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 text-xs">Marcar revisada</button><button class="demo-status px-2 py-1 rounded bg-amber-500/20 text-amber-200 text-xs">Dejar pendiente</button></div><div class="text-[10px] text-zinc-500">Registro ficticio · demostración</div>';
           card.querySelector("div").textContent=item.artist;
           card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;
-          card.querySelectorAll("button")[0].addEventListener("click",()=>{item.status="Revisada";card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
-          card.querySelectorAll("button")[1].addEventListener("click",()=>{item.status="Pendiente";card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
+          card.querySelectorAll("button")[0].addEventListener("click",()=>{item.status="Revisada";card.dataset.demoStatus=item.status;card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
+          card.querySelectorAll("button")[1].addEventListener("click",()=>{item.status="Pendiente";card.dataset.demoStatus=item.status;card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
           target.append(card);
         });
         const count=document.getElementById("subCount"); if(count) count.textContent=seed.length;
@@ -3958,10 +3964,10 @@
         const el=document.getElementById(id); if(el){const k="nwr_demo_"+id;el.value=localStorage.getItem(k)||el.value;el.addEventListener("change",()=>localStorage.setItem(k,el.value));}
       });
     };
-    const saveDemo=()=>{const cards=[...document.querySelectorAll("#submissionsList .rounded-xl")].map(c=>c.innerText);localStorage.setItem("nwr_demo_review_cards",JSON.stringify(cards));};
+    const saveDemo=()=>{const statuses={};document.querySelectorAll("#submissionsList .rounded-xl").forEach(card=>{if(card.dataset.demoKey)statuses[card.dataset.demoKey]=card.dataset.demoStatus||"Pendiente";});localStorage.setItem("nwr_demo_review_statuses",JSON.stringify(statuses));};
     if(loginBtn){loginBtn.textContent="Entrar en modo demostración";loginBtn.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();enterDemo();},true);}
-    window.logoutCurator=()=>{sessionStorage.removeItem("nwr_demo_admin");dashboard?.classList.add("hidden");loginBox?.classList.remove("hidden");document.getElementById("topConfigBtn")?.classList.add("hidden");};
-    if(sessionStorage.getItem("nwr_demo_admin")==="1") enterDemo();
+    window.logoutCurator=()=>{localStorage.removeItem("nwr_demo_admin");dashboard?.classList.add("hidden");loginBox?.classList.remove("hidden");document.getElementById("topConfigBtn")?.classList.add("hidden");};
+    if(localStorage.getItem("nwr_demo_admin")==="1") enterDemo();
   });
   </script>
 
