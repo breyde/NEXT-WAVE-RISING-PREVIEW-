@@ -2524,7 +2524,7 @@
       document.querySelectorAll("[data-modal-lang-picker]").forEach(picker => {
         const menu = picker.querySelector(".modal-lang-menu");
         if (!menu || menu.dataset.ready === "1") return;
-        menu.innerHTML = modalLanguageOptions.map(([code,label]) => '<button type="button" class="modal-lang-option" role="option" data-lang="'+code+'" onclick="chooseModalLanguage(this)" aria-selected="false">'+label+'</button>').join("");
+        menu.innerHTML = modalLanguageOptions.map(([code,label]) => { const compact=picker.classList.contains("header-lang-picker"); const shown=compact?code.toUpperCase():label; return '<button type="button" class="modal-lang-option" role="option" data-lang="'+code+'" onclick="chooseModalLanguage(this)" aria-selected="false" title="'+label+'">'+shown+'</button>'; }).join("");
         menu.dataset.ready = "1";
       });
       syncModalLanguagePickers();
