@@ -37,289 +37,50 @@
     #adminTabsBar button:hover { background:rgba(255,255,255,.06) !important; color:#fff !important; }
     #adminTabsBar button.admin-tab-active { position:relative; transform:translateY(-2px); background:linear-gradient(180deg,rgba(16,185,129,.28),rgba(6,78,59,.34)) !important; color:#a7f3d0 !important; border-color:rgba(16,185,129,.55) !important; border-bottom:2px solid #10b981 !important; box-shadow:inset 0 1px rgba(255,255,255,.08),0 -3px 12px rgba(16,185,129,.08); }
     body { overflow-x:hidden; }
-    /* Barra superior admin: una sola fila fluida, sin saltos ni anchuras rígidas. */
-    body.admin-mode header { width:100%; max-width:100%; min-width:0; }
-    body.admin-mode header > div:first-child { display:flex !important; flex-flow:row nowrap !important; align-items:center; justify-content:space-between; gap:clamp(3px,1.2vw,9px); width:100%; min-width:0; }
-    body.admin-mode header > div:first-child > div { display:contents !important; }
-    body.admin-mode #btnContactHeader { min-width:0 !important; width:auto; flex:1.45 1 0; height:clamp(31px,8.5vw,38px); padding:0 !important; margin:0 !important; border-radius:11px; font-size:clamp(15px,4.4vw,19px) !important; justify-content:center; }
-    body.admin-mode #btnContactHeader span:last-child { display:none; }
-    body.admin-mode #headerVotingStatus { min-width:0 !important; width:auto; flex:1.05 1 0; height:clamp(31px,8.5vw,38px); padding:0 3px !important; font-size:clamp(9px,2.6vw,11px) !important; line-height:1.05; text-align:center; white-space:nowrap; }
-    body.admin-mode #topConfigBtn { min-width:30px !important; width:auto; flex:0 0 clamp(31px,8.5vw,38px); height:clamp(31px,8.5vw,38px); padding:0 !important; font-size:18px !important; }
-    body.admin-mode #adminTabsBar { margin-top:5px; }
-    body.admin-mode #adminShowSiteBtn { flex:0 0 auto; }
-    body.admin-mode.admin-show-site #adminShowSiteBtn { margin-bottom:8px; }
-    @media (max-width:380px) {
-      body.admin-mode { padding-left:10px !important; padding-right:10px !important; }
-      body.admin-mode #btnContactHeader span:last-child { display:none; }
-    }
-
-    /* Barra superior rediseñada: una única botonera segmentada y adaptable. */
-    header { min-width:0; }
-    header > div:first-child {
-      display:grid !important;
-      grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) auto;
-      align-items:center;
-      gap:6px;
-      width:100%;
-      min-width:0;
-      padding:5px;
-      box-sizing:border-box;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      background:linear-gradient(145deg,rgba(39,39,42,.96),rgba(17,17,19,.98));
-      box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045);
-    }
-    header > div:first-child > div { display:contents !important; }
-    header > div:first-child > div > div,
-    #btnContactHeader,
-    #headerVotingStatus,
-    #topConfigBtn { min-width:0 !important; max-width:100%; box-sizing:border-box; }
-    #btnContactHeader {
-      width:100%;
-      height:38px;
-      margin:0 !important;
-      padding:0 8px !important;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      border:1px solid rgba(255,255,255,.10) !important;
-      border-radius:12px !important;
-      background:linear-gradient(180deg,rgba(63,63,70,.55),rgba(39,39,42,.72)) !important;
-      color:#f4f4f5 !important;
-      font-size:clamp(10px,2.8vw,12px) !important;
-      white-space:nowrap;
-      box-shadow:inset 0 1px rgba(255,255,255,.06);
-    }
-    #btnContactHeader span:first-child { font-size:17px; flex:0 0 auto; }
-    #btnContactHeader span:last-child { overflow:hidden; text-overflow:ellipsis; }
-    #headerVotingStatus {
-      width:100%;
-      height:38px;
-      padding:0 5px !important;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      border-radius:12px !important;
-      background:rgba(9,9,11,.58);
-      border:1px solid rgba(255,255,255,.09) !important;
-      font-size:clamp(9px,2.5vw,11px) !important;
-      white-space:nowrap;
-      overflow:hidden;
-    }
-    #headerVotingStatus span:last-child { overflow:hidden; text-overflow:ellipsis; }
-    #topConfigBtn {
-      width:38px;
-      height:38px;
-      min-width:38px !important;
-      padding:0 !important;
-      border-radius:12px !important;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(9,9,11,.72) !important;
-      border:1px solid rgba(255,255,255,.13) !important;
-      color:#a1a1aa !important;
-      font-size:19px !important;
-      box-shadow:inset 0 1px rgba(255,255,255,.04);
-    }
-    body.admin-mode header > div:first-child {
-      grid-template-columns:minmax(0,.86fr) minmax(0,1fr) minmax(0,.92fr) 38px;
-    }
-    body.admin-mode #btnContactHeader { flex:initial; }
-    body.admin-mode #btnContactHeader span:last-child { display:none; }
-    body.admin-mode #topConfigBtn { display:flex; }
-    body.admin-mode #topConfigBtn.admin-gear-active {
-      color:#6ee7b7 !important;
-      border-color:rgba(52,211,153,.65) !important;
-      background:linear-gradient(145deg,rgba(16,185,129,.22),rgba(6,78,59,.24)) !important;
-      box-shadow:0 0 14px rgba(16,185,129,.12),inset 0 1px rgba(255,255,255,.08);
-    }
-    @media (max-width:380px) {
-      header > div:first-child { gap:4px; padding:4px; }
-      body.admin-mode header > div:first-child { grid-template-columns:minmax(0,.82fr) minmax(0,.8fr) minmax(0,.9fr) 34px; }
-      body.admin-mode #topConfigBtn { width:34px; min-width:34px !important; height:36px; }
-      #btnContactHeader { padding:0 4px !important; }
-    }
-
-
-    .modal-lang-picker{position:relative;flex:0 1 auto;z-index:80;width:100%;min-width:0;max-width:100%}
-    .header-lang-picker{width:100%;min-width:0;max-width:100%}
-    .modal-lang-trigger{display:flex;width:100%;min-width:0;align-items:center;justify-content:center;gap:5px;height:34px;padding:0 5px;border-radius:10px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(145deg,#27272a,#18181b);color:#a7f3d0;font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;box-shadow:inset 0 1px rgba(255,255,255,.06)}
-    .modal-lang-trigger span:first-child{overflow:hidden;text-overflow:ellipsis}
-    .modal-lang-menu{position:absolute;left:0;right:auto;top:calc(100% + 6px);width:min(230px,78vw);max-width:calc(100vw - 24px);max-height:min(48vh,340px);overflow-y:auto;padding:5px;border:1px solid rgba(52,211,153,.3);border-radius:12px;background:#18181b;box-shadow:0 12px 30px rgba(0,0,0,.55);z-index:100}
-    .modal-lang-menu.hidden{display:none}
-    .modal-lang-option{display:grid;grid-template-columns:25px 42px minmax(0,1fr);width:100%;align-items:center;gap:8px;padding:8px 9px;border:0;border-radius:8px;background:transparent;color:#e4e4e7;text-align:left;font-size:11px;font-weight:600}
-    .modal-lang-option .lang-flag{font-size:16px}
-    .modal-lang-option .lang-code{color:#a7f3d0;font-size:10px;font-weight:900;letter-spacing:.04em}
-    .modal-lang-option .lang-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .modal-lang-option:hover,.modal-lang-option[aria-selected="true"]{background:rgba(16,185,129,.16);color:#a7f3d0}
-    .modal-lang-option[aria-selected="true"]::after{content:"✓";grid-column:3;grid-row:1;justify-self:end;color:#34d399;font-weight:900}
-    header > div:first-child{grid-template-columns:minmax(64px,.8fr) minmax(72px,1fr) minmax(72px,1fr) 34px;gap:5px}
-    header > div:first-child > div:first-child{min-width:0;display:contents}
-    header > div:first-child > div:first-child > div:first-child{min-width:0;width:100%;padding:0 2px}
-    #btnContactHeader{min-width:0!important;padding:0 4px!important}
-    body.admin-mode .header-lang-picker{width:100%;min-width:0}
-    @media(max-width:380px){.modal-lang-menu{max-height:42vh}header > div:first-child{gap:4px;padding:4px}}
-    /* Botonera superior basada en la referencia: cristal oscuro, acento verde y votación roja.
-       En vista pública hay tres controles a partes iguales; la rueda solo aparece en administración. */
-    header > div:first-child {
-      display:grid !important;
-      grid-template-columns:repeat(3,minmax(0,1fr)) 38px;
-      gap:2px !important;
-      padding:5px !important;
-      border:1px solid rgba(16,185,129,.20) !important;
-      border-radius:16px !important;
-      background:rgba(18,24,22,.92) !important;
-      -webkit-backdrop-filter:blur(14px);
-      backdrop-filter:blur(14px);
-      box-shadow:0 10px 30px -10px rgba(0,0,0,.7),0 0 15px rgba(16,185,129,.05);
-    }
-    header > div:first-child > div { display:contents !important; }
-    body:not(.admin-mode) header > div:first-child { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-    body:not(.admin-mode) .header-lang-picker,
-    body:not(.admin-mode) #btnContactHeader,
-    body:not(.admin-mode) #headerVotingStatus {
-      width:100% !important;
-      min-width:0 !important;
-      max-width:100%;
-      height:38px;
-      box-sizing:border-box;
-      margin:0 !important;
-      border-radius:11px !important;
-    }
-    body:not(.admin-mode) #btnContactHeader {
-      justify-content:center;
-      gap:5px;
-      padding:0 4px !important;
-      background:#141c19 !important;
-      border:1px solid rgba(255,255,255,.12) !important;
-      color:#e5e7eb !important;
-      font-size:clamp(10px,2.8vw,12px) !important;
-      white-space:nowrap;
-    }
-    body:not(.admin-mode) #btnContactHeader span:first-child { color:#34d399; }
-    body:not(.admin-mode) #headerVotingStatus {
-      justify-content:center;
-      gap:4px;
-      padding:0 4px !important;
-      background:#1a1414 !important;
-      border:1px solid rgba(239,68,68,.32) !important;
-      color:#fecaca !important;
-      font-size:clamp(8px,2.45vw,11px) !important;
-      line-height:1.05;
-      text-align:center;
-      white-space:nowrap;
-    }
-    body:not(.admin-mode) .modal-lang-trigger {
-      height:38px;
-      border-radius:11px;
-      background:#141c19;
-      border-color:rgba(16,185,129,.25);
-    }
-    body.admin-mode header > div:first-child {
-      grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.25fr) 38px !important;
-    }
-    body.admin-mode #topConfigBtn { display:flex !important; }
-
-    /* Barra superior compacta: tres controles iguales en público y rueda solo en admin. */
-    header > div:first-of-type {
-      display:grid !important;
-      grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-      align-items:center !important;
-      gap:3px !important;
-      width:100% !important;
-      min-width:0 !important;
-      padding:4px !important;
-      box-sizing:border-box !important;
-      border:1px solid rgba(255,255,255,.11) !important;
-      border-radius:15px !important;
-      background:linear-gradient(145deg,rgba(39,39,42,.96),rgba(17,17,19,.98)) !important;
-      box-shadow:0 7px 20px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05) !important;
-    }
-    header > div:first-of-type > div { display:contents !important; }
-    header > div:first-of-type .header-lang-picker,
-    header > div:first-of-type #btnContactHeader,
-    header > div:first-of-type #headerVotingStatus {
-      width:100% !important;
-      min-width:0 !important;
-      max-width:100% !important;
-      height:38px !important;
-      margin:0 !important;
-      box-sizing:border-box !important;
-      border-radius:10px !important;
-    }
-    header > div:first-of-type .header-lang-picker { padding:0 !important; }
-    header > div:first-of-type .modal-lang-trigger {
-      height:38px !important;
-      width:100% !important;
-      justify-content:center !important;
-      padding:0 4px !important;
-      font-size:clamp(9px,2.8vw,11px) !important;
-    }
-    header > div:first-of-type #btnContactHeader {
-      display:flex !important;
-      justify-content:center !important;
-      padding:0 4px !important;
-      font-size:clamp(9px,2.8vw,11px) !important;
-      white-space:nowrap !important;
-    }
-    header > div:first-of-type #headerVotingStatus {
-      display:flex !important;
-      justify-content:center !important;
-      padding:0 4px !important;
-      font-size:clamp(8px,2.5vw,10px) !important;
-      white-space:nowrap !important;
-      overflow:hidden !important;
-    }
-    header > div:first-of-type #topConfigBtn { display:none !important; }
-    body.admin-mode header > div:first-of-type {
-      grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 38px !important;
-    }
-    body.admin-mode header > div:first-of-type #topConfigBtn {
-      display:flex !important;
-      width:38px !important;
-      min-width:38px !important;
-      height:38px !important;
-      margin:0 !important;
-      padding:0 !important;
-      align-items:center !important;
-      justify-content:center !important;
-    }
-    body.admin-mode header > div:first-of-type #btnContactHeader span:last-child {
-      display:none !important;
-    }
-    @media(max-width:380px) {
-      header > div:first-of-type { gap:2px !important; padding:3px !important; }
-      header > div:first-of-type .modal-lang-trigger { gap:2px !important; }
-      body.admin-mode header > div:first-of-type {
-        grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 34px !important;
-      }
-      body.admin-mode header > div:first-of-type #topConfigBtn {
-        width:34px !important; min-width:34px !important; height:36px !important;
-      }
-    }
-  </style>
+    /* ÚNICA botonera superior, sin estilos ni contenedores heredados. */
+     header { min-width:0; }
+     .top-control-bar { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:center; gap:2px !important; width:100%; min-width:0; padding:5px; box-sizing:border-box; border:1px solid rgba(16,185,129,.22); border-radius:16px; background:rgba(18,24,22,.92); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:0 10px 30px -10px rgba(0,0,0,.7),0 0 15px rgba(16,185,129,.05); }
+     .top-control-bar > * { min-width:0 !important; max-width:100%; box-sizing:border-box; }
+     .top-control-bar .header-lang-picker,.top-control-bar #btnContactHeader,.top-control-bar #headerVotingStatus { width:100% !important; height:38px !important; min-width:0 !important; margin:0 !important; box-sizing:border-box; border-radius:11px !important; }
+     .top-control-bar .header-lang-picker { padding:0 !important; }
+     .top-control-bar .modal-lang-trigger { width:100% !important; height:38px !important; justify-content:center; padding:0 4px !important; border-radius:11px; background:#141c19; border:1px solid rgba(16,185,129,.28); color:#a7f3d0; font-size:clamp(9px,2.8vw,12px); }
+     .top-control-bar #btnContactHeader { display:flex !important; align-items:center; justify-content:center; gap:5px; padding:0 4px !important; border:1px solid rgba(255,255,255,.12) !important; background:#141c19 !important; color:#e5e7eb !important; font-size:clamp(9px,2.8vw,12px) !important; white-space:nowrap; box-shadow:none !important; }
+     .top-control-bar #btnContactHeader span:first-child { color:#34d399; }
+     .top-control-bar #btnContactHeader span:last-child { overflow:hidden; text-overflow:ellipsis; }
+     .top-control-bar #headerVotingStatus { display:flex; align-items:center; justify-content:center; gap:4px; padding:0 4px !important; border:1px solid rgba(239,68,68,.34) !important; background:#1a1414 !important; color:#fecaca !important; font-size:clamp(8px,2.45vw,11px) !important; line-height:1.05; text-align:center; white-space:nowrap; overflow:hidden; box-shadow:none !important; }
+     .top-control-bar #headerVotingStatus span:last-child { overflow:hidden; text-overflow:ellipsis; }
+     .top-control-bar #topConfigBtn { display:none !important; }
+     body.admin-mode .top-control-bar { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) 38px; }
+     body.admin-mode .top-control-bar #topConfigBtn { display:flex !important; align-items:center; justify-content:center; width:38px; height:38px; min-width:38px !important; padding:0 !important; border-radius:11px; background:#141c19 !important; border:1px solid rgba(255,255,255,.14) !important; color:#a7f3d0 !important; box-shadow:none !important; }
+     body.admin-mode .top-control-bar #btnContactHeader span:last-child { display:none; }
+     body.admin-mode #topConfigBtn.admin-gear-active { color:#6ee7b7 !important; border-color:rgba(52,211,153,.65) !important; background:rgba(16,185,129,.16) !important; }
+     body.admin-mode #adminShowSiteBtn { display:flex; width:100vw; max-width:100vw; height:22px; min-height:22px; margin:7px calc(50% - 50vw) 0; padding:0; align-items:center; justify-content:center; border:0; border-radius:0; background:rgba(39,39,42,.92); color:#a1a1aa; font-size:10px; font-weight:600; letter-spacing:.04em; line-height:1; }
+     body.admin-mode.admin-show-site #adminShowSiteBtn { margin-bottom:8px; }
+     body.admin-mode #adminTabsBar { margin-top:5px; }
+     @media(max-width:380px) { .top-control-bar { gap:2px !important; padding:3px !important; } .top-control-bar .modal-lang-trigger { gap:2px; } body.admin-mode .top-control-bar { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 34px; } body.admin-mode .top-control-bar #topConfigBtn { width:34px; min-width:34px !important; height:36px; } .top-control-bar #btnContactHeader { padding:0 3px !important; } }
+     body.admin-mode:not(.admin-show-site) #brandHeaderContainer,body.admin-mode:not(.admin-show-site) #btnInfoHeader,body.admin-mode:not(.admin-show-site) #mainNavBar,body.admin-mode:not(.admin-show-site) footer { display:none !important; }
+     body.admin-mode:not(.admin-show-site) header { margin-bottom:12px !important; gap:0 !important; }
+     body.admin-mode:not(.admin-show-site) #mainContentContainer > :not(#adminView) { display:none !important; }
+     body.admin-mode #adminView { width:100%; }
+     .admin-top-action { display:none; }
+     body.admin-mode #adminTabsBar { display:grid !important; }
+     body.admin-mode.admin-panel-closed #adminTabsBar { display:none !important; }
+     body.admin-mode #adminShowSiteBtn { flex:0 0 auto; }
+     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
     <span id="mediaPositionSlot0" class="hidden" aria-hidden="true"></span>
-    <div class="w-full flex justify-between items-center text-xs gap-2">
-      <div class="flex items-center gap-2">
-        <div class="bg-zinc-900/90 px-2 rounded-xl border border-white/10 shadow-md h-9 flex items-center">
-          <div class="modal-lang-picker header-lang-picker" data-modal-lang-picker><button type="button" class="modal-lang-trigger" onclick="toggleModalLanguageMenu(this)" aria-haspopup="listbox" aria-expanded="false" aria-label="Seleccionar idioma">🇪🇸 ES <span aria-hidden="true">⌄</span></button><div class="modal-lang-menu hidden" role="listbox" aria-label="Idiomas disponibles"></div></div>
-        </div>
-        <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-          <span>✉️</span> <span data-i18n="contactBtn">Contacto</span>
-        </button>
+    <nav class="top-control-bar" aria-label="Barra superior">
+      <div class="modal-lang-picker header-lang-picker" data-modal-lang-picker>
+        <button type="button" class="modal-lang-trigger" onclick="toggleModalLanguageMenu(this)" aria-haspopup="listbox" aria-expanded="false" aria-label="Seleccionar idioma">🇪🇸 ES <span aria-hidden="true">⌄</span></button>
+        <div class="modal-lang-menu hidden" role="listbox" aria-label="Idiomas disponibles"></div>
       </div>
-      <div class="flex items-center gap-2">
-        <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center gap-1.5"></div>
-        <button id="topConfigBtn" type="button" onclick="toggleQuickConfig()" aria-label="Configuración" aria-pressed="false" class="hidden h-9 w-9 rounded-xl bg-zinc-900 border border-white/15 text-zinc-400 text-lg transition items-center justify-center">⚙</button>
-      </div>
-    </div>
+      <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="h-9 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"><span>✉️</span> <span data-i18n="contactBtn">Contacto</span></button>
+      <div id="headerVotingStatus" class="h-9 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"></div>
+      <button id="topConfigBtn" type="button" onclick="toggleQuickConfig()" aria-label="Configuración" aria-pressed="false" class="hidden h-9 w-9 rounded-xl text-lg transition items-center justify-center">⚙</button>
+    </nav>
     <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
     <div id="adminTabsBar">
       <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="admin-tab-active">🏠 INICIO</button>
