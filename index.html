@@ -484,6 +484,65 @@
             </div>
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño, posición y reproducción.</p>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">Contenido de la cabecera:</label>
+              <select id="adminHeaderMediaType" onchange="updateHeaderMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="text">Texto original</option><option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
+              </select>
+            </div>
+            <div id="adminHeaderUrlGroup" class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
+              <div class="flex gap-2">
+                <input type="url" id="adminLogoUrlInput" placeholder="URL directa de imagen/vídeo o enlace de YouTube" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-200 text-xs cursor-pointer whitespace-nowrap">📁 Importar<input type="file" id="adminLogoFileInput" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" onchange="handleLogoFileUpload(event)" class="hidden"></label>
+              </div>
+              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen/GIF o vídeo puedes importar un archivo o elegirlo desde la galería.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input type="text" id="adminHeaderWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-zinc-950/70 border border-cyan-500/20">
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición vertical (10 niveles)</label><select id="adminHeaderVerticalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="-45">1 · Muy arriba</option><option value="-35">2 · Arriba</option><option value="-25">3 · Alto</option><option value="-15">4 · Algo alto</option><option value="-5">5 · Centro alto</option><option value="5">6 · Centro bajo</option><option value="15">7 · Algo bajo</option><option value="25">8 · Bajo</option><option value="35">9 · Más abajo</option><option value="45">10 · Muy abajo</option>
+              </select></div>
+              <div class="col-span-2"><label class="block text-[11px] text-zinc-300 mb-1">Alineación horizontal</label><select id="adminHeaderHorizontalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="flex-start">Izquierda</option><option value="center">Centro</option><option value="flex-end">Derecha</option></select></div>
+            </div>
+            <div id="adminHeaderFitGroup">
+              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
+              <select id="adminHeaderObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
+            </div>
+            <div id="adminHeaderVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-cyan-300">Opciones de vídeo de biblioteca</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoAutoplay" class="accent-cyan-500"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoMuted" checked class="accent-cyan-500"> Silenciado</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoLoop" checked class="accent-cyan-500"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoControls" checked class="accent-cyan-500"> Controles</label>
+              </div>
+            </div>
+            <div id="adminHeaderYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeAutoplay" class="accent-red-500"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeMute" checked class="accent-red-500"> Silenciar</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeLoop" class="accent-red-500"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeControls" checked class="accent-red-500"> Mostrar controles</label>
+              </div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminHeaderYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
+              <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
+            </div>
+            <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
             <div>
               <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner multimedia independiente</h3>
