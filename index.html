@@ -168,6 +168,84 @@
     body:not(.admin-mode) #btnContactHeader,
     body:not(.admin-mode) #headerVotingStatus { width:100%; min-width:0 !important; max-width:100%; }
     body:not(.admin-mode) header > div:first-child { gap:2px !important; padding:2px !important; }
+
+    /* Barra superior compacta: tres controles iguales en público y rueda solo en admin. */
+    header > div:first-of-type {
+      display:grid !important;
+      grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+      align-items:center !important;
+      gap:3px !important;
+      width:100% !important;
+      min-width:0 !important;
+      padding:4px !important;
+      box-sizing:border-box !important;
+      border:1px solid rgba(255,255,255,.11) !important;
+      border-radius:15px !important;
+      background:linear-gradient(145deg,rgba(39,39,42,.96),rgba(17,17,19,.98)) !important;
+      box-shadow:0 7px 20px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05) !important;
+    }
+    header > div:first-of-type > div { display:contents !important; }
+    header > div:first-of-type .header-lang-picker,
+    header > div:first-of-type #btnContactHeader,
+    header > div:first-of-type #headerVotingStatus {
+      width:100% !important;
+      min-width:0 !important;
+      max-width:100% !important;
+      height:38px !important;
+      margin:0 !important;
+      box-sizing:border-box !important;
+      border-radius:10px !important;
+    }
+    header > div:first-of-type .header-lang-picker { padding:0 !important; }
+    header > div:first-of-type .modal-lang-trigger {
+      height:38px !important;
+      width:100% !important;
+      justify-content:center !important;
+      padding:0 4px !important;
+      font-size:clamp(9px,2.8vw,11px) !important;
+    }
+    header > div:first-of-type #btnContactHeader {
+      display:flex !important;
+      justify-content:center !important;
+      padding:0 4px !important;
+      font-size:clamp(9px,2.8vw,11px) !important;
+      white-space:nowrap !important;
+    }
+    header > div:first-of-type #headerVotingStatus {
+      display:flex !important;
+      justify-content:center !important;
+      padding:0 4px !important;
+      font-size:clamp(8px,2.5vw,10px) !important;
+      white-space:nowrap !important;
+      overflow:hidden !important;
+    }
+    header > div:first-of-type #topConfigBtn { display:none !important; }
+    body.admin-mode header > div:first-of-type {
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 38px !important;
+    }
+    body.admin-mode header > div:first-of-type #topConfigBtn {
+      display:flex !important;
+      width:38px !important;
+      min-width:38px !important;
+      height:38px !important;
+      margin:0 !important;
+      padding:0 !important;
+      align-items:center !important;
+      justify-content:center !important;
+    }
+    body.admin-mode header > div:first-of-type #btnContactHeader span:last-child {
+      display:none !important;
+    }
+    @media(max-width:380px) {
+      header > div:first-of-type { gap:2px !important; padding:3px !important; }
+      header > div:first-of-type .modal-lang-trigger { gap:2px !important; }
+      body.admin-mode header > div:first-of-type {
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 34px !important;
+      }
+      body.admin-mode header > div:first-of-type #topConfigBtn {
+        width:34px !important; min-width:34px !important; height:36px !important;
+      }
+    }
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
