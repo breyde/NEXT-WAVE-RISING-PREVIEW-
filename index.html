@@ -17,6 +17,20 @@
     .glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}
     .neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}
     .tab-btn.active{background:rgba(16,185,129,0.2);border-color:#10b981;color:#10b981}
+    /* Vista compacta del administrador: deja a la vista solo la barra superior. */
+    body.admin-mode:not(.admin-show-site) #brandHeaderContainer,
+    body.admin-mode:not(.admin-show-site) #btnInfoHeader,
+    body.admin-mode:not(.admin-show-site) #mainNavBar,
+    body.admin-mode:not(.admin-show-site) footer { display:none !important; }
+    body.admin-mode:not(.admin-show-site) header { margin-bottom:12px !important; gap:0 !important; }
+    body.admin-mode:not(.admin-show-site) #mainContentContainer > :not(#adminView) { display:none !important; }
+    body.admin-mode #adminView { width:100%; }
+    .admin-top-action { min-height:36px; padding:0 12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(24,24,27,.92); color:#e4e4e7; font-size:11px; font-weight:700; display:none; align-items:center; justify-content:center; gap:6px; white-space:nowrap; }
+    body.admin-mode .admin-top-action { display:inline-flex; }
+    #adminTabsBar { background:rgba(9,9,11,.82); border:1px solid rgba(255,255,255,.09); border-radius:16px; padding:7px; box-shadow:0 12px 30px rgba(0,0,0,.22); }
+    #adminTabsBar button { border:1px solid transparent !important; border-radius:11px !important; background:transparent !important; color:#a1a1aa !important; padding:9px 13px !important; font-size:11px !important; font-weight:700 !important; transition:all .18s ease; }
+    #adminTabsBar button:hover { background:rgba(255,255,255,.06) !important; color:#fff !important; }
+    #adminTabsBar button.admin-tab-active { background:linear-gradient(135deg,rgba(16,185,129,.22),rgba(6,182,212,.14)) !important; color:#6ee7b7 !important; border-color:rgba(16,185,129,.42) !important; box-shadow:inset 0 0 0 1px rgba(16,185,129,.06); }
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
@@ -70,6 +84,7 @@
       <div class="flex items-center gap-2">
         <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center gap-1.5"></div>
         <button id="topConfigBtn" onclick="quickOpenConfig()" class="hidden px-3 h-9 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs transition shadow-sm items-center gap-1">⚙️ Config</button>
+        <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
       </div>
     </div>
 
@@ -336,7 +351,7 @@
           <button type="button" onclick="logoutCurator()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold transition">Cerrar Sesión</button>
         </div>
 
-        <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
+        <div id="adminTabsBar" class="flex gap-1.5 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
@@ -2460,13 +2475,23 @@
       }
     });
 
+    window.toggleAdminSiteHeader = () => {
+      if (!document.body.classList.contains("admin-mode")) return;
+      const expanded = document.body.classList.toggle("admin-show-site");
+      const btn = $("adminShowSiteBtn");
+      if (btn) {
+        btn.textContent = expanded ? "⌃ Ocultar cabecera" : "⌄ Mostrar cabecera";
+        btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+      }
+    };
+
     function switchAdminTab(tab) {
       const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
       ADMIN_TABS.forEach(k => {
-        $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
+        $(map[k][0]).classList.remove("admin-tab-active");
         $(map[k][1]).classList.add('hidden');
       });
-      $(map[tab][0]).className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+      $(map[tab][0]).classList.add("admin-tab-active");
       $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
@@ -3294,6 +3319,10 @@
         if (user) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
+          document.body.classList.add("admin-mode");
+          document.body.classList.remove("admin-show-site");
+          const showSiteBtn = $("adminShowSiteBtn");
+          if (showSiteBtn) { showSiteBtn.textContent = "⌄ Mostrar cabecera"; showSiteBtn.setAttribute("aria-expanded", "false"); }
           $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
           $("topConfigBtn").classList.remove("hidden");
           $("topConfigBtn").classList.add("flex");
@@ -3302,6 +3331,7 @@
           loadAdminBackups();
         } else {
           $("adminDashboard").classList.add("hidden");
+          document.body.classList.remove("admin-mode", "admin-show-site");
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
