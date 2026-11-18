@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == "br3yda@gmail.com"
+        && request.auth.token.email_verified == true;
+    }
+
+    // Public can view published lists and public configuration.
+    // Only the owner can change list contents or settings.
+    match /active_list/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    match /monthly_list/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    match /annual_list/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Public song submissions: create only, with a restricted schema.
+    // Owner may review, edit or delete submissions.
+    match /submissions/{id} {
+      allow read: if isOwner();
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "artist", "title", "url", "email", "timestamp",
+          "dateString", "votes", "voters"
+        ])
+        && request.resource.data.artist is string
+        && request.resource.data.artist.size() > 0
+        && request.resource.data.artist.size() <= 100
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.url is string
+        && request.resource.data.url.matches('https://open\\.spotify\\.com/track/[A-Za-z0-9]+.*')
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.timestamp is number
+        && request.resource.data.dateString is string
+        && request.resource.data.votes == 0
+        && request.resource.data.voters is list
+        && request.resource.data.voters.size() == 0;
+      allow update, delete: if isOwner();
+    }
+
+    // Public contact form: create only; inbox is private to the owner.
+    match /contact_messages/{id} {
+      allow read: if isOwner();
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "name", "email", "message", "timestamp", "dateString", "read"
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 3000
+        && request.resource.data.timestamp is number
+        && request.resource.data.dateString is string
+        && request.resource.data.read == false;
+      allow update, delete: if isOwner();
+    }
+
+    // Contains contributor emails, country information, backups and
+    // operational/chat data. Keep private until dedicated rules are designed.
+    match /artist_countries/{id} { allow read, write: if isOwner(); }
+    match /backups/{id} { allow read, write: if isOwner(); }
+    match /voters_log/{id} { allow read, write: if isOwner(); }
+    match /chat_users/{id} { allow read, write: if isOwner(); }
+    match /chat_messages/{id} { allow read, write: if isOwner(); }
+    match /chat_presence/{id} { allow read, write: if isOwner(); }
+    match /stats/{id} { allow read, write: if isOwner(); }
+
+    // Deny every collection not explicitly listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
