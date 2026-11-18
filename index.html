@@ -2516,6 +2516,11 @@
       });
       $(map[tab][0]).classList.add("admin-tab-active");
       $(map[tab][1]).classList.remove('hidden');
+      const gear = $("topConfigBtn");
+      if (gear) {
+        gear.classList.toggle("admin-gear-active", tab === "config");
+        gear.setAttribute("aria-pressed", tab === "config" ? "true" : "false");
+      }
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
       else if (tab === 'config') {
