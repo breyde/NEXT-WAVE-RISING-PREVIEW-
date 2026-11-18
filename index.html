@@ -20,10 +20,6 @@
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
-  <div role="status" style="position:sticky;top:0;z-index:9999;width:100%;padding:10px 14px;text-align:center;background:#78350f;color:#fff7ed;border-bottom:1px solid #f59e0b;font:600 12px/1.4 system-ui">
-    VISTA PREVIA AISLADA · Firebase y datos reales desactivados · Los formularios y funciones de administración no guardan cambios
-  </div>
-
   
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
     <div class="w-full flex justify-between items-center text-xs gap-2">
@@ -294,7 +290,7 @@
         <div class="space-y-2">
           <input type="email" id="adminEmailInput" placeholder="Correo de administrador" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
           <input type="password" id="adminPassInput" placeholder="Contraseña" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar en modo demostración</button>
+          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar con Firebase</button>
         </div>
       </div>
 
@@ -310,7 +306,6 @@
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('guardados')" id="adminTabGuardados" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🔖 Guardados (<span id="saveReviewsCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
           <button onclick="switchAdminTab('spotify')" id="adminTabSpotify" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🎵 Sincronizar listas</button>
           <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
@@ -333,27 +328,6 @@
                 <p class="text-[10px] text-zinc-400">Reinicia los contadores de votos de la Lista Activa y registros de votantes.</p>
               </div>
               <button type="button" id="resetVotesBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Resetear Votos</button>
-            </div>
-            <div class="bg-amber-950/30 p-3.5 rounded-xl border border-amber-500/20 flex flex-wrap justify-between items-center gap-3">
-              <div>
-                <p class="font-bold text-amber-200 text-xs">Privacidad de votaciones antiguas</p>
-                <p class="text-[10px] text-zinc-300">Migra los registros antiguos y elimina los correos de votantes de la lista pública. Requiere backup y una fase de migración antes de aplicar las reglas nuevas.</p>
-              </div>
-              <button type="button" id="migrateVotePrivacyBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-500/40">Preparar privacidad</button>
-            </div>
-            <div class="bg-amber-950/30 p-3.5 rounded-xl border border-amber-500/20 flex flex-wrap justify-between items-center gap-3">
-              <div>
-                <p class="font-bold text-amber-200 text-xs">Privacidad de contactos de artistas</p>
-                <p class="text-[10px] text-zinc-300">Traslada los correos de la cola y lista activa a registros privados. Haz backup completo antes de usarlo.</p>
-              </div>
-              <button type="button" id="migrateArtistContactsBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-500/40">Migrar contactos</button>
-            </div>
-            <div class="bg-amber-950/30 p-3.5 rounded-xl border border-amber-500/20 flex flex-wrap justify-between items-center gap-3">
-              <div>
-                <p class="font-bold text-amber-200 text-xs">Limpiar presencia antigua del chat</p>
-                <p class="text-[10px] text-zinc-300">Borra sesiones temporales que podrían conservar IP. Los usuarios conectados reaparecerán automáticamente.</p>
-              </div>
-              <button type="button" id="clearLegacyChatPresenceBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-500/40">Limpiar presencia</button>
             </div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición (Cola Semanal)</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
@@ -418,25 +392,6 @@
               <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full font-bold">Total: <strong id="totalMsgCount">0</strong></span>
             </div>
             <div id="adminMessagesList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando mensajes...</p></div>
-          </div>
-        </div>
-        <!-- REVISIÓN DE GUARDADOS SEMANALES -->
-        <div id="adminViewGuardados" class="hidden space-y-4">
-          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/20">
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-              <div>
-                <h3 class="font-bold text-emerald-400 text-sm uppercase">🔖 Revisión de guardados semanales</h3>
-                <p class="text-[11px] text-zinc-400 mt-1">La declaración inicial solo indica que la persona marcó la casilla. «Revisado manualmente» significa que comprobaste la evidencia fuera de esta web.</p>
-              </div>
-              <button type="button" onclick="loadAdminSaveReviews()" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-200 text-[11px] font-bold">Actualizar</button>
-            </div>
-            <div class="flex flex-wrap gap-2 text-[10px] text-zinc-300">
-              <span class="px-2 py-1 rounded bg-zinc-800">Declarado</span>
-              <span class="px-2 py-1 rounded bg-amber-500/15 text-amber-300">Pendiente</span>
-              <span class="px-2 py-1 rounded bg-emerald-500/15 text-emerald-300">Revisado manualmente</span>
-              <span class="px-2 py-1 rounded bg-rose-500/15 text-rose-300">No acreditado</span>
-            </div>
-            <div id="adminSaveReviewsList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando revisiones...</p></div>
           </div>
         </div>
 
@@ -778,12 +733,6 @@
                 </div>
                 <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/10">
-                <button type="button" onclick="downloadFirestoreBackup()" class="px-4 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 font-bold text-xs transition">🗄️ Descargar datos de Firestore (JSON)</button>
-                <a href="https://github.com/breyde/NEXT-WAVE-RISING/archive/refs/heads/main.zip" target="_blank" rel="noopener noreferrer" class="px-4 py-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 font-bold text-xs transition text-center">🌐 Descargar copia de la web (ZIP)</a>
-              </div>
-              <p class="text-[10px] text-amber-300/90">La copia JSON solo incluye las colecciones indicadas que tu cuenta pueda leer; no incluye subcolecciones ni configuración/reglas/índices de Firebase. Si hay errores, quedará marcada como parcial. El ZIP contiene el código del repositorio en la rama principal, no los datos privados.</p>
-              <p id="localBackupStatus" class="text-[11px] text-zinc-300" aria-live="polite"></p>
               <div class="flex flex-col sm:flex-row gap-2">
                 <select id="backupTargetSelect" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none">
                   <option value="all">📦 Copia Completa (Todas las pestañas)</option>
@@ -914,12 +863,12 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "PREVIEW_DISABLED",
-      authDomain: "preview.invalid",
-      projectId: "preview-disabled",
-      storageBucket: "preview-disabled.invalid",
-      messagingSenderId: "000000000000",
-      appId: "1:000000000000:web:000000000000000000000000"
+      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+      projectId: "next-wave-rising-3ab56",
+      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+      messagingSenderId: "690671071183",
+      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -928,9 +877,9 @@
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
     const GH_OWNER = "breyde";
-    const GH_REPO = "NEXT-WAVE-RISING-PREVIEW-";
+    const GH_REPO = "NEXT-WAVE-RISING";
     const GH_FOLDER = "img";
-    const GH_RAW_BASE = "https://raw.githubusercontent.com/breyde/NEXT-WAVE-RISING/free-weekly-save-review/img/";
+    const GH_RAW_BASE = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_FOLDER}/`;
 
     const $ = id => document.getElementById(id);
     const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({
@@ -1052,7 +1001,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'guardados', 'config', 'spotify', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -1786,33 +1735,31 @@
       try {
         const docId = cleanEmail.replace(/[.#$\\/\\[\\]]/g, "_");
         const docRef = db.collection("artist_countries").doc(docId);
+        const snap = await docRef.get();
         const nowStr = madridStr();
         const cleanGeo = {
           country: countryKnown ? country : "Desconocido",
           city: countryKnown ? (geo.city || "") : "",
           flag: countryKnown ? (geo.flag || "🌐") : "🌐"
         };
-        const initialRecord = {
-          email: cleanEmail,
-          artist: artistName || "Artista",
-          firstPublishedDate: nowStr,
-          lastSubmissionDate: nowStr,
-          submissionsCount: 1,
-          ...cleanGeo
-        };
-        try {
-          // La creación pública no necesita leer el documento (que contiene email).
-          await docRef.set(initialRecord);
-        } catch (createError) {
-          if (createError.code !== "permission-denied") throw createError;
-          // Si ya existe, solo incrementa el contador sin leer ni exponer el correo.
+
+        if (snap.exists) {
+          const prev = snap.data();
           await docRef.update({
-            artist: artistName || "Artista",
-            submissionsCount: firebase.firestore.FieldValue.increment(1),
+            submissionsCount: (prev.submissionsCount || 1) + 1,
             lastSubmissionDate: nowStr,
             ...cleanGeo,
             ip: firebase.firestore.FieldValue.delete(),
             ipCapturedAt: firebase.firestore.FieldValue.delete()
+          });
+        } else {
+          await docRef.set({
+            email: cleanEmail,
+            artist: artistName || "Artista",
+            firstPublishedDate: nowStr,
+            lastSubmissionDate: nowStr,
+            submissionsCount: 1,
+            ...cleanGeo
           });
         }
         return cleanGeo;
@@ -1828,21 +1775,18 @@
       try {
         // Leer todas las listas sin orderBy: así también entran documentos antiguos
         // que no tengan timestamp, y se recuperan artistas tras las rotaciones.
-        const [snapW, snapA, snapM, snapY, snapC, snapContacts] = await Promise.all([
+        const [snapW, snapA, snapM, snapY, snapC] = await Promise.all([
           db.collection("submissions").get(),
           db.collection("active_list").get(),
           db.collection("monthly_list").get(),
           db.collection("annual_list").get(),
-          db.collection("artist_countries").get(),
-          db.collection("private_artist_contacts").get()
+          db.collection("artist_countries").get()
         ]);
         const existingMap = {};
         snapC.forEach(d => existingMap[d.id] = d.data());
-        const contactMap = {};
-        snapContacts.forEach(d => contactMap[d.id] = d.data());
         const grouped = {};
         const addDoc = doc => {
-          const d = doc.data(), em = String(d.email || contactMap[doc.id]?.email || "").trim().toLowerCase();
+          const d = doc.data(), em = (d.email || "").trim().toLowerCase();
           if (!em) return;
           const id = em.replace(/[.#$\/\[\]]/g, "_"), dt = d.dateString || madridStr();
           if (!grouped[id]) {
@@ -2406,7 +2350,7 @@
     });
 
     function switchAdminTab(tab) {
-      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], guardados: ['adminTabGuardados', 'adminViewGuardados'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
+      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
       ADMIN_TABS.forEach(k => {
         $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
         $(map[k][1]).classList.add('hidden');
@@ -2415,7 +2359,6 @@
       $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'guardados') loadAdminSaveReviews();
       else if (tab === 'config') {
         updateGithubTokenStatus();
         loadGithubGallery();
@@ -2464,16 +2407,11 @@
       try {
         const cleanItem = { ...item };
         delete cleanItem.id;
-        const email = String(cleanItem.email || "").trim().toLowerCase();
-        delete cleanItem.email;
-        const newRef = db.collection(targetCol).doc();
-        const batch = db.batch();
-        batch.set(newRef, { ...cleanItem, timestamp: Date.now(), dateString: cleanItem.dateString || madridStr() });
-        if (email && (targetCol === "active_list" || targetCol === "submissions")) {
-          batch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanItem.artist || "Artista", source: targetCol === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
-          if (targetCol === "submissions" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) batch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
-        }
-        await batch.commit();
+        await db.collection(targetCol).add({
+          ...cleanItem,
+          timestamp: Date.now(),
+          dateString: cleanItem.dateString || madridStr()
+        });
         await loadAllLists();
         alert(`✅ Registro restaurado con éxito en ${colNameEs}.`);
       } catch (e) {
@@ -2505,44 +2443,20 @@
       try {
         const clearAndReplace = async (tracks, colName) => {
           const snap = await db.collection(colName).get();
-          const isContactList = colName === "active_list" || colName === "submissions";
-          const deleteRefs = snap.docs.flatMap(doc => isContactList
-            ? [doc.ref, db.collection("private_artist_contacts").doc(doc.id)]
-            : [doc.ref]);
-          for (let i = 0; i < deleteRefs.length; i += 400) {
+          if (!snap.empty) {
             const delBatch = db.batch();
-            deleteRefs.slice(i, i + 400).forEach(ref => delBatch.delete(ref));
+            snap.docs.forEach(doc => delBatch.delete(doc.ref));
             await delBatch.commit();
           }
-          if (colName === "submissions") {
-            const oldSubmitters = await db.collection("weekly_submitters").get();
-            for (let i = 0; i < oldSubmitters.docs.length; i += 400) {
-              const delBatch = db.batch();
-              oldSubmitters.docs.slice(i, i + 400).forEach(doc => delBatch.delete(doc.ref));
-              await delBatch.commit();
-            }
-          }
           if (tracks && tracks.length) {
-            const addedSubmitters = new Set();
-            for (let i = 0; i < tracks.length; i += 150) {
-              const addBatch = db.batch();
-              tracks.slice(i, i + 150).forEach(t => {
-                const cleanT = { ...t };
-                delete cleanT.id;
-                const email = String(cleanT.email || "").trim().toLowerCase();
-                delete cleanT.email;
-                const newRef = db.collection(colName).doc();
-                addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
-                if (email && isContactList) {
-                  addBatch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanT.artist || "Artista", source: colName === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
-                  if (colName === "submissions" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email) && !addedSubmitters.has(email)) {
-                    addBatch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
-                    addedSubmitters.add(email);
-                  }
-                }
-              });
-              await addBatch.commit();
-            }
+            const addBatch = db.batch();
+            tracks.forEach(t => {
+              const cleanT = { ...t };
+              delete cleanT.id;
+              const newRef = db.collection(colName).doc();
+              addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
+            });
+            await addBatch.commit();
           }
         };
 
@@ -2579,11 +2493,7 @@
       const cleanUrl = rawUrl.split("?")[0].trim();
       if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
       try {
-        const trackRef = db.collection("active_list").doc();
-        const batch = db.batch();
-        batch.set(trackRef, { artist, title, url: cleanUrl, timestamp: Date.now(), dateString: madridStr(), votes: 0 });
-        if (email) batch.set(db.collection("private_artist_contacts").doc(trackRef.id), { email: email.trim().toLowerCase(), artist, source: "active", updatedAt: Date.now() });
-        await batch.commit();
+        await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
         // Las altas manuales de administración no registran la IP del administrador como IP del artista.
         $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
         await Promise.all([loadAllLists(), loadAdminCountries()]);
@@ -2602,12 +2512,7 @@
       const id = $("editActiveId").value, artist = $("editActiveArtist").value.trim(), title = $("editActiveTitle").value.trim(), rawUrl = $("editActiveUrl").value.trim(), email = $("editActiveEmail").value.trim();
       if (!artist || !title || !rawUrl) return alert("Artista, Canción y Enlace son obligatorios.");
       try {
-        const batch = db.batch();
-        batch.update(db.collection("active_list").doc(id), { artist, title, url: rawUrl.split("?")[0].trim() });
-        const contactRef = db.collection("private_artist_contacts").doc(id);
-        if (email) batch.set(contactRef, { email: email.trim().toLowerCase(), artist, source: "active", updatedAt: Date.now() });
-        else batch.delete(contactRef);
-        await batch.commit();
+        await db.collection("active_list").doc(id).update({ artist, title, url: rawUrl.split("?")[0].trim(), email });
         toggleModal('editActiveTrackModal', false);
         await loadAllLists();
         alert("✅ Tema actualizado.");
@@ -2616,13 +2521,7 @@
 
     window.deleteActiveTrack = async id => {
       if (!confirm("¿Eliminar este tema de la Lista Activa?")) return;
-      try {
-        const batch = db.batch();
-        batch.delete(db.collection("active_list").doc(id));
-        batch.delete(db.collection("private_artist_contacts").doc(id));
-        await batch.commit();
-        await loadAllLists();
-      } catch (e) { alert("Error al eliminar."); }
+      try { await db.collection("active_list").doc(id).delete(); await loadAllLists(); } catch (e) { alert("Error al eliminar."); }
     };
 
     window.exportActiveList = () => {
@@ -2631,123 +2530,12 @@
       alert("Lista Activa copiada.");
     };
 
-    // ==================== RESPALDOS LOCALES ====================
-    const LOCAL_BACKUP_COLLECTIONS = [
-      "active_list", "submissions", "monthly_list", "annual_list",
-      "artist_countries", "voters_log", "chat_users", "chat_presence",
-      "private_artist_contacts", "weekly_submitters", "weekly_save_reviews",
-      "weekly_save_review_history", "contact_messages", "chat_messages",
-      "settings", "backups", "stats"
-    ];
-
-    function bytesToBase64(bytes) {
-      let binary = "";
-      const chunkSize = 0x8000;
-      for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-        binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-      }
-      return btoa(binary);
-    }
-
-    function serializeFirestoreValue(value) {
-      if (value === null || value === undefined) return null;
-      if (value instanceof firebase.firestore.Timestamp) return { __type: "Timestamp", seconds: value.seconds, nanoseconds: value.nanoseconds };
-      if (value instanceof firebase.firestore.GeoPoint) return { __type: "GeoPoint", latitude: value.latitude, longitude: value.longitude };
-      if (value instanceof firebase.firestore.DocumentReference) return { __type: "DocumentReference", path: value.path };
-      if (value instanceof firebase.firestore.Blob) return { __type: "Bytes", base64: value.toBase64() };
-      if (value instanceof Uint8Array) return { __type: "Bytes", base64: bytesToBase64(value) };
-      if (Array.isArray(value)) return value.map(serializeFirestoreValue);
-      if (typeof value === "object") {
-        const out = {};
-        Object.keys(value).forEach(key => { out[key] = serializeFirestoreValue(value[key]); });
-        return out;
-      }
-      return value;
-    }
-
-    function downloadLocalJson(filename, payload) {
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1500);
-    }
-
-    window.downloadFirestoreBackup = async () => {
-      const user = auth.currentUser;
-      if (!user || user.uid !== ADMIN_UID) return alert("Solo el propietario autorizado puede descargar estos datos.");
-      const status = $("localBackupStatus");
-      const confirmed = confirm("Se leerán las colecciones privadas y públicas enumeradas y se descargará un JSON en este dispositivo. El archivo puede contener datos personales. Guárdalo en un lugar privado. ¿Continuar?");
-      if (!confirmed) return;
-      const result = {
-        format: "next-wave-rising-firestore-json-v1",
-        projectId: firebaseConfig.projectId,
-        createdAt: new Date().toISOString(),
-        note: "Copia JSON desde el SDK web. No incluye subcolecciones, reglas, índices ni configuración del proyecto; no es una exportación nativa restaurable.",
-        collections: {},
-        summary: { complete: false, totalCollections: LOCAL_BACKUP_COLLECTIONS.length, successfulCollections: 0, failedCollections: 0, totalDocuments: 0 },
-        errors: []
-      };
-      status.textContent = "Preparando copia local… No cierres esta pestaña.";
-      try {
-        for (const name of LOCAL_BACKUP_COLLECTIONS) {
-          try {
-            const items = [];
-            let last = null;
-            while (true) {
-              let query = db.collection(name).orderBy(firebase.firestore.FieldPath.documentId()).limit(300);
-              if (last) query = query.startAfter(last);
-              const snap = await query.get();
-              snap.docs.forEach(doc => items.push({ id: doc.id, data: serializeFirestoreValue(doc.data()) }));
-              if (snap.size < 300) break;
-              last = snap.docs[snap.docs.length - 1];
-            }
-            result.collections[name] = { status: "ok", count: items.length, documents: items };
-            result.summary.successfulCollections++;
-            result.summary.totalDocuments += items.length;
-          } catch (err) {
-            result.collections[name] = { status: "error", count: null, documents: [] };
-            result.summary.failedCollections++;
-            result.errors.push({ collection: name, code: err.code || "unknown", message: err.message || String(err) });
-          }
-          status.textContent = "Leyendo colecciones: " + result.summary.successfulCollections + " correctas, " + result.summary.failedCollections + " con error…";
-        }
-        result.summary.complete = result.summary.failedCollections === 0;
-        result.summary.finishedAt = new Date().toISOString();
-        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-        downloadLocalJson("NWR-Firestore-" + (result.summary.complete ? "copia-datos" : "PARCIAL") + "-" + stamp + ".json", result);
-        status.textContent = (result.summary.complete ? "Copia descargada. " : "Copia PARCIAL descargada. ") +
-          result.summary.totalDocuments + " documentos; " + result.summary.successfulCollections + "/" + result.summary.totalCollections +
-          " colecciones leídas. Revisa el resumen y los errores del JSON.";
-        alert((result.summary.complete ? "Copia JSON descargada." : "Atención: se descargó una copia PARCIAL.") +
-          "\nDocumentos: " + result.summary.totalDocuments +
-          "\nColecciones correctas: " + result.summary.successfulCollections +
-          "\nColecciones con error: " + result.summary.failedCollections +
-          "\nNo es una exportación nativa restaurable de Firestore.");
-      } catch (err) {
-        status.textContent = "No se pudo completar la copia: " + (err.message || String(err));
-        alert("No se pudo completar la copia: " + (err.message || String(err)));
-      }
-    };
-
     // ==================== BACKUPS ====================
     async function saveBackupSnapshot(customTitle, fixedDocId, scope = 'all') {
       const fetchCol = async (col, ordered = true) => {
         const q = ordered ? db.collection(col).orderBy("timestamp", "asc") : db.collection(col);
         const snap = await q.get();
-        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (col === "active_list" || col === "submissions") {
-          try {
-            const contacts = await db.collection("private_artist_contacts").get();
-            const contactMap = {};
-            contacts.forEach(d => contactMap[d.id] = d.data());
-            items.forEach(item => { if (!item.email && contactMap[item.id]?.email) item.email = contactMap[item.id].email; });
-          } catch (e) {
-            // Antes de desplegar las reglas por fases, los backups siguen recogiendo
-            // el correo heredado que aún pueda existir en el documento público.
-          }
-        }
-        return items;
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       };
       const [activeData, weeklyData, monthlyData, annualData, countriesData] = await Promise.all([
         (scope === 'all' || scope === 'active') ? fetchCol("active_list") : [],
@@ -2893,96 +2681,6 @@
       try { await db.collection("backups").doc(id).delete(); loadAdminBackups(); } catch (e) { alert("Error al eliminar."); }
     };
 
-    // ==================== REVISIÓN PRIVADA DE GUARDADOS SEMANALES ====================
-    window.loadAdminSaveReviews = async () => {
-      const container = $("adminSaveReviewsList"), badge = $("saveReviewsCountBadge");
-      if (!container) return;
-      try {
-        container.innerHTML = '<p class="text-zinc-400 text-center py-5">Cargando revisiones...</p>';
-        const [reviewsSnap, historySnap] = await Promise.all([
-          db.collection("weekly_save_reviews").orderBy("updatedAt", "desc").get(),
-          db.collection("weekly_save_review_history").orderBy("changedAt", "desc").get()
-        ]);
-        const historyByReview = {};
-        historySnap.forEach(doc => {
-          const item = doc.data();
-          (historyByReview[item.reviewId] ||= []).push(item);
-        });
-        const reviews = reviewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (badge) badge.textContent = reviews.length;
-        if (!reviews.length) {
-          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Todavía no hay declaraciones de guardado registradas.</p>';
-          return;
-        }
-        const labels = {
-          declared: "Declarado por el participante",
-          pending: "Pendiente de revisión",
-          reviewed: "Revisado manualmente",
-          not_accredited: "No acreditado"
-        };
-        const styles = {
-          declared: "bg-zinc-800 text-zinc-200",
-          pending: "bg-amber-500/15 text-amber-300",
-          reviewed: "bg-emerald-500/15 text-emerald-300",
-          not_accredited: "bg-rose-500/15 text-rose-300"
-        };
-        const statuses = ["declared", "pending", "reviewed", "not_accredited"];
-        container.innerHTML = reviews.map(item => {
-          const history = historyByReview[item.id] || [];
-          const changed = Number(item.updatedAt || item.createdAt || 0);
-          const historyHtml = history.length ? history.map(event => {
-            const when = event.changedAt ? new Date(event.changedAt).toLocaleString("es-ES") : "Fecha no disponible";
-            return '<p class="text-[10px] text-zinc-400 py-1 border-b border-white/5">' +
-              escapeHtml(labels[event.fromStatus] || event.fromStatus || "—") + " → " +
-              escapeHtml(labels[event.toStatus] || event.toStatus || "—") + " · " + escapeHtml(when) + '</p>';
-          }).join("") : '<p class="text-[10px] text-zinc-500">Sin cambios de estado todavía.</p>';
-          return '<article class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2">' +
-            '<div class="flex flex-wrap justify-between gap-2"><div class="min-w-0">' +
-            '<p class="font-bold text-white">' + escapeHtml(item.artist || "Artista") + ' — ' + escapeHtml(item.title || "Tema") + '</p>' +
-            '<p class="text-[10px] text-zinc-400 break-all">' + escapeHtml(item.email || "") + '</p>' +
-            '<p class="text-[10px] text-zinc-500">Edición: ' + escapeHtml(item.edition || "Sin edición") +
-            ' · ' + escapeHtml(changed ? new Date(changed).toLocaleString("es-ES") : "Fecha no disponible") + '</p></div>' +
-            '<span class="self-start px-2 py-1 rounded text-[10px] ' + (styles[item.status] || styles.declared) + '">' +
-            escapeHtml(labels[item.status] || "Estado desconocido") + '</span></div>' +
-            '<div class="flex flex-wrap gap-1.5">' + statuses.map(status =>
-              '<button type="button" ' + (item.status === status ? 'disabled ' : '') +
-              'onclick="setWeeklySaveReviewStatus(\'' + item.id + '\',\'' + status + '\')" ' +
-              'class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold ' +
-              (item.status === status ? 'bg-zinc-700 text-zinc-500' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200') + '">' +
-              escapeHtml(labels[status]) + '</button>'
-            ).join("") + '</div>' +
-            '<details class="pt-1 border-t border-white/5"><summary class="cursor-pointer text-[10px] text-cyan-300">Historial de cambios (' + history.length + ')</summary>' +
-            '<div class="pt-2">' + historyHtml + '</div></details></article>';
-        }).join("");
-      } catch (e) {
-        container.innerHTML = '<p class="text-rose-400 text-center py-5">No se pudieron cargar las revisiones: ' + escapeHtml(e.message || "error") + '</p>';
-      }
-    };
-
-    window.setWeeklySaveReviewStatus = async (id, status) => {
-      const allowed = ["declared", "pending", "reviewed", "not_accredited"];
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID || !allowed.includes(status)) return;
-      try {
-        const reviewRef = db.collection("weekly_save_reviews").doc(id);
-        const snap = await reviewRef.get();
-        if (!snap.exists) return alert("La revisión ya no existe.");
-        const previous = snap.data();
-        if (previous.status === status) return;
-        const now = Date.now(), historyRef = db.collection("weekly_save_review_history").doc();
-        const batch = db.batch();
-        batch.update(reviewRef, { status, updatedAt: now, reviewedBy: ADMIN_UID });
-        batch.set(historyRef, {
-          reviewId: id, fromStatus: previous.status || "declared",
-          toStatus: status, changedAt: now, changedBy: ADMIN_UID,
-          edition: previous.edition || ""
-        });
-        await batch.commit();
-        await loadAdminSaveReviews();
-      } catch (e) {
-        alert("No se pudo actualizar la revisión: " + (e.message || "error"));
-      }
-    };
-
     // ==================== MENSAJES Y CHAT ADMIN ====================
     async function loadAdminMessages() {
       const container = $("adminMessagesList"), badge = $("msgCountBadge"), total = $("totalMsgCount");
@@ -3002,20 +2700,7 @@
     }
 
     window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => {
-      if (!confirm("¿Eliminar esta canción de la cola semanal?")) return;
-      try {
-        const contactRef = db.collection("private_artist_contacts").doc(id);
-        const contactSnap = await contactRef.get();
-        const email = contactSnap.exists ? String(contactSnap.data().email || "").trim().toLowerCase() : "";
-        const batch = db.batch();
-        batch.delete(db.collection("submissions").doc(id));
-        batch.delete(contactRef);
-        if (email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) batch.delete(db.collection("weekly_submitters").doc(email));
-        await batch.commit();
-        await loadAllLists();
-      } catch (e) { alert("Error al eliminar: " + e.message); }
-    };
+    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
@@ -3053,7 +2738,6 @@
     async function submitContactMessage() {
       const name = $("contactName").value.trim(), email = $("contactEmail").value.trim(), message = $("contactMsgText").value.trim(), fb = $("contactFeedback");
       if (!name || !email || !message) { fb.textContent = currentLang === 'es' ? "Rellena todos los campos." : "Fill in all fields."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
-      if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) { fb.textContent = currentLang === 'es' ? "Correo electrónico no válido." : "Please enter a valid email address."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
       try {
         await db.collection("contact_messages").add({ name, email, message, timestamp: Date.now(), dateString: madridStr(), read: false });
         fb.textContent = currentLang === 'es' ? "✓ ¡Mensaje enviado con éxito!" : "✓ Message sent!"; fb.className = "text-xs text-center text-emerald-400"; fb.classList.remove("hidden");
@@ -3064,8 +2748,8 @@
 
     // ==================== CHAT PÚBLICO ====================
     async function updateChatPresence() {
-      if (!currentChatNick) return;
-      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick }); } catch (e) {}
+      if (!currentChatNick || !clientIp) return;
+      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick, ip: clientIp }, { merge: true }); } catch (e) {}
     }
 
     function listenActiveUsers() {
@@ -3100,9 +2784,12 @@
       if (nick.length < 2) { err.textContent = currentLang === 'es' ? "Mínimo 2 caracteres." : "Min 2 chars."; err.classList.remove('hidden'); return; }
       err.classList.add('hidden');
       try {
-        // No consultar públicamente los registros de usuarios (pueden contener IP).
-        // El nick se conserva localmente en este dispositivo; cada entrada crea un registro.
-        await db.collection('chat_users').add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
+        const usersRef = db.collection('chat_users');
+        if (clientIp && clientIp !== "unknown_ip") {
+          const q = await usersRef.where('ip', '==', clientIp).get();
+          if (!q.empty) { currentChatNick = q.docs[0].data().nick; localStorage.setItem('nwr_chat_nick', currentChatNick); return initChatRealtime(); }
+        }
+        await usersRef.add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
         currentChatNick = nick; localStorage.setItem('nwr_chat_nick', currentChatNick);
         initChatRealtime();
       } catch (e) { err.textContent = "Error al entrar."; err.classList.add('hidden'); }
@@ -3221,30 +2908,21 @@
     }
 
     async function loadAllLists() {
-      const isCuratorSession = !!auth.currentUser && !$("adminDashboard").classList.contains("hidden");
-      const [votersRes, activeRes, subRes, monthlyRes, annualRes, contactsRes] = await Promise.allSettled([
-        isCuratorSession ? db.collection("voters_log").get() : Promise.resolve(null),
+      const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
+        db.collection("voters_log").get(),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
         db.collection("submissions").orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
-        db.collection("annual_list").orderBy("timestamp", "asc").get(),
-        isCuratorSession ? db.collection("private_artist_contacts").get() : Promise.resolve(null)
+        db.collection("annual_list").orderBy("timestamp", "asc").get()
       ]);
-      const privateContacts = {};
-      if (contactsRes.status === "fulfilled" && contactsRes.value) {
-        contactsRes.value.docs.forEach(d => privateContacts[d.id] = d.data());
-      }
 
-      if (activeRes.status === "fulfilled") {
-        const totalVotesForCount = activeRes.value.docs.reduce((sum, d) => sum + (d.data().votes || 0), 0);
-        $("statVotersCount").textContent = String(Math.floor(totalVotesForCount / 3)).padStart(2, '0');
-      }
+      if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
 
       // 1. LISTA ACTIVA (CON CLICK-TO-PLAY Y CARÁTULAS)
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
       const hAct = getPlayerHeight('active');
       if (activeRes.status === "fulfilled") {
-        activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data(), ...(isCuratorSession && privateContacts[d.id] ? { email: privateContacts[d.id].email } : {}) }));
+        activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("publicActiveCount").textContent = $("adminActiveCount").textContent = $("adminActiveCountBadge").textContent = activeSubs.length;
         let votedTracks = 0, totalVotes = 0;
         activeSubs.forEach(s => { const v = s.votes || 0; totalVotes += v; if (v > 0) votedTracks++; });
@@ -3258,16 +2936,14 @@
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
 
           aAct.innerHTML = activeSubs.map((s, i) => {
-            const voterEmails = votersRes.status === "fulfilled" && votersRes.value
-              ? votersRes.value.docs.filter(v => (v.data().votedTracks || []).includes(s.id)).map(v => v.data().email).filter(Boolean)
-              : [];
-            const vHtml = voterEmails.length ? voterEmails.map(v => `<li class="text-[11px] text-zinc-300">• ${escapeHtml(v)}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin datos de votantes visibles</li>';
+            const voters = s.voters || [];
+            const vHtml = voters.length ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${escapeHtml(v)}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
             return `<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${escapeHtml(s.email || 'Sin email')} | Votos: <strong>${String(s.votes || 0).padStart(2, '0')}</strong></p></div>
                 <div class="flex gap-1.5"><a href="${(s.url || '').split('?')[0]}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a><button type="button" onclick="openEditActiveModal('${s.id}')" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded">Editar</button><button type="button" onclick="deleteActiveTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>
               </div>
-              <details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (${voterEmails.length || (s.votes || 0)})</summary><ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">${vHtml}</ul></details>
+              <details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (${voters.length})</summary><ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">${vHtml}</ul></details>
             </div>`;
           }).join("");
 
@@ -3305,7 +2981,7 @@
       // 2. COLA SEMANAL
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
-        subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data(), ...(isCuratorSession && privateContacts[d.id] ? { email: privateContacts[d.id].email } : {}) }));
+        subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
           aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
@@ -3330,127 +3006,6 @@
       renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
     }
 
-    // UID del único curador autorizado; las reglas Firestore aplican el mismo control.
-    const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
-
-    window.clearLegacyChatPresence = async () => {
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
-      if (!confirm("Se borrarán los registros temporales de presencia del chat. Los usuarios conectados volverán a aparecer en unos segundos. ¿Continuar?")) return;
-      try {
-        const snap = await db.collection("chat_presence").get();
-        for (let i = 0; i < snap.docs.length; i += 400) {
-          const batch = db.batch();
-          snap.docs.slice(i, i + 400).forEach(doc => batch.delete(doc.ref));
-          await batch.commit();
-        }
-        alert("Presencia antigua eliminada. Los usuarios activos volverán a registrarse automáticamente.");
-      } catch (e) {
-        alert("No se pudo limpiar la presencia: " + (e.message || "error"));
-      }
-    };
-
-    window.migrateLegacyArtistContacts = async () => {
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
-      if (!confirm("Se creará primero una copia de seguridad completa. Después se copiarán los correos de active_list y submissions a registros privados y se eliminarán de las listas públicas. ¿Continuar?")) return;
-      try {
-        await saveBackupSnapshot("Backup previo a migración de contactos - " + madridDateOnly(), null, "all");
-        const [activeSnap, submissionsSnap, contactsSnap] = await Promise.all([
-          db.collection("active_list").get(),
-          db.collection("submissions").get(),
-          db.collection("private_artist_contacts").get()
-        ]);
-        const contactMap = {};
-        contactsSnap.forEach(doc => contactMap[doc.id] = doc.data());
-        const records = [
-          ...activeSnap.docs.map(doc => ({ doc, source: "active" })),
-          ...submissionsSnap.docs.map(doc => ({ doc, source: "weekly" }))
-        ];
-        const writes = [];
-        const weeklyEmails = new Set();
-        records.forEach(({ doc, source }) => {
-          const data = doc.data(), email = String(data.email || contactMap[doc.id]?.email || "").trim().toLowerCase();
-          if (email) {
-            writes.push({ ref: db.collection("private_artist_contacts").doc(doc.id), data: {
-              email, artist: data.artist || "Artista", source, updatedAt: Date.now()
-            }});
-            if (source === "weekly" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) weeklyEmails.add(email);
-            writes.push({ ref: doc.ref, update: { email: firebase.firestore.FieldValue.delete() } });
-          }
-        });
-        weeklyEmails.forEach(email => writes.push({ ref: db.collection("weekly_submitters").doc(email), data: { email, timestamp: Date.now() } }));
-        for (let i = 0; i < writes.length; i += 400) {
-          const batch = db.batch();
-          writes.slice(i, i + 400).forEach(w => w.update
-            ? batch.update(w.ref, w.update)
-            : batch.set(w.ref, w.data, { merge: true }));
-          await batch.commit();
-        }
-        await loadAllLists();
-        alert("Migración de contactos terminada. Comprueba el panel y los backups antes de cerrar la edición.");
-      } catch (e) {
-        alert("No se pudo migrar los contactos: " + (e.message || "error"));
-      }
-    };
-
-    window.migrateLegacyVotePrivacy = async () => {
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
-      if (!confirm("Se creará primero una copia de seguridad completa. Después se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los arrays públicos de correos. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
-      try {
-        await saveBackupSnapshot("Backup previo a migración de votos - " + madridDateOnly(), null, "all");
-        const [votersSnap, activeSnap, submissionsSnap] = await Promise.all([
-          db.collection("voters_log").get(),
-          db.collection("active_list").get(),
-          db.collection("submissions").get()
-        ]);
-        const merged = new Map();
-        const addVoter = (email, trackId) => {
-          const key = String(email || "").trim().toLowerCase();
-          if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(key)) return;
-          if (!merged.has(key)) merged.set(key, new Set());
-          if (trackId) merged.get(key).add(trackId);
-        };
-        votersSnap.docs.forEach(doc => {
-          const data = doc.data();
-          (data.votedTracks || []).forEach(trackId => addVoter(data.email, trackId));
-        });
-        [...activeSnap.docs, ...submissionsSnap.docs].forEach(doc => {
-          (doc.data().voters || []).forEach(email => addVoter(email, doc.id));
-        });
-        const writes = [];
-        merged.forEach((trackIds, email) => writes.push({ type: "set", ref: db.collection("voters_log").doc(email), data: {
-          email, votedTracks: Array.from(trackIds).slice(0, 3), timestamp: Date.now()
-        }}));
-        votersSnap.docs.forEach(doc => { if (doc.id !== String(doc.data().email || "").trim().toLowerCase()) writes.push({ type: "delete", ref: doc.ref }); });
-        for (let i = 0; i < writes.length; i += 400) {
-          const batch = db.batch();
-          writes.slice(i, i + 400).forEach(w => w.type === "set" ? batch.set(w.ref, w.data) : batch.delete(w.ref));
-          await batch.commit();
-        }
-        for (let i = 0; i < activeSnap.docs.length; i += 400) {
-          const batch = db.batch();
-          activeSnap.docs.slice(i, i + 400).forEach(doc => {
-            const votes = doc.data().votes;
-            batch.update(doc.ref, {
-              voters: firebase.firestore.FieldValue.delete(),
-              votes: typeof votes === "number" ? votes : 0
-            });
-          });
-          await batch.commit();
-        }
-        for (let i = 0; i < submissionsSnap.docs.length; i += 400) {
-          const batch = db.batch();
-          submissionsSnap.docs.slice(i, i + 400).forEach(doc => batch.update(doc.ref, {
-            voters: firebase.firestore.FieldValue.delete()
-          }));
-          await batch.commit();
-        }
-        await loadAllLists();
-        alert("Privacidad preparada. Revisa la lista activa y los registros antes de continuar.");
-      } catch (e) {
-        alert("No se pudo completar la migración: " + (e.message || "error"));
-      }
-    };
-
     // ==================== VOTACIONES ====================
     window.handleVoteClick = async id => {
       if (isVotingCutoffReached()) { updateVotingUI(false); return alert(currentLang === 'es' ? "Las votaciones terminaron el jueves a las 22:00 (hora de Madrid)." : "Voting closed Thursday at 22:00 Madrid time."); }
@@ -3459,6 +3014,9 @@
       if (!em || !em.includes("@") || em.length < 5) { inp.focus(); inp.style.borderColor = "#ef4444"; return alert(currentLang === 'es' ? "Introduce un correo válido." : "Enter a valid email."); }
       inp.style.borderColor = "#3f3f46";
       try {
+        const vRef = db.collection("voters_log");
+        if (!(await vRef.where("email", "==", em).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
+        if (clientIp && clientIp !== "unknown_ip" && !(await vRef.where("ip", "==", clientIp).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
         if (sessionPendingVotes.includes(id)) { sessionPendingVotes = sessionPendingVotes.filter(x => x !== id); return loadAllLists(); }
         if (sessionPendingVotes.length >= 3) return alert(currentLang === 'es' ? "Ya seleccionaste 3 temas." : "Already selected 3 tracks.");
         sessionPendingVotes.push(id);
@@ -3472,25 +3030,21 @@
       if (isVotingCutoffReached()) { sessionPendingVotes = []; updateVotingUI(false); loadAllLists(); return alert(currentLang === 'es' ? "El plazo terminó a las 22:00. Estos votos no se han guardado." : "Voting closed at 22:00. These votes were not saved."); }
       const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
       try {
-        if (!em || !/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(em)) throw new Error("EMAIL_INVALID");
-        const trackDocs = await Promise.all(sessionPendingVotes.map(tid => db.collection("active_list").doc(tid).get()));
-        if (trackDocs.some(d => !d.exists)) throw new Error("TRACK_MISSING");
-        const batch = db.batch();
-        const voterRef = db.collection("voters_log").doc(em);
-        batch.set(voterRef, { email: em, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
-        trackDocs.forEach(doc => batch.update(doc.ref, {
-          votes: firebase.firestore.FieldValue.increment(1)
-        }));
-        await batch.commit();
+        const vRef = db.collection("voters_log");
+        if (!(await vRef.where("email", "==", em).get()).empty) { sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists(); return alert("Ya has votado."); }
+        for (const tid of sessionPendingVotes) {
+          const ref = db.collection("active_list").doc(tid), doc = await ref.get();
+          if (doc.exists) {
+            const vList = doc.data().voters || [];
+            if (!vList.includes(em)) vList.push(em);
+            await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
+          }
+        }
+        await vRef.add({ email: em, ip: clientIp || "unknown_ip", votedTracks: sessionPendingVotes, timestamp: Date.now() });
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
         sessionPendingVotes = []; lockedRandomOrder = null; inp.value = "";
         loadAllLists();
-      } catch (e) {
-        alert(e.message === "EMAIL_INVALID" ? "Introduce un correo válido." :
-          e.code === "permission-denied" ? "Ese correo ya ha votado o no se ha podido validar el registro." :
-          "Error al guardar votos.");
-        sessionPendingVotes = []; loadAllLists();
-      }
+      } catch (e) { alert("Error al guardar votos."); sessionPendingVotes = []; loadAllLists(); }
     };
 
     window.cancelVoteConfirmation = () => { toggleModal('voteConfirmModal', false); sessionPendingVotes = []; alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled."); loadAllLists(); };
@@ -3512,29 +3066,21 @@
       listenActiveUsers();
       if (currentChatNick) $("chatNickInput").value = currentChatNick;
 
-      // Control de interfaz: solo muestra el panel a la cuenta curadora prevista.
-      // La seguridad real debe reforzarse también en las reglas de Firestore.
       auth.onAuthStateChanged(user => {
-        const isCurator = window.NWR_PREVIEW_MODE ? localStorage.getItem("nwr_demo_admin") === "1" : !!user && user.uid === ADMIN_UID;
-        if (isCurator) {
+        if (user) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
-          $("adminLoggedUserLabel").textContent = window.NWR_PREVIEW_MODE ? "● ADMINISTRACIÓN DEMO · LOCAL" : `● Curador: ${user.email}`;
+          $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
           $("topConfigBtn").classList.remove("hidden");
           $("topConfigBtn").classList.add("flex");
-          if (!window.NWR_PREVIEW_MODE) {
-            loadAllLists();
-            loadAdminCountries();
-            loadAdminBackups();
-          }
+          loadAllLists();
+          loadAdminCountries();
+          loadAdminBackups();
         } else {
           $("adminDashboard").classList.add("hidden");
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
-          if (user) {
-            $("adminLoginBox").querySelector("p")?.replaceChildren(document.createTextNode("Esta cuenta no tiene acceso al panel de curadores."));
-          }
         }
       });
 
@@ -3566,25 +3112,13 @@
         await db.collection("settings").doc("activeEdition").set(config, { merge: true }).catch(() => {});
       });
 
-      $("migrateVotePrivacyBtn").addEventListener("click", window.migrateLegacyVotePrivacy);
-      $("migrateArtistContactsBtn").addEventListener("click", window.migrateLegacyArtistContacts);
-      $("clearLegacyChatPresenceBtn").addEventListener("click", window.clearLegacyChatPresence);
       $("resetVotesBtn").addEventListener("click", async () => {
         if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
           const [sAct, sVot] = await Promise.all([db.collection("active_list").get(), db.collection("voters_log").get()]);
-          for (let i = 0; i < sAct.docs.length; i += 400) {
-            const b1 = db.batch();
-            sAct.docs.slice(i, i + 400).forEach(d => b1.update(d.ref, {
-              votes: 0, voters: firebase.firestore.FieldValue.delete()
-            }));
-            await b1.commit();
-          }
-          for (let i = 0; i < sVot.docs.length; i += 400) {
-            const b2 = db.batch();
-            sVot.docs.slice(i, i + 400).forEach(d => b2.delete(d.ref));
-            await b2.commit();
-          }
+          const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: [] }));
+          const b2 = db.batch(); sVot.docs.forEach(d => b2.delete(d.ref));
+          await Promise.all([b1.commit(), b2.commit()]);
           sessionPendingVotes = []; lockedRandomOrder = null;
           loadAllLists();
           alert("¡Votos reseteados!");
@@ -3643,24 +3177,10 @@
 
         if (!$("confirmSaveCheckbox").checked) return err("Confirma que has guardado la playlist primero.", "Please confirm you saved the playlist first.");
         if (!artist || !title || !rawUrl || !email) return err("Rellena todos los campos (*).", "Fill in all required fields (*).");
-        if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
         const cleanUrl = rawUrl.split("?")[0].trim();
         if (!/^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/.test(cleanUrl)) return err("Enlace no válido. Pega el enlace directo de la CANCIÓN en Spotify.", "Invalid link. Paste the direct Spotify TRACK link.");
 
-        if (window.NWR_PREVIEW_MODE) {
-          btn.disabled = true; btn.textContent = "Añadiendo a la demo…";
-          const item = { artist, title, url: cleanUrl, email, createdAt: new Date().toISOString(), demo: true };
-          const saved = JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]");
-          saved.push(item); localStorage.setItem("nwr_demo_submissions", JSON.stringify(saved));
-          $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
-          receipt.classList.remove("hidden");
-          fb.textContent = "Propuesta añadida solo a esta demostración. No se ha enviado a la cola real.";
-          fb.className = "text-xs text-center text-emerald-400 font-medium"; fb.classList.remove("hidden");
-          $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
-          $("submissionForm").classList.add("opacity-50", "pointer-events-none");
-          btn.disabled = false; btn.textContent = translations[currentLang].submitBtn;
-          return;
-        }
         btn.disabled = true; btn.textContent = currentLang === 'es' ? "Verificando..." : "Verifying...";
         receipt.classList.add("hidden"); fb.classList.add("hidden");
 
@@ -3669,7 +3189,7 @@
           let dupUser = false, dupTrack = false;
           snap.forEach(d => {
             const data = d.data();
-            if ((data.artist || "").toLowerCase() === artist.toLowerCase()) dupUser = true;
+            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) dupUser = true;
             if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
           });
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
@@ -3679,21 +3199,10 @@
           const submitGeo = await fetchGeoByIp("");
           const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
-          const submissionRef = db.collection("submissions").doc();
-          const batch = db.batch();
-          batch.set(submissionRef, { artist, title, url: cleanUrl, timestamp: Date.now(), dateString: madridStr(), votes: 0 });
-          batch.set(db.collection("private_artist_contacts").doc(submissionRef.id), { email: email.toLowerCase(), artist, source: "weekly", updatedAt: Date.now() });
-          // Un documento por correo y edición; create-only en Firestore evita duplicados sin exponer el listado.
-          batch.set(db.collection("weekly_submitters").doc(email.toLowerCase()), { email: email.toLowerCase(), timestamp: Date.now() });
-          // La casilla confirma una declaración del participante, no una verificación de Spotify.
-          const reviewRef = db.collection("weekly_save_reviews").doc();
-          const declaredAt = Date.now();
-          batch.set(reviewRef, {
-            submissionId: submissionRef.id, email: email.toLowerCase(),
-            artist, title, edition: String(config.edition || "Sin edición"),
-            status: "declared", createdAt: declaredAt, updatedAt: declaredAt
+          await db.collection("submissions").add({
+            artist, title, url: cleanUrl, email,
+            timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: []
           });
-          await batch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
           sessionStorage.removeItem("nwr_geo_self");
@@ -3702,11 +3211,7 @@
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
           $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
-        } catch (e) {
-          err(e.code === "permission-denied"
-            ? "Este correo ya ha enviado una canción en esta edición, o el envío no ha sido autorizado."
-            : "Error de conexión.", "This email has already submitted in this edition, or the submission was not authorized.");
-        }
+        } catch (e) { err("Error de conexión.", "Connection error."); }
         finally { btn.disabled = false; btn.textContent = translations[currentLang].submitBtn; }
       });
 
@@ -3721,23 +3226,13 @@
         if (!confirm("¿Cerrar edición y rotar listas?\n\n• Copia de Sistema automática.\n• Lista Activa -> Mensual.\n• Cola Semanal -> Lista Activa (con votación abierta).\n• Campeón -> Destacado y reingresa en Cola Semanal.")) return;
         try {
           await saveBackupSnapshot(`Copia de sistema - ${madridDateOnly()}`, null, 'all');
-          const [snapActive, snapContacts] = await Promise.all([
-            db.collection("active_list").orderBy("timestamp", "asc").get(),
-            db.collection("private_artist_contacts").get()
-          ]);
-          const contactMap = {};
-          snapContacts.forEach(doc => contactMap[doc.id] = doc.data());
-          const curActive = snapActive.docs.map(d => ({
-            ref: d.ref, data: d.data(),
-            email: contactMap[d.id]?.email || d.data().email || ""
-          }));
+          const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+          const curActive = snapActive.docs.map(d => ({ ref: d.ref, data: d.data() }));
           let winner = null;
 
           if (curActive.length) {
             winner = curActive.reduce((p, c) => ((c.data.votes || 0) > (p.data.votes || 0)) ? c : p);
-            for (const item of curActive) await db.collection("monthly_list").add({
-              artist: item.data.artist, title: item.data.title, url: item.data.url, timestamp: Date.now()
-            });
+            for (const item of curActive) await db.collection("monthly_list").add({ artist: item.data.artist, title: item.data.title, url: item.data.url, timestamp: Date.now() });
             const snapM = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             const mDocs = [...snapM.docs];
             while (mDocs.length > 4) {
@@ -3745,70 +3240,26 @@
               await db.collection("annual_list").add({ artist: d.artist, title: d.title, url: d.url, timestamp: Date.now() });
               await old.ref.delete();
             }
-            const deleteRefs = snapActive.docs.flatMap(doc => [
-              doc.ref,
-              ...((winner && (winner.data.votes || 0) > 0 && doc.id === winner.ref.id) ? [] : [db.collection("private_artist_contacts").doc(doc.id)])
-            ]);
-            for (let i = 0; i < deleteRefs.length; i += 400) {
-              const batch = db.batch();
-              deleteRefs.slice(i, i + 400).forEach(ref => batch.delete(ref));
-              await batch.commit();
-            }
+            const bDelA = db.batch(); snapActive.docs.forEach(d => bDelA.delete(d.ref)); await bDelA.commit();
           }
 
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           if (!snapSub.empty) {
-            for (let i = 0; i < snapSub.docs.length; i += 150) {
-              const batch = db.batch();
-              snapSub.docs.slice(i, i + 150).forEach(doc => {
-                const d = doc.data(), email = String(contactMap[doc.id]?.email || d.email || "").trim().toLowerCase();
-                const activeRef = db.collection("active_list").doc(doc.id);
-                batch.set(activeRef, {
-                  artist: d.artist, title: d.title, url: d.url,
-                  timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0
-                });
-                if (email) batch.set(db.collection("private_artist_contacts").doc(doc.id), {
-                  email, artist: d.artist || "Artista", source: "active", updatedAt: Date.now()
-                }, { merge: true });
-                batch.delete(doc.ref);
-              });
-              await batch.commit();
+            for (const doc of snapSub.docs) {
+              const d = doc.data();
+              await db.collection("active_list").add({ artist: d.artist, title: d.title, url: d.url, email: d.email || "", timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0, voters: [] });
             }
-          }
-          const oldSubmitters = await db.collection("weekly_submitters").get();
-          for (let i = 0; i < oldSubmitters.docs.length; i += 400) {
-            const batch = db.batch();
-            oldSubmitters.docs.slice(i, i + 400).forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
+            const bDelS = db.batch(); snapSub.docs.forEach(d => bDelS.delete(d.ref)); await bDelS.commit();
           }
 
           const sVot = await db.collection("voters_log").get();
-          for (let i = 0; i < sVot.docs.length; i += 400) {
-            const bV = db.batch();
-            sVot.docs.slice(i, i + 400).forEach(d => bV.delete(d.ref));
-            await bV.commit();
-          }
+          if (!sVot.empty) { const bV = db.batch(); sVot.docs.forEach(d => bV.delete(d.ref)); await bV.commit(); }
           sessionPendingVotes = []; lockedRandomOrder = null;
           config.votingActive = true;
           await db.collection("settings").doc("activeEdition").set({ votingActive: true, ...(winner ? { trackUrl: winner.data.url } : {}) }, { merge: true });
 
           if (winner && (winner.data.votes || 0) > 0) {
-            const winnerRef = db.collection("submissions").doc(winner.ref.id);
-            await winnerRef.set({
-              artist: winner.data.artist, title: winner.data.title, url: winner.data.url,
-              timestamp: Date.now(), dateString: madridStr(), votes: 0
-            });
-            if (winner.email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(winner.email.trim())) {
-              const winnerEmail = winner.email.trim().toLowerCase();
-              const batch = db.batch();
-              batch.set(db.collection("private_artist_contacts").doc(winner.ref.id), {
-                email: winnerEmail, artist: winner.data.artist || "Artista", source: "weekly", updatedAt: Date.now()
-              }, { merge: true });
-              batch.set(db.collection("weekly_submitters").doc(winnerEmail), {
-                email: winnerEmail, timestamp: Date.now()
-              });
-              await batch.commit();
-            }
+            await db.collection("submissions").add({ artist: winner.data.artist, title: winner.data.title, url: winner.data.url, email: winner.data.email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
           }
 
           const now = new Date();
@@ -3853,154 +3304,6 @@
         }, error => console.warn("No se pudo sincronizar el estado de votación:", error));
       });
     });
-
-    // MODO DEMOSTRACIÓN: contenido ficticio, sin conexión a datos reales.
-    document.addEventListener("DOMContentLoaded", () => {
-      const demoCard = (artist, title, tag="EJEMPLO") => `
-        <article class="glass rounded-xl p-3 border border-white/10 flex items-center justify-between gap-3">
-          <div class="min-w-0"><p class="text-[9px] tracking-widest text-emerald-400 font-bold">${tag} · DATOS FICTICIOS</p>
-          <p class="font-bold text-sm text-white truncate">${title}</p>
-          <p class="text-xs text-zinc-400 truncate">${artist}</p></div>
-          <span class="text-xl" aria-hidden="true">♫</span>
-        </article>`;
-      const fill = (id, cards, countId) => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = cards.join("");
-        const count = document.getElementById(countId);
-        if (count) count.textContent = String(cards.length);
-      };
-      setTimeout(() => {
-        fill("publicActiveList", [demoCard("Artista de muestra", "Luz de madrugada"), demoCard("Proyecto ficticio", "Ritmo sin fronteras")], "publicActiveCount");
-        fill("publicSubmissionsList", [demoCard("Banda de ejemplo", "Horizonte abierto"), demoCard("Artista invitado", "Voces del futuro")], "publicSubCount");
-        const savedPublic = JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]");
-        const publicQueue = document.getElementById("publicSubmissionsList");
-        savedPublic.forEach(item => {
-          const card = document.createElement("article");
-          card.className = "glass rounded-xl p-3 border border-emerald-500/20";
-          const name = document.createElement("p"); name.className = "font-bold text-sm text-white"; name.textContent = item.title + " · PROPUESTA DEMO";
-          const artist = document.createElement("p"); artist.className = "text-xs text-zinc-400"; artist.textContent = item.artist;
-          card.append(name, artist); publicQueue?.prepend(card);
-        });
-        const publicCount = document.getElementById("publicSubCount");
-        if (publicCount) publicCount.textContent = String(2 + savedPublic.length);
-        fill("monthlyListContainer", [demoCard("Selección de muestra", "Lo mejor del mes")], "monthlyCount");
-        fill("annualListContainer", [demoCard("Archivo ficticio", "Selección anual")], "annualCount");
-        const set = (id, value) => { const el=document.getElementById(id); if(el) el.textContent=value; };
-        set("statVotersCount","12"); set("statTracksVotedCount","4"); set("statTotalVotesCount","28");
-        set("uniqueVisitorCount","—");
-        ["btnChatJoin","btnChatSend","resetVotesBtn","migrateVotePrivacyBtn","clearLegacyChatPresenceBtn"].forEach(id => {
-          const el=document.getElementById(id); if(el){el.disabled=true;el.title="Desactivado en la vista previa";}
-        });
-        const demoNote=document.createElement("p");
-        demoNote.className="text-[10px] text-amber-300 text-center mt-2";
-        demoNote.textContent="Los nombres, canciones y cifras visibles son datos ficticios de demostración.";
-        document.getElementById("publicActiveList")?.append(demoNote.cloneNode(true));
-      }, 1200);
-    });
   </script>
-
-  <script>
-  // Administración de demostración aislada: nunca autentica ni escribe en Firebase.
-  window.NWR_PREVIEW_MODE = true;
-  document.addEventListener("DOMContentLoaded", () => {
-    const loginBox = document.getElementById("adminLoginBox");
-    const loginBtn = document.getElementById("adminLoginBtn");
-    const dashboard = document.getElementById("adminDashboard");
-    const banner = document.createElement("div");
-    banner.className = "mx-3 mt-3 rounded-xl border border-amber-400/40 bg-amber-950/50 p-3 text-xs text-amber-200";
-    banner.textContent = "MODO ADMIN DEMO · Cambios guardados solo en este navegador. Firebase, usuarios reales y operaciones reales están desconectados.";
-    document.getElementById("adminView")?.prepend(banner);
-
-    const enterDemo = () => {
-      localStorage.setItem("nwr_demo_admin", "1");
-      loginBox?.classList.add("hidden");
-      dashboard?.classList.remove("hidden");
-      const label = document.getElementById("adminLoggedUserLabel");
-      if (label) label.textContent = "● ADMINISTRACIÓN DEMO · LOCAL";
-      const top = document.getElementById("topConfigBtn");
-      top?.classList.remove("hidden"); top?.classList.add("flex");
-      const savedStatuses = JSON.parse(localStorage.getItem("nwr_demo_review_statuses") || "{}");
-      const seed = [
-        {artist:"Luna Norte",title:"Horizonte de papel",status:"Pendiente",demoSample:true},
-        {artist:"Mar Abierto",title:"Vuelvo a empezar",status:"Revisada",demoSample:true},
-        {artist:"Neón Sur",title:"Kilómetros de luz",status:"Declarada",demoSample:true},
-        ...JSON.parse(localStorage.getItem("nwr_demo_submissions") || "[]").map(item => ({
-          artist: item.artist, title: item.title, email: item.email, url: item.url,
-          status: "Nueva · DEMO", demoSample: false
-        }))
-      ].map((item,idx) => {
-        const demoKey = item.url || "sample:" + idx;
-        return {...item, demoKey, status: savedStatuses[demoKey] || item.status};
-      });
-      const target = document.getElementById("submissionsList");
-      if (target && !target.dataset.demoFilled) {
-        target.dataset.demoFilled = "1";
-        target.innerHTML = "";
-        seed.forEach((item,idx) => {
-          const card=document.createElement("div");
-          card.className="rounded-xl border border-white/10 bg-zinc-900/70 p-3 space-y-2";
-          card.dataset.demoKey=item.demoKey;
-          card.dataset.demoStatus=item.status;
-          card.innerHTML='<div class="font-bold text-white"></div><div class="text-zinc-400 text-xs"></div><div class="flex gap-2 flex-wrap"><button class="demo-status px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 text-xs">Marcar revisada</button><button class="demo-status px-2 py-1 rounded bg-amber-500/20 text-amber-200 text-xs">Dejar pendiente</button></div><div class="text-[10px] text-zinc-500">Registro ficticio · demostración</div>';
-          card.querySelector("div").textContent=item.artist;
-          card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;
-          card.querySelectorAll("button")[0].addEventListener("click",()=>{item.status="Revisada";card.dataset.demoStatus=item.status;card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
-          card.querySelectorAll("button")[1].addEventListener("click",()=>{item.status="Pendiente";card.dataset.demoStatus=item.status;card.querySelectorAll("div")[1].textContent=item.title+" · "+item.status;saveDemo();});
-          target.append(card);
-        });
-        const count=document.getElementById("subCount"); if(count) count.textContent=seed.length;
-      }
-      const active=document.getElementById("adminActiveListContainer");
-      if(active && !active.dataset.demoFilled){active.dataset.demoFilled="1";active.innerHTML='<div class="rounded-xl border border-white/10 bg-zinc-900/70 p-3"><strong>Demo Artist</strong><p class="text-zinc-400">Canción de muestra · Lista activa</p><small class="text-zinc-500">Datos ficticios</small></div>';}
-      document.querySelectorAll("#adminDashboard button").forEach(btn=>{
-        const action=btn.getAttribute("onclick")||"";
-        const safe=action.includes("switchAdminTab")||action.includes("logoutCurator")||action.includes("export");
-        if(!safe && !btn.classList.contains("demo-status")){btn.disabled=true;btn.title="Desactivado en la demostración para proteger los datos reales";btn.classList.add("opacity-40","cursor-not-allowed");}
-      });
-      document.querySelectorAll("#adminDashboard input").forEach(input=>{
-        if(input.id!=="adminEditionInput" && input.id!=="adminPlaylistInput" && input.id!=="adminTrackInput") input.disabled=true;
-      });
-      ["adminEditionInput","adminPlaylistInput","adminTrackInput"].forEach(id=>{
-        const el=document.getElementById(id); if(el){const k="nwr_demo_"+id;el.value=localStorage.getItem(k)||el.value;el.addEventListener("change",()=>localStorage.setItem(k,el.value));}
-      });
-    };
-    const saveDemo=()=>{const statuses={};document.querySelectorAll("#submissionsList .rounded-xl").forEach(card=>{if(card.dataset.demoKey)statuses[card.dataset.demoKey]=card.dataset.demoStatus||"Pendiente";});localStorage.setItem("nwr_demo_review_statuses",JSON.stringify(statuses));};
-    if(loginBtn){loginBtn.textContent="Entrar en modo demostración";loginBtn.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();enterDemo();},true);}
-    window.logoutCurator=()=>{localStorage.removeItem("nwr_demo_admin");dashboard?.classList.add("hidden");loginBox?.classList.remove("hidden");document.getElementById("topConfigBtn")?.classList.add("hidden");};
-    if(localStorage.getItem("nwr_demo_admin")==="1") enterDemo();
-  });
-  </script>
-
-
-  <script>
-  // Intercepta envíos en la vista previa antes del manejador Firebase original.
-  document.addEventListener("click", function(event) {
-    const btn=event.target.closest("#submitBtn");
-    if(!btn || !window.NWR_PREVIEW_MODE) return;
-    event.preventDefault(); event.stopImmediatePropagation();
-    const $=id=>document.getElementById(id);
-    const artist=$("artistName").value.trim(), title=$("trackTitle").value.trim();
-    const url=$("trackUrl").value.trim(), email=$("artistEmail").value.trim();
-    const fb=$("feedbackMsg"), receipt=$("receiptCard");
-    const error=msg=>{fb.textContent=msg;fb.className="text-xs text-center text-rose-400 font-medium";fb.classList.remove("hidden");};
-    if(!$("confirmSaveCheckbox").checked) return error("Confirma primero que has guardado la playlist.");
-    if(!artist||!title||!url||!email) return error("Completa todos los campos obligatorios.");
-    if(!/^[^\\s@/]+@[^\\s@/]+\\.[^\\s@/]+$/.test(email)) return error("Correo electrónico no válido.");
-    if(!/^https?:\\/\\/(open\\.)?spotify\\.com\\/(intl-[a-z]{2}\\/)?track\\/[a-zA-Z0-9]{22}\\/?$/.test(url.split("?")[0].trim())) return error("Pega un enlace directo válido de una canción de Spotify.");
-    btn.disabled=true;btn.textContent="Añadiendo a la demo…";
-    $("receiptArtist").textContent=artist;$("receiptTitle").textContent=title;$("receiptEmail").textContent=email;
-    receipt.classList.remove("hidden");
-    const item={artist,title,url,email,createdAt:new Date().toISOString(),demo:true};
-    const saved=JSON.parse(localStorage.getItem("nwr_demo_submissions")||"[]");saved.push(item);
-    localStorage.setItem("nwr_demo_submissions",JSON.stringify(saved));
-    const list=$("publicSubmissionsList");
-    if(list){const card=document.createElement("div");card.className="rounded-xl border border-emerald-500/20 bg-zinc-900/70 p-3";card.textContent=artist+" — "+title+" · PROPUESTA DEMO";list.prepend(card);}
-    fb.textContent="Propuesta añadida solo a esta demostración. No se ha enviado a la cola real.";fb.className="text-xs text-center text-emerald-400 font-medium";fb.classList.remove("hidden");
-    $("submissionForm").reset();$("confirmSaveCheckbox").checked=false;
-    $("submissionForm").classList.add("opacity-50","pointer-events-none");
-    btn.disabled=false;btn.textContent=translations[currentLang]?.submitBtn||"Enviar propuesta";
-  },true);
-  </script>
-
 </body>
 </html>
