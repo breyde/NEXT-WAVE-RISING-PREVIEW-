@@ -1256,6 +1256,7 @@
       headerHeight: 220,
       headerVerticalPosition: 0,
       headerHorizontalPosition: "center",
+      graphicBanner: { enabled: false, url: "", width: "100%", height: 150, tabs: [] },
       headerObjectFit: "contain",
       headerVideoAutoplay: false,
       headerVideoMuted: true,
@@ -2243,6 +2244,58 @@
       } catch (e) { return ""; }
     }
 
+    function renderGraphicBanner(tab) {
+      const box = $("graphicBannerContainer"), img = $("graphicBannerImage"), b = config.graphicBanner || {};
+      if (!box || !img) return;
+      const tabs = Array.isArray(b.tabs) ? b.tabs : [];
+      const visible = b.enabled === true && !!b.url && (!tabs.length || tabs.includes(tab));
+      box.classList.toggle("hidden", !visible);
+      if (!visible) { img.removeAttribute("src"); return; }
+      img.src = b.url;
+      img.style.width = validHeaderWidth(b.width || "100%");
+      img.style.height = Math.max(40, Math.min(700, Number(b.height) || 150)) + "px";
+    }
+    function loadGraphicBannerEditor() {
+      const b = config.graphicBanner || {};
+      if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
+      if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
+      if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
+      if ($("adminBannerTabs")) $("adminBannerTabs").value = Array.isArray(b.tabs) ? b.tabs.join(", ") : "";
+      if ($("adminBannerEnabled")) $("adminBannerEnabled").checked = b.enabled === true;
+      const p = $("adminBannerPreview"), im = p && p.querySelector("img");
+      if (p && im && b.url) { im.src = b.url; p.classList.remove("hidden"); }
+      else if (p) p.classList.add("hidden");
+    }
+    window.handleBannerFileUpload = e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) { alert("Selecciona una imagen o GIF."); e.target.value = ""; return; }
+      handleExamineToGithubOrLocal(file, url => {
+        $("adminBannerUrl").value = url;
+        const p = $("adminBannerPreview"), im = p.querySelector("img");
+        im.src = url; p.classList.remove("hidden"); e.target.value = "";
+      });
+    };
+    window.saveGraphicBanner = async () => {
+      const url = normalizeUrl($("adminBannerUrl").value);
+      const tabs = $("adminBannerTabs").value.split(",").map(x => x.trim()).filter(Boolean);
+      const data = { graphicBanner: { enabled: $("adminBannerEnabled").checked && !!url, url, width: validHeaderWidth($("adminBannerWidth").value), height: Math.max(40, Math.min(700, Number($("adminBannerHeight").value) || 150)), tabs } };
+      try {
+        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
+        config.graphicBanner = data.graphicBanner;
+        renderGraphicBanner(currentActiveTab); loadGraphicBannerEditor();
+        alert("Banner guardado correctamente.");
+      } catch (e) { alert("No se pudo guardar el banner: " + e.message); }
+    };
+    window.clearGraphicBanner = async () => {
+      if (!confirm("¿Quitar el banner gráfico?")) return;
+      const data = { graphicBanner: { enabled: false, url: "", width: "100%", height: 150, tabs: [] } };
+      try {
+        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
+        config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
+      } catch (e) { alert("No se pudo quitar: " + e.message); }
+    };
+
     function applyHeaderMediaConfig() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
       const url = config.headerMediaUrl || config.logoUrl || "";
@@ -2765,6 +2818,7 @@
       if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
       $("txtAdminBtn").textContent = (translations[currentLang] || translations.es).adminBtn;
       renderFeaturedPlayer();
+      renderGraphicBanner(tab);
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -3523,6 +3577,8 @@
       renderVisitorPrestigeCount();
       applyHeaderMediaConfig();
       if ($("adminHeaderMediaType")) loadHeaderMediaEditor();
+      loadGraphicBannerEditor();
+      renderGraphicBanner(currentActiveTab);
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
