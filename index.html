@@ -745,6 +745,10 @@
               <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %):</label><input type="text" id="adminHeaderWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px):</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
             </div>
+            <div class="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-zinc-950/70 border border-cyan-500/20">
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición vertical (10 niveles)</label><select id="adminHeaderVerticalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="-45">1 · Muy arriba</option><option value="-35">2 · Arriba</option><option value="-25">3 · Alto</option><option value="-15">4 · Algo alto</option><option value="-5">5 · Centro alto</option><option value="5">6 · Centro bajo</option><option value="15">7 · Algo bajo</option><option value="25">8 · Bajo</option><option value="35">9 · Más abajo</option><option value="45">10 · Muy abajo</option>
+              </select></div><div class="col-span-2"><label class="block text-[11px] text-zinc-300 mb-1">Alineación horizontal</label><select id="adminHeaderHorizontalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="flex-start">Izquierda</option><option value="center">Centro</option><option value="flex-end">Derecha</option></select></div></div>
             <div id="adminHeaderFitGroup">
               <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
               <select id="adminHeaderObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
@@ -1239,6 +1243,8 @@
       headerMediaUrl: "",
       headerWidth: "100%",
       headerHeight: 220,
+      headerVerticalPosition: 0,
+      headerHorizontalPosition: "center",
       headerObjectFit: "contain",
       headerVideoAutoplay: false,
       headerVideoMuted: true,
@@ -2235,6 +2241,11 @@
       const videoEl = $("brandHeaderVideo"), ytEl = $("brandHeaderYoutube");
       const previewBox = $("adminLogoPreviewBox"), previewImg = $("adminLogoPreviewImg");
       const input = $("adminLogoUrlInput");
+      const headerBox = $("brandHeaderContainer");
+      if (headerBox) {
+        headerBox.style.justifyContent = ["flex-start","center","flex-end"].includes(config.headerHorizontalPosition) ? config.headerHorizontalPosition : "center";
+        headerBox.style.transform = "translateY(" + Math.max(-45, Math.min(45, Number(config.headerVerticalPosition) || 0)) + "px)";
+      }
 
       if (videoEl) { videoEl.pause(); videoEl.removeAttribute("src"); videoEl.load(); }
       [imgEl, videoEl, ytEl].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
@@ -2314,6 +2325,8 @@
       $("adminLogoUrlInput").value = config.headerMediaUrl || config.logoUrl || "";
       $("adminHeaderWidth").value = config.headerWidth || "100%";
       $("adminHeaderHeight").value = config.headerHeight || 220;
+      if ($("adminHeaderVerticalPosition")) $("adminHeaderVerticalPosition").value = String(config.headerVerticalPosition ?? 0);
+      if ($("adminHeaderHorizontalPosition")) $("adminHeaderHorizontalPosition").value = config.headerHorizontalPosition || "center";
       $("adminHeaderObjectFit").value = config.headerObjectFit || "contain";
       $("adminHeaderVideoAutoplay").checked = !!config.headerVideoAutoplay;
       $("adminHeaderVideoMuted").checked = config.headerVideoMuted !== false;
@@ -2372,6 +2385,8 @@
         logoUrl: type === "image" ? url : "",
         headerWidth: validHeaderWidth($("adminHeaderWidth").value),
         headerHeight: Math.max(60, Math.min(1200, Number($("adminHeaderHeight").value) || 220)),
+        headerVerticalPosition: Math.max(-45, Math.min(45, Number($("adminHeaderVerticalPosition")?.value) || 0)),
+        headerHorizontalPosition: ["flex-start","center","flex-end"].includes($("adminHeaderHorizontalPosition")?.value) ? $("adminHeaderHorizontalPosition").value : "center",
         headerObjectFit: $("adminHeaderObjectFit").value,
         headerVideoAutoplay: $("adminHeaderVideoAutoplay").checked,
         headerVideoMuted: $("adminHeaderVideoMuted").checked,
