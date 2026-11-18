@@ -3138,7 +3138,7 @@
     }
 
     window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
+    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { const b=db.batch(); b.delete(db.collection("submissions").doc(id)); b.delete(db.collection("weekly_public").doc(id)); await b.commit(); loadAllLists(); } };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
@@ -3454,7 +3454,7 @@
       if (!["submissions","monthly_list","annual_list","top_annual"].includes(collection)) return;
       try { const ref=db.collection(collection).doc(id), snap=await ref.get(); if(!snap.exists)return alert("El tema ya no existe."); const d=snap.data();
         const artist=prompt("Artista:",d.artist||""); if(artist===null)return; const title=prompt("Título:",d.title||""); if(title===null)return; const url=prompt("Enlace Spotify:",d.url||""); if(url===null)return;
-        if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); await ref.update({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0]}); await loadAllLists();
+        if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); const cleanUrl=url.trim().split("?")[0]; await ref.update({artist:artist.trim(),title:title.trim(),url:cleanUrl}); if(collection==="submissions") await db.collection("weekly_public").doc(id).set({artist:artist.trim(),title:title.trim(),url:cleanUrl},{merge:true}); await loadAllLists();
       } catch(e){alert("No se pudo editar: "+e.message);}
     };
     window.deleteAdminTrack = async (collection,id) => {
@@ -3469,7 +3469,7 @@
       const [votersRes, activeRes, subRes, monthlyRes, annualRes, topRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
-        db.collection("submissions").orderBy("timestamp", "asc").get(),
+        (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com" ? db.collection("submissions") : db.collection("weekly_public")).orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
         db.collection("annual_list").orderBy("timestamp", "asc").get(),
         db.collection("top_annual").orderBy("timestamp", "asc").get()
@@ -3662,6 +3662,7 @@
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
+          loadAllLists();
         }
       });
 
@@ -3669,11 +3670,15 @@
         try {
           const ref = db.collection("stats").doc("visitors");
           if (!localStorage.getItem("nwr_visited_unique")) {
+            await db.runTransaction(async tx => {
+              const d = await tx.get(ref);
+              const current = d.exists ? (Number(d.data().total) || 0) : 0;
+              tx.set(ref, { total: current + 1 }, { merge: true });
+            });
             localStorage.setItem("nwr_visited_unique", "true");
-            await db.runTransaction(async tx => { const d = await tx.get(ref); tx.set(ref, { total: (d.exists ? (d.data().total || 0) : 0) + 1 }, { merge: true }); });
           }
           const s = await ref.get();
-          $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 1) : "1";
+          $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 0) : "0";
         } catch (e) { $("uniqueVisitorCount").textContent = "-"; }
       })();
 
@@ -3766,11 +3771,11 @@
         receipt.classList.add("hidden"); fb.classList.add("hidden");
 
         try {
-          const snap = await db.collection("submissions").get();
+          const snap = await db.collection("weekly_public").get();
           let dupUser = false, dupTrack = false;
           snap.forEach(d => {
             const data = d.data();
-            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) dupUser = true;
+            if ((data.artist || "").toLowerCase() === artist.toLowerCase()) dupUser = true;
             if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
           });
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
@@ -3780,10 +3785,14 @@
           const submitGeo = await fetchGeoByIp("");
           const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
-          await db.collection("submissions").add({
-            artist, title, url: cleanUrl, email,
-            timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: []
-          });
+          const submissionRef = db.collection("submissions").doc();
+          const publicSubmissionRef = db.collection("weekly_public").doc(submissionRef.id);
+          const submittedAt = Date.now();
+          const submittedDate = madridStr();
+          const submissionBatch = db.batch();
+          submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
+          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate });
+          await submissionBatch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
           sessionStorage.removeItem("nwr_geo_self");
