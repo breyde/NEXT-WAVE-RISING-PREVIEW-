@@ -544,6 +544,14 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
+            <div>
+              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Importa imágenes, GIF y vídeos al repositorio <strong>breyde/NEXT-WAVE-RISING</strong>. Después podrás copiar sus URL o seleccionarlos directamente para la cabecera. Límite de vídeo: 50 MB por archivo.</p>
+            </div>
+
+            <div class="space-y-2.5 bg-zinc-950/70 p-3.5 rounded-xl border border-white/10">
+              <label class="block text-[11px] text-zinc-300 font-semibold">🔑 GitHub Token (se guarda solo en tu navegador):</label>
               <div class="flex gap-2">
                 <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-mono">
                 <button type="button" onclick="saveGithubToken()" class="px-3.5 py-2 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow">Guardar Token</button>
@@ -568,15 +576,15 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
-              <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
             </div>
+            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
-            <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end bg-zinc-900/80 p-3.5 rounded-xl border border-white/10">
-              <div class="flex-1">
-
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
               <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
               <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
               <div class="flex gap-1.5 items-center">
@@ -591,6 +599,7 @@
             </div>
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
+
 
           <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
@@ -670,7 +679,7 @@
             </div>
             <div class="space-y-2.5">
               <div>
-
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
                 <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
               </div>
               <div>
@@ -748,16 +757,16 @@
             </div>
             <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
           </div>
-
-            <div class="glass rounded-2xl p-5 space-y-4">
-            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
-            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
-            <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
-            <div class="border-t border-white/10 pt-4 flex justify-between items-center">
-              <div>
-                <p class="font-bold text-white text-xs">Vaciar Todos los Chats</p>
         </div>
         <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+            <div>
+              <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end bg-zinc-900/80 p-3.5 rounded-xl border border-white/10">
+              <div class="flex-1">
                 <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Pestaña activa al abrir la página:</label>
                 <select id="adminDefaultTabSelect" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></select>
               </div>
@@ -777,6 +786,7 @@
               <button type="button" onclick="saveFeaturedSettings()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition mt-2">💾 Guardar Visibilidad Destacado</button>
             </div>
           </div>
+
 
           <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
             <div>
@@ -824,28 +834,21 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
-            </div>
-            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
-            <div class="pt-3 border-t border-white/10 space-y-2.5">
-
+            <div class="glass rounded-2xl p-5 space-y-4">
+            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
+            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
+            <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
+            <div class="border-t border-white/10 pt-4 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">Vaciar Todos los Chats</p>
+                <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala.</p>
               </div>
               <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
             </div>
           </div>
         </div>
 
-        <!-- SINCRONIZACIÓN SPOTIFY -->
-        <div id="adminViewSpotify" class="hidden space-y-4">
-          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
-            <div>
-              <h3 class="font-bold text-emerald-400 text-sm uppercase">🎵 Sincronizar listas de Spotify</h3>
-              <p class="text-[11px] text-zinc-400 mt-1">Copia el contenido de las playlists temporales a tus tres playlists públicas. No se borran las playlists ni se modifican sus seguidores.</p>
-        </div>
         <!-- SINCRONIZACIÓN SPOTIFY -->
         <div id="adminViewSpotify" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
