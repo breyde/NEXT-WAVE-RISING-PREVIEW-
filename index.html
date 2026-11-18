@@ -183,8 +183,8 @@
     </div>
     <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
     <div id="adminTabsBar">
-      <button onclick="switchAdminTab('listas')" id="adminTabListas" class="admin-tab-active">📚 LISTAS</button>
-
+      <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="admin-tab-active">🏠 INICIO</button>
+      <button onclick="switchAdminTab('activa')" id="adminTabActiva">📻 LISTA ACTIVA (<span id="adminActiveCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('paises')" id="adminTabPaises">🌍 PAÍSES (<span id="countriesCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes">✉️ MENSAJES (<span id="msgCountBadge">0</span>)</button>
       <button onclick="switchAdminTab('diseno')" id="adminTabDiseno">🎨 DISEÑO</button>
@@ -460,7 +460,7 @@
 
 
         <!-- PRINCIPAL -->
-        <div id="adminViewListas" class="space-y-4"><div id="adminViewPrincipalContent" class="space-y-4">
+        <div id="adminViewPrincipal" class="space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Rotación Semanal</h3>
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
@@ -493,7 +493,10 @@
             <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 Cola Semanal Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
             <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
           </div>
-        </div><div id="adminViewActivaContent" class="hidden space-y-4">
+        </div>
+
+        <!-- LISTA ACTIVA -->
+        <div id="adminViewActiva" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <h3 class="font-bold text-emerald-400 text-sm">➕ Añadir Tema Directamente a la Lista Activa (On Air)</h3>
             <p class="text-[11px] text-zinc-400">Modo curador sin restricciones: puedes añadir ilimitados temas, repetir artistas/correos o saltar bloqueos de IP.</p>
@@ -505,17 +508,12 @@
           </div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3><span id="adminActiveCountBadge" class="hidden">0</span>
+              <h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3>
               <button type="button" onclick="exportActiveList()" class="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista Activa</button>
             </div>
             <div id="adminActiveListContainer" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando lista activa...</p></div>
           </div>
-        </div><div class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/30"><h3 class="font-bold text-cyan-400 text-sm uppercase">🗓️ LISTA MENSUAL</h3><p class="text-xs text-zinc-400">Histórico mensual de canciones procedentes de las listas activas semanales.</p><span class="text-xs text-cyan-300">Bloques: <strong id="adminMonthlyCount">0</strong>/4</span><div id="adminMonthlyListContainer" class="space-y-3 text-xs">Cargando lista mensual...</div></div>
-<div class="glass rounded-2xl p-5 space-y-3 border border-amber-500/30"><h3 class="font-bold text-amber-400 text-sm uppercase">📀 LISTA ANUAL</h3><span class="text-xs text-amber-300">Total: <strong id="adminAnnualCount">0</strong></span><p class="text-xs text-zinc-400">Histórico anual de canciones que han pasado desde la lista mensual.</p><div id="adminAnnualListContainer" class="space-y-3 text-xs">Cargando lista anual...</div></div>
-<div class="glass rounded-2xl p-5 space-y-3 border border-purple-500/30"><h3 class="font-bold text-purple-400 text-sm uppercase">🏆 TOP ANUAL &amp; VOTACIONES</h3><p class="text-xs text-zinc-300">Panel del TOP anual. El sistema oficial de votación se habilita al cierre del año.</p><div id="adminTopAnnualPanel" class="text-xs text-zinc-400">El TOP anual todavía no tiene una clasificación publicada.</div></div></div>
-
-        <!-- LISTA ACTIVA -->
-        
+        </div>
 
         <!-- PAÍSES -->
         <div id="adminViewPaises" class="hidden space-y-4">
@@ -1191,7 +1189,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['listas', 'paises', 'mensajes', 'diseno', 'galeria', 'ajustes', 'spotify', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'diseno', 'galeria', 'ajustes', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = localStorage.getItem('nwr_site_language_v2') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -2751,7 +2749,8 @@
 
     function switchAdminTab(tab) {
       const map = {
-        listas: ['adminTabListas', 'adminViewListas'],
+        principal: ['adminTabPrincipal', 'adminViewPrincipal'],
+        activa: ['adminTabActiva', 'adminViewActiva'],
         paises: ['adminTabPaises', 'adminViewPaises'],
         mensajes: ['adminTabMensajes', 'adminViewMensajes'],
         diseno: ['adminTabDiseno', 'adminViewDiseno'],
@@ -2760,15 +2759,14 @@
         spotify: ['adminTabSpotify', 'adminViewSpotify'],
         backups: ['adminTabBackups', 'adminViewBackups']
       };
-      if (!map[tab]) tab = 'listas';
+      if (!map[tab]) tab = 'principal';
       ADMIN_TABS.forEach(k => {
         $(map[k][0]).classList.remove("admin-tab-active");
         $(map[k][1]).classList.add('hidden');
       });
       $(map[tab][0]).classList.add("admin-tab-active");
       $(map[tab][1]).classList.remove('hidden');
-      if (tab === 'listas') loadAllLists();
-      else if (tab === 'paises') loadAdminCountries();
+      if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
       else if (tab === 'galeria') {
         updateGithubTokenStatus();
@@ -2806,7 +2804,7 @@
         document.body.classList.remove("admin-panel-closed", "admin-show-site");
         const strip = $("adminShowSiteBtn");
         if (strip) { strip.textContent = "⌄ Mostrar cabecera"; strip.setAttribute("aria-expanded","false"); }
-        switchAdminTab('listas');
+        switchAdminTab('principal');
         const gear = $("topConfigBtn");
         gear?.classList.add("admin-gear-active");
         gear?.setAttribute("aria-pressed","true");
@@ -3546,17 +3544,14 @@
       }
 
       // 3. MENSUAL & 4. ANUAL
-      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass, adminCountId, adminContId) => {
+      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
         if (res.status !== "fulfilled") return;
         const items = res.value.docs.map(d => d.data());
-        const html = !items.length ? '<p class="text-zinc-400 text-xs text-center py-6">' + (translations[currentLang] || translations.es)[emptyKey] + '</p>' : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
         $(countId).textContent = items.length;
-        $(contId).innerHTML = html;
-        if (adminCountId && $(adminCountId)) $(adminCountId).textContent = items.length;
-        if (adminContId && $(adminContId)) $(adminContId).innerHTML = html;
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es)[emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
       };
-      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400", "adminMonthlyCount", "adminMonthlyListContainer");
-      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400", "adminAnnualCount", "adminAnnualListContainer");
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
     }
 
     // ==================== VOTACIONES ====================
@@ -3624,12 +3619,11 @@
       auth.onAuthStateChanged(user => {
         if (user) {
           $("adminView").classList.remove("hidden");
-          $("adminView").style.display = "block";
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
           document.body.classList.add("admin-mode");
           document.body.classList.remove("admin-panel-closed");
-          switchAdminTab("listas");
+          switchAdminTab("principal");
           const gear = $("topConfigBtn");
           if (gear) { gear.classList.add("admin-gear-active"); gear.setAttribute("aria-pressed","true"); }
           document.body.classList.remove("admin-show-site");
