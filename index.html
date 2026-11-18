@@ -167,6 +167,7 @@
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
+    <span id="mediaPositionSlot0" class="hidden" aria-hidden="true"></span>
     <div class="w-full flex justify-between items-center text-xs gap-2">
       <div class="flex items-center gap-2">
         <div class="bg-zinc-900/90 px-2 rounded-xl border border-white/10 shadow-md h-9 flex items-center">
@@ -202,13 +203,16 @@
     </div>
     <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
 
+    <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
       <span class="shrink-0">📜</span>
       <span data-i18n="infoBtnText" class="truncate">Importante: Normas y Funcionamiento</span>
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
+    <span id="mediaPositionSlot2" class="hidden" aria-hidden="true"></span>
     <nav id="mainNavBar" class="w-full flex flex-wrap items-stretch justify-between gap-1 pt-1"></nav>
+    <span id="mediaPositionSlot3" class="hidden" aria-hidden="true"></span>
   </header>
 
   <main id="mainContentContainer" class="w-full max-w-2xl space-y-6 pb-12">
@@ -217,6 +221,7 @@
       <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
       <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </section>
+    <span id="mediaPositionSlot4" class="hidden" aria-hidden="true"></span>
 
     <!-- PESTAÑA 0: LISTA ACTIVA -->
     <div id="viewActive" class="space-y-6">
@@ -508,9 +513,7 @@
               <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
             </div>
             <div class="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-zinc-950/70 border border-cyan-500/20">
-              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición vertical (10 niveles)</label><select id="adminHeaderVerticalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <option value="-45">1 · Muy arriba</option><option value="-35">2 · Arriba</option><option value="-25">3 · Alto</option><option value="-15">4 · Algo alto</option><option value="-5">5 · Centro alto</option><option value="5">6 · Centro bajo</option><option value="15">7 · Algo bajo</option><option value="25">8 · Bajo</option><option value="35">9 · Más abajo</option><option value="45">10 · Muy abajo</option>
-              </select></div>
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminHeaderPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
               <div class="col-span-2"><label class="block text-[11px] text-zinc-300 mb-1">Alineación horizontal</label><select id="adminHeaderHorizontalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="flex-start">Izquierda</option><option value="center">Centro</option><option value="flex-end">Derecha</option></select></div>
             </div>
             <div id="adminHeaderFitGroup">
@@ -563,6 +566,7 @@
               <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
             </div>
             <div class="grid grid-cols-2 gap-2">
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input id="adminBannerWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input id="adminBannerHeight" type="number" min="40" max="1200" value="150" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
             </div>
@@ -1190,8 +1194,9 @@
       headerWidth: "100%",
       headerHeight: 220,
       headerVerticalPosition: 0,
+      headerPosition: 1,
       headerHorizontalPosition: "center",
-      graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, tabs: [], tabsAll: true, objectFit: "contain", videoAutoplay: false, videoMuted: true, videoLoop: true, videoControls: true, youtubeAutoplay: false, youtubeMute: true, youtubeLoop: false, youtubeControls: true, youtubeStart: 0 },
+      graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: true, objectFit: "contain", videoAutoplay: false, videoMuted: true, videoLoop: true, videoControls: true, youtubeAutoplay: false, youtubeMute: true, youtubeLoop: false, youtubeControls: true, youtubeStart: 0 },
       headerObjectFit: "contain",
       headerVideoAutoplay: false,
       headerVideoMuted: true,
@@ -2179,6 +2184,42 @@
       } catch (e) { return ""; }
     }
 
+    function ensureDynamicMediaPositionSlots() {
+      for (let n = 5; n <= 10; n++) document.getElementById("mediaPositionSlot" + n)?.remove();
+      const tabs = config.tabsConfig || defaultTabsList;
+      const tab = tabs.find(t => t.id === currentActiveTab);
+      const viewId = tab?.custom ? "view_" + currentActiveTab : "view" + currentActiveTab.charAt(0).toUpperCase() + currentActiveTab.slice(1);
+      const view = document.getElementById(viewId);
+      if (!view) return;
+      const excluded = new Set(["brandHeaderContainer", "graphicBannerContainer"]);
+      const children = Array.from(view.children).filter(el => !excluded.has(el.id) && !/^mediaPositionSlot/.test(el.id || ""));
+      for (let n = 5; n <= 10; n++) {
+        const target = children[n - 5];
+        if (!target) break;
+        const marker = document.createElement("span");
+        marker.id = "mediaPositionSlot" + n;
+        marker.className = "hidden";
+        marker.setAttribute("aria-hidden", "true");
+        target.insertAdjacentElement("afterend", marker);
+      }
+    }
+    function applyMediaPositions() {
+      ensureDynamicMediaPositionSlots();
+      const items = [
+        { el: $("brandHeaderContainer"), pos: Math.max(0, Math.min(10, Number(config.headerPosition ?? 1))) },
+        { el: $("graphicBannerContainer"), pos: Math.max(0, Math.min(10, Number(config.graphicBanner?.position ?? 1))) }
+      ];
+      for (let n = 0; n <= 10; n++) {
+        const marker = $("mediaPositionSlot" + n);
+        if (!marker || !marker.parentNode) continue;
+        let anchor = marker;
+        items.filter(item => item.el && item.pos === n).forEach(item => {
+          anchor.insertAdjacentElement("afterend", item.el);
+          anchor = item.el;
+        });
+      }
+    }
+
     function renderGraphicBanner(tab) {
       const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
       const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
@@ -2188,6 +2229,7 @@
       const type = b.type || "image";
       const visible = b.enabled === true && !!b.url && allowed;
       box.classList.toggle("hidden", !visible);
+      applyMediaPositions();
       video.pause(); video.removeAttribute("src"); video.load();
       [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
       if (!visible) return;
@@ -2261,6 +2303,7 @@
       if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
       if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
       if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
+      if ($("adminBannerPosition")) $("adminBannerPosition").value = String(b.position ?? 1);
       if ($("adminBannerObjectFit")) $("adminBannerObjectFit").value = b.objectFit || "contain";
       if ($("adminBannerEnabled")) $("adminBannerEnabled").checked = b.enabled === true;
       if ($("adminBannerVideoAutoplay")) $("adminBannerVideoAutoplay").checked = !!b.videoAutoplay;
@@ -2299,6 +2342,7 @@
         enabled: $("adminBannerEnabled").checked, type, url,
         width: validHeaderWidth($("adminBannerWidth").value),
         height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
+        position: Math.max(0, Math.min(10, Number($("adminBannerPosition").value) || 0)),
         tabs, tabsAll: false, objectFit: $("adminBannerObjectFit").value,
         videoAutoplay: $("adminBannerVideoAutoplay").checked, videoMuted: $("adminBannerVideoMuted").checked,
         videoLoop: $("adminBannerVideoLoop").checked, videoControls: $("adminBannerVideoControls").checked,
@@ -2315,7 +2359,7 @@
     };
     window.clearGraphicBanner = async () => {
       if (!confirm("¿Quitar el banner multimedia?")) return;
-      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, tabs: [], tabsAll: false, objectFit: "contain" } };
+      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: false, objectFit: "contain" } };
       try {
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
         config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
@@ -2334,8 +2378,9 @@
       const headerBox = $("brandHeaderContainer");
       if (headerBox) {
         headerBox.style.justifyContent = ["flex-start","center","flex-end"].includes(config.headerHorizontalPosition) ? config.headerHorizontalPosition : "center";
-        headerBox.style.transform = "translateY(" + Math.max(-45, Math.min(45, Number(config.headerVerticalPosition) || 0)) + "px)";
+        headerBox.style.transform = "";
       }
+      applyMediaPositions();
 
       if (videoEl) { videoEl.pause(); videoEl.removeAttribute("src"); videoEl.load(); }
       [imgEl, videoEl, ytEl].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
@@ -2415,7 +2460,7 @@
       $("adminLogoUrlInput").value = config.headerMediaUrl || config.logoUrl || "";
       $("adminHeaderWidth").value = config.headerWidth || "100%";
       $("adminHeaderHeight").value = config.headerHeight || 220;
-      if ($("adminHeaderVerticalPosition")) $("adminHeaderVerticalPosition").value = String(config.headerVerticalPosition ?? 0);
+      if ($("adminHeaderPosition")) $("adminHeaderPosition").value = String(config.headerPosition ?? 1);
       if ($("adminHeaderHorizontalPosition")) $("adminHeaderHorizontalPosition").value = config.headerHorizontalPosition || "center";
       $("adminHeaderObjectFit").value = config.headerObjectFit || "contain";
       $("adminHeaderVideoAutoplay").checked = !!config.headerVideoAutoplay;
@@ -2475,7 +2520,7 @@
         logoUrl: type === "image" ? url : "",
         headerWidth: validHeaderWidth($("adminHeaderWidth").value),
         headerHeight: Math.max(60, Math.min(1200, Number($("adminHeaderHeight").value) || 220)),
-        headerVerticalPosition: Math.max(-45, Math.min(45, Number($("adminHeaderVerticalPosition")?.value) || 0)),
+        headerPosition: Math.max(0, Math.min(10, Number($("adminHeaderPosition")?.value) || 0)),
         headerHorizontalPosition: ["flex-start","center","flex-end"].includes($("adminHeaderHorizontalPosition")?.value) ? $("adminHeaderHorizontalPosition").value : "center",
         headerObjectFit: $("adminHeaderObjectFit").value,
         headerVideoAutoplay: $("adminHeaderVideoAutoplay").checked,
@@ -2845,6 +2890,7 @@
       $("txtAdminBtn").textContent = (translations[currentLang] || translations.es).adminBtn;
       renderFeaturedPlayer();
       renderGraphicBanner(tab);
+      applyMediaPositions();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
